@@ -22,8 +22,8 @@ const Login = () => {
       <div className="relative flex justify-center items-center h-full">
         <div className="bg-white p-8 rounded-lg shadow-lg max-w-sm w-full text-center">
           {/* Imagen de usuario */}
-          <div className="mb-4">
-            <img src={icons_user} alt="Icono de usuario" className="mx-auto w-16 h-16" />
+          <div className="mb-6">
+            <img src={icons_user} alt="Icono de usuario" className="mx-auto w-32 h-32" />
           </div>
 
           {/* Icono de usuario */}
@@ -32,7 +32,7 @@ const Login = () => {
           </div>
 
           {/* Título del formulario */}
-          <h2 className="text-xl text-gray-700 font-semibold mb-4">Inicio de sesión</h2>
+          <h2 className="text-xl text-gray-700 font-semibold mb-8">Inicio de sesión</h2>
 
           {/* Formulario de inicio de sesión */}
           <form>
