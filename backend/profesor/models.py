@@ -11,7 +11,7 @@ class DepartamentoDB(models.Model):
         return self.nombre
 
     class Meta:
-        DBtable = 'DepartamentoDB'
+        db_table  = 'DepartamentoDB'
         ordering = ['nombre']
         verbose_name = "Departamento"
         verbose_name_plural = "Departamentos"
@@ -28,7 +28,7 @@ class CursoDB(models.Model):
         return self.nombre
         
     class Meta:
-        DBtable = 'CursoDB'
+        db_table  = 'CursoDB'
         ordering = ['nombre']
         verbose_name = "Curso"
         verbose_name_plural = "Cursos"
@@ -48,7 +48,7 @@ class ProfesorDB(models.Model):
         return f"{self.nombre} {self.apellidos}"
 
     class Meta:
-        DBtable = 'ProfesorDB'
+        db_table  = 'ProfesorDB'
         ordering = ['apellidos']
         verbose_name = "Profesor"
         verbose_name_plural = "Profesores"
@@ -65,7 +65,7 @@ class CarreraDB(models.Model):
         return self.nombre
 
     class Meta:
-        DBtable = 'CarreraDB'
+        db_table  = 'CarreraDB'
         ordering = ['nombre']
         verbose_name = "Carrera"
         verbose_name_plural = "Carreras"
