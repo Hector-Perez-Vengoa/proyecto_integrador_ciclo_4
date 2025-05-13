@@ -1,5 +1,6 @@
 import React from 'react';
 import img_principal_init from './assets/principal_init.png';
+import icons_user from './assets/icons_user.png';
 
 const Login = () => {
   return (
@@ -20,6 +21,11 @@ const Login = () => {
       {/* Contenedor del formulario centrado */}
       <div className="relative flex justify-center items-center h-full">
         <div className="bg-white p-8 rounded-lg shadow-lg max-w-sm w-full text-center">
+          {/* Imagen de usuario */}
+          <div className="mb-4">
+            <img src={icons_user} alt="Icono de usuario" className="mx-auto w-16 h-16" />
+          </div>
+
           {/* Icono de usuario */}
           <div className="text-blue-600 text-4xl mb-6">
             <i className="fas fa-user-circle"></i>
@@ -32,11 +38,11 @@ const Login = () => {
           <form>
             {/* Campo de correo */}
             <div className="mb-4">
-              <label htmlFor="email" className="block text-gray-700">Correo</label>
               <input
                 type="email"
                 id="email"
                 name="email"
+                placeholder="Correo"
                 required
                 className="w-full p-2 border border-gray-300 rounded-lg mt-1"
               />
@@ -44,11 +50,11 @@ const Login = () => {
 
             {/* Campo de contraseña */}
             <div className="mb-6">
-              <label htmlFor="password" className="block text-gray-700">Contraseña</label>
               <input
                 type="password"
                 id="password"
                 name="password"
+                placeholder="Contraseña"
                 required
                 className="w-full p-2 border border-gray-300 rounded-lg mt-1"
               />
