@@ -6,7 +6,7 @@ const Login = () => {
   return (
     // Contenedor principal con imagen de fondo ajustada a la pantalla
     <div
-      className="relative w-screen h-screen overflow-hidden"
+      className="relative w-screen h-screen"
       style={{
         backgroundImage: `url(${img_principal_init})`,
         backgroundSize: 'cover', // Asegura que la imagen cubra toda la pantalla
