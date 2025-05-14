@@ -1,6 +1,6 @@
 import React from 'react';
-import img_principal_init from './assets/principal_init.png';
-import icons_user from './assets/icons_user.png';
+import img_principal_init from '../assets/principal_init.png';
+import icons_user from '../assets/icons_user.png';
 
 const Login = () => {
   return (
