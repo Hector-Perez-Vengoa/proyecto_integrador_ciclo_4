@@ -1,3 +1,6 @@
+import pymysql
+pymysql.install_as_MySQLdb()
+
 """
 Django settings for config project.
 
@@ -9,7 +12,6 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -28,6 +30,15 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+
+
+
+
+
+
+SITE_ID = 2
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -38,7 +49,43 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest framework',
+    'profesor',
+    'cubiculos',
+    'authentication',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 ]
+
+
+# Configuración para restringir inicio de sesión a dominio tecsup.edu.pe
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "SCOPE": {
+            "profile",
+            "email"
+        },
+        "AUTH_PARAMS": {"access_type": "online"},
+        "VERIFIED_EMAIL": True,
+        "DOMAIN_AS_USERNAME": True,
+        "DOMAINS": ["tecsup.edu.pe"]
+    }
+}
+
+# Configuración adicional de allauth
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_REQUIRED = True
+SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
+SOCIALACCOUNT_EMAIL_REQUIRED = True
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_ADAPTER = 'authentication.adapters.TecsupSocialAccountAdapter'
+
+
+
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -48,6 +95,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+     # middleware de allauth
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -75,8 +124,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',  # Usar MySQL
+        'NAME': 'proyecto_integrador',  # Nombre de la base de datos que creaste en phpMyAdmin
+        'USER': 'root',  # Usuario por defecto de MySQL en XAMPP
+        'PASSWORD': '',  # Si no tienes contraseña en XAMPP, déjalo vacío
+        'HOST': 'localhost',  # XAMPP corre MySQL en localhost
+        'PORT': '3306',  # Puerto por defecto de MySQL
     }
 }
 
@@ -121,3 +174,18 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",  
+    'allauth.account.auth_backends.AuthenticationBackend',
+        
+)
+
+
+LOGIN_REDIRECT_URL = '/'  
+
+LOGOUT_REDIRECT_URL = '/'  
+
+
+
