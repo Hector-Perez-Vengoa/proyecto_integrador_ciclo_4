@@ -1,29 +1,26 @@
-"""
-URL configuration for back_django_srvt project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
-from django.urls import path , include
-from authentication.api_views import GoogleAuthView
+from django.urls import path, include
+from rest_framework.documentation import include_docs_urls
+from .api_router import api_router
+from .views import api_root
 
 urlpatterns = [
+    # Raíz que muestra todas las APIs disponibles
+    path('', api_root, name='api_root'),
+    
+    # Rutas administrativas y de autenticación
     path('admin/', admin.site.urls),
-    path('', include('cubiculos.urls')),  # 👈 este ya incluye profesores, cursos, etc.
     path("accounts/", include("allauth.urls")),
+    
+    # Rutas de frontend
     path("login/", include("authentication.urls")),
-    path("api/auth/google/", GoogleAuthView.as_view(), name="google_auth_api")
+    
+    
+    # Rutas de autenticación API
+    path("api/auth/", include("authentication.api_urls")),
+    
+    # Comentado temporalmente para solucionar problema de coreapi
+    # path("api/docs/", include_docs_urls(title="API de Reservas Tecsup")),
 ]
 
 
