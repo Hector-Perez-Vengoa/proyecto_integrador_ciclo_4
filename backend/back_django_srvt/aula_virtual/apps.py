@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class CubiculosConfig(AppConfig):
+class AulaVirtualConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'cubiculos'
+    name = 'aula_virtual'
