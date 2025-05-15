@@ -7,18 +7,79 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# Dependency directories
+node_modules/
+
+# Build outputs
+dist/
+dist-ssr/
+build/
+.next/
+out/
+.storybook-out/
+storybook-static/
+.vite/
+.cache/
+.parcel-cache/
+.svelte-kit/
+
+# Local environment files
 *.local
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# OS files
+Thumbs.db
+
+# Testing
+coverage/
+jest-cache/
+jest-test-results.json
+
+# Misc
+.pnpm-debug.log*
+*.tgz
+*.bak
+*.tmp
+*.orig
+
+# VS Code workspace files (optional)
+*.code-workspace
+
+# Optional: TypeScript build output
+*.tsbuildinfo
+
+# Optional: ESLint/Prettier cache
+.eslintcache
+
+# Optional: Next.js, Remix, or similar SSR frameworks
+.vercel/
+.netlify/
+
+# Optional: Firebase
+.firebase/
+
+# Optional: Expo/React Native
+.expo/
+.expo-shared/
+
+# Optional: Docker
+*.pid
+docker-compose.override.yml
+docker-compose.dev.yml
+docker-compose.prod.yml
+docker-compose.test.yml
