@@ -16,10 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path , include
+from authentication.api_views import GoogleAuthView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('cubiculos.urls')),  # 👈 este ya incluye profesores, cursos, etc.
     path("accounts/", include("allauth.urls")),
-    path("login/", include("authentication.urls"))
+    path("login/", include("authentication.urls")),
+    path("api/auth/google/", GoogleAuthView.as_view(), name="google_auth_api")
 ]
+
+

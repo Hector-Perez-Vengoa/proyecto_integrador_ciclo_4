@@ -1,8 +1,47 @@
-import React from 'react';
+import React, { useState } from 'react';
 import img_principal_init from '../assets/principal_init.png';
 import icons_user from '../assets/icons_user.png';
+import { GoogleLogin } from '@react-oauth/google';
+import { jwtDecode } from 'jwt-decode';
+import axios from 'axios';
+
+const handleGoogleSuccess = async (credentialResponse) => {
+  try {
+    // Decodificar el token
+    const decoded = jwtDecode(credentialResponse.credential);
+
+    // Verificar dominio tecsup.edu.pe
+    if (!decoded.email.endsWith('@tecsup.edu.pe')) {
+      alert('Solo se permiten correos con dominio @tecsup.edu.pe');
+      return;
+    }
+
+    // Enviar token al backend
+    const response = await axios.post('http://127.0.0.1:8000/api/auth/google/', {
+      token: credentialResponse.credential
+    });
+
+    // Guardar el token y la información del usuario
+    localStorage.setItem('authToken', response.data.token);
+    localStorage.setItem('user', JSON.stringify(decoded));
+
+    // Redireccionar o actualizar UI
+    console.log('Autenticación exitosa:', decoded);
+    alert('¡Bienvenido ' + decoded.name + '!');
+  } catch (error) {
+    console.error('Error de autenticación:', error);
+    alert('Error al iniciar sesión con Google');
+  }
+};
+
 
 const Login = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [user, setUser] = useState(null);
+  
+  // Modifica tu función handleGoogleSuccess para usar estos estados
+  
   return (
     // Contenedor principal con imagen de fondo ajustada a la pantalla
     <div
@@ -68,6 +107,33 @@ const Login = () => {
               Iniciar sesión
             </button>
           </form>
+          {/* Después del formulario de login normal */}
+          <div className="mt-4">
+            <div className="flex items-center my-4">
+              <div className="flex-grow border-t border-gray-300"></div>
+              <span className="mx-4 text-gray-500">o</span>
+              <div className="flex-grow border-t border-gray-300"></div>
+            </div>
+
+            <div className="flex justify-center">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => {
+                  console.error('Error en el login');
+                  alert('Error al iniciar sesión con Google');
+                }}
+                useOneTap
+                text="signin_with"
+                shape="rectangular"
+                logo_alignment="center"
+              />
+            </div>
+
+            <p className="mt-3 text-xs text-gray-500">
+              Solo se permiten correos con dominio @tecsup.edu.pe
+            </p>
+          </div>
+
         </div>
       </div>
     </div>

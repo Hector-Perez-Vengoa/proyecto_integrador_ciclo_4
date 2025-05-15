@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt',
+    'corsheaders',
     'profesor',
     'cubiculos',
     'authentication',
@@ -82,6 +84,31 @@ SOCIALACCOUNT_EMAIL_REQUIRED = True
 SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_ADAPTER = 'authentication.adapters.TecsupSocialAccountAdapter'
 
+# Configuración de REST Framework con autenticación JWT
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+}
+
+# Configuración de JWT
+from datetime import timedelta
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+}
+
+# Configuración de CORS
+CORS_ALLOW_ALL_ORIGINS = True  # Para desarrollo, en producción especifica los orígenes
+CORS_ALLOWED_ORIGINS = [
+     "http://localhost:5173",  # Origen de tu frontend en desarrollo
+ ]
+ 
+CORS_ALLOW_CREDENTIALS = True
+
 
 
 
@@ -90,12 +117,13 @@ SOCIALACCOUNT_ADAPTER = 'authentication.adapters.TecsupSocialAccountAdapter'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # Añadido para CORS
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-     # middleware de allauth
+    # middleware de allauth
     'allauth.account.middleware.AccountMiddleware',
 ]
 
