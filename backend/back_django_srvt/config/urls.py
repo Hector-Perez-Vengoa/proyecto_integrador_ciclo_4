@@ -15,9 +15,11 @@ urlpatterns = [
     # Rutas de frontend
     path("login/", include("authentication.urls")),
     
-    
     # Rutas de autenticación API
     path("api/auth/", include("authentication.api_urls")),
+    
+    # API router - Corregido para usar include() con los urls del router
+    path("api/", include(api_router.urls)),
     
     # Comentado temporalmente para solucionar problema de coreapi
     # path("api/docs/", include_docs_urls(title="API de Reservas Tecsup")),
