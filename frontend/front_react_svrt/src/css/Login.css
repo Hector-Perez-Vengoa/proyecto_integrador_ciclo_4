@@ -1,0 +1,625 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.login-container {
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  position: relative;
+  top: 0;
+  left: 0;
+  background-color: #ffffff;
+  background-image: 
+    radial-gradient(#3b82f6 8px, transparent 8px),
+    radial-gradient(#10b981 12px, transparent 12px),
+    radial-gradient(#6366f1 6px, transparent 6px),
+    radial-gradient(#f59e0b 15px, transparent 15px),
+    radial-gradient(#ef4444 10px, transparent 10px);
+  background-size: 
+    700px 700px, 
+    900px 900px,
+    800px 800px,
+    1000px 1000px,
+    600px 600px;
+  background-position: 
+    0% 0%, 
+    40% 30%, 
+    50% 60%, 
+    80% 70%,
+    20% 90%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  animation: moveShapes 60s infinite linear;
+  z-index: 0; /* Asegurar que esté en el contexto de apilamiento correcto */
+}
+
+@keyframes moveShapes {
+  0% { background-position: 0% 0%, 40% 30%, 50% 60%, 80% 70%, 20% 90%; }
+  25% { background-position: 10% 10%, 50% 20%, 40% 70%, 70% 80%, 30% 80%; }
+  50% { background-position: 5% 15%, 45% 25%, 45% 65%, 75% 75%, 25% 85%; }
+  75% { background-position: -5% 5%, 35% 35%, 55% 55%, 85% 65%, 15% 95%; }
+  100% { background-position: 0% 0%, 40% 30%, 50% 60%, 80% 70%, 20% 90%; }
+}
+
+/* Animaciones para la transición entre formularios */
+@keyframes formTransition {
+  0% { 
+    opacity: 0; 
+    transform: perspective(800px) rotateY(3deg) translateY(-3px) scale(0.98); 
+    filter: blur(0.5px);
+  }
+  100% { 
+    opacity: 1; 
+    transform: perspective(800px) rotateY(0) translateY(0) scale(1); 
+    filter: blur(0);
+  }
+}
+
+@keyframes formExit {
+  0% { 
+    opacity: 1; 
+    transform: perspective(800px) rotateY(0) translateY(0) scale(1);
+    filter: blur(0);
+  }
+  100% { 
+    opacity: 0; 
+    transform: perspective(800px) rotateY(-3deg) translateY(3px) scale(0.98);
+    filter: blur(0.5px);
+  }
+}
+
+/* Animación para la entrada de elementos individuales del formulario */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+    filter: blur(0.5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* Animaciones para los elementos del formulario */
+.form-animate-in {
+  animation: formTransition 0.6s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+  transform-origin: center;
+  backface-visibility: hidden;
+  will-change: transform, opacity, filter;
+}
+
+.form-animate-out {
+  animation: formExit 0.3s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+  transform-origin: center;
+  backface-visibility: hidden;
+  will-change: transform, opacity, filter;
+}
+
+/* Animación secuencial para elementos del formulario */
+.form-item {
+  animation: fadeInUp 0.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+.form-item:nth-child(1) { animation-delay: 0.05s; }
+.form-item:nth-child(2) { animation-delay: 0.1s; }
+.form-item:nth-child(3) { animation-delay: 0.15s; }
+.form-item:nth-child(4) { animation-delay: 0.2s; }
+.form-item:nth-child(5) { animation-delay: 0.25s; }
+.form-item:nth-child(6) { animation-delay: 0.3s; }
+
+@keyframes formTransition {
+  0% { 
+    opacity: 0; 
+    transform: perspective(800px) rotateY(10deg) translateY(-10px) scale(0.95); 
+    filter: blur(2px);
+  }
+  100% { 
+    opacity: 1; 
+    transform: perspective(800px) rotateY(0) translateY(0) scale(1); 
+    filter: blur(0);
+  }
+}
+
+.form-animate-in {
+  animation: formTransition 0.6s cubic-bezier(0.17, 0.67, 0.24, 0.99) forwards;
+  transform-origin: center;
+  backface-visibility: hidden;
+}
+
+.carousel-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.carousel-container img {
+  transition: transform 0.5s ease;
+}
+
+.carousel-container:hover img {
+  transform: scale(1.05);
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.input-enhanced {
+  transition: all 0.3s ease;
+  border: 1px solid #e2e8f0;
+}
+
+.input-enhanced:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.button-enhanced {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  transition: all 0.3s ease;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.button-enhanced:hover {
+  transform: translateY(-2px);
+  box-shadow: 0px 6px 16px rgba(59, 130, 246, 0.2);
+}
+
+.button-enhanced::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.5s ease;
+  z-index: -1;
+}
+
+.button-enhanced:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+   position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+ 
+
+
+.button-enhanced:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.3s ease;
+  z-index: -1;
+}
+
+.button-enhanced:hover:after {
+  transform: scaleY(1);
+}
+
+.input-enhanced:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  outline: none;
+  transform: translateY(-1px);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+  outline: none;
+}
+
+.button-enhanced {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.button-enhanced:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.button-enhanced::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: 0.5s;
+}
+
+.button-enhanced:hover::before {
+  left: 100%;
+}
+
+@keyframes slide-in-from-right {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.animate-in {
+  animation: slide-in-from-right 0.3s ease-out forwards;
+}
+
+.fade-out {
+  animation: fade-out 0.5s ease-out forwards;
+}
+
+@keyframes button-glow {
+  0% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.5); }
+  50% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.8); }
+  100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.5); }
+}
+
+.button-glow {
+  animation: button-glow 2s infinite;
+}
+
+.google-btn-wrapper {
+  transition: all 0.3s ease;
+  border-radius: 8px;
+}
+
+.google-btn-wrapper:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.toast-notification {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 50;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  max-width: 300px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  backdrop-filter: blur(8px);
+  transform-origin: top right;
+}
+
+.toast-success {
+  background-color: rgba(16, 185, 129, 0.95);
+  color: white;
+  border-left: 4px solid #059669;
+}
+
+.toast-error {
+  background-color: rgba(239, 68, 68, 0.95);
+  color: white;
+  border-left: 4px solid #dc2626;
+}
+
+/* Estilo mejorado para contenedor principal en móviles */
+@media (max-width: 768px) {
+  .login-container {
+    padding: 1rem;
+    background-size: 
+      350px 350px, 
+      450px 450px,
+      400px 400px,
+      500px 500px,
+      300px 300px;
+    overflow-y: auto;
+    height: auto;
+    min-height: 100vh;
+    position: relative;
+  }
+  
+  /* Ajusta el tamaño del contenedor en móviles para evitar recortes */
+  .main-form-container {
+    overflow: visible;
+    height: auto !important; /* Forzar altura automática en móviles */
+    min-height: 100%;
+    transition: none; /* Disable transition in mobile for better performance */
+  }
+  
+  .form-container {
+    overflow-y: visible;
+    padding-bottom: 1rem;
+    padding: 1.25rem;
+    border-radius: 1rem;
+    height: auto;
+    max-height: none !important;
+    transform: none !important; /* Prevent transform issues on small screens */
+    filter: none !important; /* Prevent filter issues on small screens */
+  }
+  
+  /* Asegurar que todo el contenido sea visible sin scroll interno */
+  form {
+    overflow-y: visible !important;
+    max-height: none !important;
+  }
+  
+  /* Ajustes específicos para evitar scroll en botones */
+  .button-enhanced {
+    overflow: hidden;
+    white-space: normal;
+  }
+}
+
+/* Ajustes adicionales para dispositivos móviles */
+@media (max-width: 480px) {
+  .login-container {
+    padding: 0.5rem;
+  }
+  
+  /* Hacer que el contenido se ajuste mejor a pantallas pequeñas */
+  .form-container {
+    padding: 0.75rem 1rem;
+  }
+  
+  /* Ajustar el tamaño de los inputs para que se vean completos */
+  input, button[type="submit"] {
+    height: auto;
+    min-height: 2.5rem;
+  }
+  
+  /* Eliminar scroll horizontal en toda la app */
+  html, body, .login-container, .form-container {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+  
+  /* Optimizar espacio entre elementos */
+  .space-y-4 > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-y-reverse: 0;
+    margin-top: calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));
+    margin-bottom: calc(0.75rem * var(--tw-space-y-reverse));
+  }
+  
+  /* Evitar que los botones causen scroll horizontal */
+  button {
+    max-width: 100%;
+    overflow-x: hidden;
+    white-space: normal;
+  }
+}
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .input-enhanced, .button-enhanced {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Enhanced carousel animations */
+.carousel-slide {
+  position: absolute;
+  inset: 0;
+  transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.carousel-slide-active {
+  opacity: 1;
+  transform: scale(1);
+  z-index: 10;
+}
+
+.carousel-slide-inactive {
+  opacity: 0;
+  transform: scale(1.08);
+  z-index: 1;
+}
+
+.carousel-caption {
+  animation: slideUpFade 0.8s cubic-bezier(0.17, 0.67, 0.24, 0.99) forwards;
+  transform: translateY(20px);
+  opacity: 0;
+}
+
+@keyframes slideUpFade {
+  0% { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Geometric background shapes */
+.geometric-bg {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.6;
+  filter: blur(10px);
+  animation: float 10s infinite ease-in-out;
+}
+
+.geometric-shape-1 {
+  width: 150px; height: 150px;
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+  top: 10%; left: 5%;
+  animation-delay: 0s;
+}
+
+.geometric-shape-2 {
+  width: 120px; height: 120px;
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+  bottom: 15%; right: 10%;
+  animation-delay: 2s;
+}
+
+.geometric-shape-3 {
+  width: 80px; height: 80px;
+  background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+  bottom: 30%; left: 15%;
+  animation-delay: 1s;
+}
+
+.geometric-shape-4 {
+  width: 100px; height: 100px;
+  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+  top: 25%; right: 15%;
+  animation-delay: 3s;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) translateX(0) rotate(0deg); }
+  25% { transform: translateY(-10px) translateX(5px) rotate(2deg); }
+  50% { transform: translateY(5px) translateX(-5px) rotate(-2deg); }
+  75% { transform: translateY(-5px) translateX(10px) rotate(2deg); }
+}
+
+/* Password toggle button animations */
+.password-toggle-btn {
+  transition: all 0.3s ease;
+}
+
+.password-toggle-btn:hover {
+  transform: scale(1.1);
+}
+
+/* Input field animations */
+.input-field {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.input-field::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.input-field:focus-within::after {
+  transform: scaleX(1);
+}
+
+/* Form container background improvement */
+.main-form-container {
+  transition: height 0.8s cubic-bezier(0.17, 0.67, 0.24, 0.99);
+  position: relative;
+  overflow: visible !important; /* Ensure content is visible during transition */
+  will-change: height;
+}
+
+.form-container {
+  background: linear-gradient(145deg, #ffffff, #f8fafc);
+  box-shadow: 
+    0 10px 25px rgba(0,0,0,0.05),
+    0 5px 10px rgba(0,0,0,0.03);
+  overflow-y: visible;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.4s cubic-bezier(0.17, 0.67, 0.24, 0.99);
+  /* Remove any height restrictions */
+  max-height: none !important;
+  height: auto;
+}
+
+/* Corregir problemas con el botón para evitar scroll horizontal */
+button {
+  white-space: nowrap;
+  overflow: visible;
+}
+/* Extra fixes for Login component transition issues */
+
+/* Add this to your Login.css or import this additional file */
+
+/* Prevent any height issues during transition */
+.main-form-container {
+  transition: height 0.8s cubic-bezier(0.215, 0.61, 0.355, 1); /* Optimized easing */
+  height: auto !important;
+  min-height: 100px; /* Set a minimum height to prevent collapse */
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  overflow: visible !important; /* Critical for preventing clipping */
+}
+
+/* Improve form container transitions */
+.form-container {
+  transform-style: preserve-3d;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  overflow-y: visible !important;
+  height: auto !important;
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Fix for mobile view */
+@media (max-width: 768px) {
+  .main-form-container, 
+  .form-container {
+    transform: none !important; /* Prevent 3D issues on mobile */
+    height: auto !important;
+    min-height: auto;
+    max-height: none !important;
+    overflow: visible !important;
+    perspective: none !important;
+    backface-visibility: visible !important;
+  }
+  
+  .form-item {
+    opacity: 1 !important; /* Ensure form items are visible on mobile */
+    transform: none !important;
+  }
+  
+  /* Improve stacking context */
+  .login-container {
+    isolation: isolate;
+  }
+}
+
+/* Reset individual form items to ensure visibility */
+.form-item {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 1; /* Default visible state */
+}
+
+/* Improve layout for the form itself */
+form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: visible !important;
+}
+
+/* Fix for some browsers that clip content during height animation */
+html, body {
+  overflow-x: hidden !important;
+}

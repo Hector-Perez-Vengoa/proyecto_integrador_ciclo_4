@@ -1,22 +1,13 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Login from './components/Login.jsx'
-import Header from './components/header.jsx'
-import Footer from './components/footer.jsx'
 import './App.css'
 
 function App() {
   
-
   return (
-
-    <div className="app">
-      <Header />
-      <main className="main">
-        <Login />
-      </main>
-      <Footer />
+    <div className="app fixed inset-0 w-screen h-screen">
+      <Login />
     </div>
-
   )
 }
 

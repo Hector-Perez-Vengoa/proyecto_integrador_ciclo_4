@@ -1,0 +1,121 @@
+/* Fixes for Login component transition issues */
+
+/* Prevent any height issues during transition */
+.main-form-container {
+  transition: height 0.8s cubic-bezier(0.215, 0.61, 0.355, 1); /* Optimized easing */
+  height: auto !important;
+  min-height: 100px; /* Set a minimum height to prevent collapse */
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  overflow: visible !important; /* Critical for preventing clipping */
+}
+
+/* Improve form container transitions */
+.form-container {
+  transform-style: preserve-3d;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  overflow-y: visible !important;
+  height: auto !important;
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: none !important;
+  background: transparent !important;
+  border: none !important;
+  filter: none !important;
+}
+
+/* Fix for mobile view */
+@media (max-width: 768px) {
+  .main-form-container, 
+  .form-container {
+    transform: none !important; /* Prevent 3D issues on mobile */
+    height: auto !important;
+    min-height: auto;
+    max-height: none !important;
+    overflow: visible !important;
+    perspective: none !important;
+    backface-visibility: visible !important;
+  }
+  
+  .form-item {
+    opacity: 1 !important; /* Ensure form items are visible on mobile */
+    transform: none !important;
+  }
+  
+  /* Improve stacking context */
+  .login-container {
+    isolation: isolate;
+  }
+}
+
+/* Reset individual form items to ensure visibility */
+.form-item {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 1; /* Default visible state */
+}
+
+/* Improve layout for the form itself */
+form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: visible !important;
+}
+
+/* Fix for some browsers that clip content during height animation */
+html, body {
+  overflow-x: hidden !important;
+}
+
+/* Elegant focus styles for input fields */
+.input-enhanced:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15), 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+  border-color: #60a5fa !important;
+  border-radius: 0.75rem !important;
+  transition: all 0.3s ease-in-out !important;
+  background-color: white !important;
+}
+
+/* Smooth transition for input fields */
+.input-field input {
+  transition: all 0.3s ease-in-out;
+  border-radius: 0.75rem !important;
+  padding-top: 0.4rem !important;
+  padding-bottom: 0.4rem !important;
+  font-size: 0.9rem !important;
+}
+
+/* Add a subtle glow effect on input focus */
+.input-field input:focus {
+  transform: translateY(-1px);
+}
+
+/* Ensure spacing in the form is comfortable */
+.login-container form .form-item {
+  margin-bottom: 0.75rem;
+}
+
+/* Compact buttons */
+.login-container button {
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
+}
+
+/* Add more elegant spacing to password toggle buttons */
+.password-toggle-btn:focus {
+  outline: none;
+}
+
+.password-toggle-btn:hover div {
+  background-color: #eff6ff;
+}
+
+/* Make the form more compact overall */
+.login-container .space-y-5 {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
