@@ -4,7 +4,7 @@ from rest_framework import status, permissions
 from rest_framework.decorators import api_view
 from google.oauth2 import id_token
 from google.auth.transport import requests
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import UserSerializer
 from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView
@@ -75,6 +75,132 @@ class GoogleAuthView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class LoginView(APIView):
+    """
+    API para iniciar sesión con correo y contraseña.
+    
+    POST: Recibe credenciales y devuelve un token JWT
+    """
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+        
+        if not email or not password:
+            return Response(
+                {'error': 'Correo y contraseña son requeridos'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        # Verificar que sea un correo de Tecsup
+        if not email.endswith('@tecsup.edu.pe'):
+            return Response(
+                {'error': 'Solo se permiten correos con dominio @tecsup.edu.pe'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+            
+        # Intentar autenticar (Django normaliza el email a minúsculas)
+        user = authenticate(username=email, password=password)
+        
+        if not user:
+            # Intentar autenticar usando el email directamente
+            try:
+                user_obj = User.objects.get(email=email)
+                user = authenticate(username=user_obj.username, password=password)
+            except User.DoesNotExist:
+                user = None
+                
+        if not user:
+            return Response(
+                {'error': 'Credenciales inválidas'}, 
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
+        if not user.is_active:
+            return Response(
+                {'error': 'Esta cuenta ha sido desactivada'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+            
+        # Generar tokens JWT
+        refresh = RefreshToken.for_user(user)
+        
+        return Response({
+            'token': str(refresh.access_token),
+            'refresh': str(refresh),
+            'user': {
+                'id': user.id,
+                'email': user.email,
+                'username': user.username,
+                'name': f'{user.first_name} {user.last_name}'
+            }
+        })
+
+class RegisterView(APIView):
+    """
+    API para registrar nuevos usuarios.
+    
+    POST: Crea un nuevo usuario con correo y contraseña
+    """
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+        name = request.data.get('name', '')
+        
+        if not email or not password:
+            return Response(
+                {'error': 'Correo y contraseña son requeridos'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        # Verificar que sea un correo de Tecsup
+        if not email.endswith('@tecsup.edu.pe'):
+            return Response(
+                {'error': 'Solo se permiten correos con dominio @tecsup.edu.pe'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+            
+        # Verificar si el usuario ya existe
+        if User.objects.filter(email=email).exists():
+            return Response(
+                {'error': 'Ya existe un usuario con este correo'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        try:
+            # Crear nuevo usuario
+            names = name.split(' ', 1)
+            first_name = names[0]
+            last_name = names[1] if len(names) > 1 else ''
+            
+            user = User.objects.create_user(
+                username=email.split('@')[0],  # Usar la parte antes del @ como username
+                email=email,
+                password=password,
+                first_name=first_name,
+                last_name=last_name,
+                is_active=True
+            )
+            
+            # Generar tokens JWT
+            refresh = RefreshToken.for_user(user)
+            
+            return Response({
+                'token': str(refresh.access_token),
+                'refresh': str(refresh),
+                'user': {
+                    'id': user.id,
+                    'email': user.email,
+                    'username': user.username,
+                    'name': f'{user.first_name} {user.last_name}'
+                }
+            }, status=status.HTTP_201_CREATED)
+            
+        except Exception as e:
+            return Response(
+                {'error': str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 class UserDetailView(RetrieveUpdateDestroyAPIView):
     """
     API para gestionar un usuario específico.
@@ -134,9 +260,11 @@ def api_root(request):
     """
     return Response({
         'google': request.build_absolute_uri('/api/auth/google/'),
+        'login': request.build_absolute_uri('/api/auth/login/'),
+        'register': request.build_absolute_uri('/api/auth/register/'),
         'me': request.build_absolute_uri('/api/auth/me/'),
         'users': request.build_absolute_uri('/api/auth/users/'),
         'user_by_id': request.build_absolute_uri('/api/auth/users/{id}/'),
         'message': 'API de autenticación del Sistema de Reservas de Tecsup'
     })
-      
+
