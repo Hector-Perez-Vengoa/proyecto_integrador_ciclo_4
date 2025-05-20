@@ -16,12 +16,13 @@ class GoogleAuthView(APIView):
     API para autenticación con Google OAuth.
     
     POST: Recibe un token de Google y devuelve un token JWT para la aplicación
-    """
+    """    
     def post(self, request):
         """
         Procesa la autenticación mediante token de Google
         """
         token = request.data.get('token')
+        temp_password = request.data.get('temp_password')
         
         if not token:
             return Response({'error': 'Token no proporcionado'}, status=status.HTTP_400_BAD_REQUEST)
@@ -39,22 +40,34 @@ class GoogleAuthView(APIView):
                     status=status.HTTP_403_FORBIDDEN
                 )
             
-            # Buscar o crear el usuario
-            user, created = User.objects.get_or_create(
-                email=email,
-                defaults={
-                    'username': email.split('@')[0],  # Usar la parte antes del @ como username
-                    'first_name': idinfo.get('given_name', ''),
-                    'last_name': idinfo.get('family_name', ''),
-                    'is_active': True,
-                }
-            )
-            
-            # Si el usuario ya existía, actualizar información
-            if not created:
+            # Verificar si el usuario ya existe
+            try:
+                user = User.objects.get(email=email)
+                # Usuario existente - actualizar datos
                 user.first_name = idinfo.get('given_name', user.first_name)
                 user.last_name = idinfo.get('family_name', user.last_name)
                 user.save()
+                created = False
+            except User.DoesNotExist:
+                # Si es un usuario nuevo y no se proporcionó contraseña temporal
+                if not temp_password:
+                    return Response({
+                        'need_password': True,
+                        'email': email,
+                        'name': f"{idinfo.get('given_name', '')} {idinfo.get('family_name', '')}".strip(),
+                        'message': 'Necesitas crear una contraseña para este sistema'
+                    }, status=status.HTTP_200_OK)
+                
+                # Crear nuevo usuario con la contraseña proporcionada
+                user = User.objects.create_user(
+                    username=email.split('@')[0],  # Usar la parte antes del @ como username
+                    email=email,
+                    password=temp_password,  # Usar la contraseña proporcionada
+                    first_name=idinfo.get('given_name', ''),
+                    last_name=idinfo.get('family_name', ''),
+                    is_active=True,
+                )
+                created = True
             
             # Generar tokens JWT
             refresh = RefreshToken.for_user(user)
@@ -66,7 +79,8 @@ class GoogleAuthView(APIView):
                     'id': user.id,
                     'email': user.email,
                     'username': user.username,
-                    'name': f'{user.first_name} {user.last_name}'
+                    'name': f'{user.first_name} {user.last_name}',
+                    'is_new_user': created
                 }
             })
             
@@ -253,6 +267,70 @@ class UserListView(ListAPIView):
             
         return queryset
 
+class ChangePasswordView(APIView):
+    """
+    API para cambiar la contraseña de un usuario.
+    
+    PUT: Actualiza la contraseña del usuario autenticado
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def put(self, request):
+        user = request.user
+        old_password = request.data.get('old_password')
+        new_password = request.data.get('new_password')
+        
+        # Verificar que la nueva contraseña esté presente
+        if not new_password:
+            return Response(
+                {'error': 'La nueva contraseña es requerida'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        # Verificar si es un usuario de Google sin contraseña configurada
+        # (Este caso es para usuarios que se registraron con Google y ahora están configurando su contraseña)
+        need_old_password = True
+        
+        # Si el usuario está marcado como que no tiene contraseña o proporciona un token especial,
+        # no requerimos la contraseña anterior
+        if hasattr(user, 'has_usable_password') and not user.has_usable_password():
+            need_old_password = False
+        
+        # Si necesitamos verificar la contraseña antigua
+        if need_old_password:
+            if not old_password:
+                return Response(
+                    {'error': 'La contraseña actual es requerida'}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+                
+            # Verificar que la contraseña actual sea correcta
+            if not user.check_password(old_password):
+                return Response(
+                    {'error': 'La contraseña actual es incorrecta'}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+        # Verificar que la nueva contraseña cumple con los requisitos
+        if len(new_password) < 6:
+            return Response(
+                {'error': 'La nueva contraseña debe tener al menos 6 caracteres'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        # Actualizar la contraseña
+        user.set_password(new_password)
+        user.save()
+        
+        # Generar nuevos tokens
+        refresh = RefreshToken.for_user(user)
+        
+        return Response({
+            'message': 'Contraseña actualizada correctamente',
+            'token': str(refresh.access_token),
+            'refresh': str(refresh),
+        })
+
 @api_view(['GET'])
 def api_root(request):
     """
@@ -262,6 +340,7 @@ def api_root(request):
         'google': request.build_absolute_uri('/api/auth/google/'),
         'login': request.build_absolute_uri('/api/auth/login/'),
         'register': request.build_absolute_uri('/api/auth/register/'),
+        'password': request.build_absolute_uri('/api/auth/password/'),
         'me': request.build_absolute_uri('/api/auth/me/'),
         'users': request.build_absolute_uri('/api/auth/users/'),
         'user_by_id': request.build_absolute_uri('/api/auth/users/{id}/'),
