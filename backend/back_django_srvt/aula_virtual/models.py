@@ -1,5 +1,3 @@
-from django.db import models
-
 # Create your models here.
 from django.db import models
 
@@ -18,6 +16,24 @@ class DepartamentoDB(models.Model):
         ordering = ['nombre']
         verbose_name = "Departamento"
         verbose_name_plural = "Departamentos"
+
+class CarreraDB(models.Model):
+    nombre = models.CharField(max_length=100)
+    codigo = models.CharField(max_length=10, unique=True)
+    descripcion = models.TextField(blank=True, null=True)
+    cursos = models.ManyToManyField('CursoDB', related_name='carreras')
+    profesores = models.ManyToManyField('ProfesorDB', related_name='carreras')
+    departamento = models.ForeignKey(DepartamentoDB, on_delete=models.CASCADE, related_name='carreras')
+    fecha_creacion = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return self.nombre
+
+    class Meta:
+        db_table  = 'CarreraDB'
+        ordering = ['nombre']
+        verbose_name = "Carrera"
+        verbose_name_plural = "Carreras"
     
 
 class CursoDB(models.Model):
@@ -42,6 +58,7 @@ class ProfesorDB(models.Model):
     codigo = models.CharField(max_length=9, unique=True)
     correo = models.EmailField(unique=True)
     departamento = models.ForeignKey(DepartamentoDB, on_delete=models.CASCADE)
+    carreras = models.ManyToManyField('CarreraDB', related_name='profesores')
     cursos = models.ManyToManyField(CursoDB)
     fecha_creacion = models.DateField(auto_now_add=True)
     fecha_ingreso = models.DateField()
@@ -56,22 +73,6 @@ class ProfesorDB(models.Model):
         verbose_name = "Profesor"
         verbose_name_plural = "Profesores"
 
-class CarreraDB(models.Model):
-    nombre = models.CharField(max_length=100)
-    codigo = models.CharField(max_length=10, unique=True)
-    descripcion = models.TextField(blank=True, null=True)
-    cursos = models.ForeignKey(CursoDB, on_delete=models.CASCADE, related_name='carreras')
-    departamento = models.ForeignKey(DepartamentoDB, on_delete=models.CASCADE, related_name='carreras')
-    fecha_creacion = models.DateField(auto_now_add=True)
-
-    def __str__(self):
-        return self.nombre
-
-    class Meta:
-        db_table  = 'CarreraDB'
-        ordering = ['nombre']
-        verbose_name = "Carrera"
-        verbose_name_plural = "Carreras"
 
 class Aula_VirtualDB(models.Model):
     codigo = models.CharField(unique=True,max_length=2)
