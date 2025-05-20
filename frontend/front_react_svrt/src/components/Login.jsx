@@ -97,7 +97,8 @@ const ImageCarousel = () => {
 };
 
 // Función para manejo de login con Google
-const handleGoogleSuccess = async (credentialResponse) => {
+// Recibe onLoginSuccess como argumento
+const handleGoogleSuccessFactory = (onLoginSuccess) => async (credentialResponse) => {
   try {
     const decoded = jwtDecode(credentialResponse.credential);
 
@@ -150,6 +151,7 @@ const handleGoogleSuccess = async (credentialResponse) => {
 
     setTimeout(() => {
       console.log('Autenticación exitosa:', decoded);
+      if (onLoginSuccess) onLoginSuccess();
     }, 1000);
   } catch (error) {
     console.error('Error de autenticación:', error);
@@ -158,7 +160,7 @@ const handleGoogleSuccess = async (credentialResponse) => {
 };
 
 // Componente principal Login
-const Login = () => {
+const Login = ({ onLoginSuccess }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({ email: '', password: '', confirmPassword: '', name: '' });
   const [loading, setLoading] = useState(false);
@@ -408,6 +410,7 @@ const Login = () => {
       
       // Para debug
       console.log('Autenticación exitosa:', userData);
+      if (onLoginSuccess) onLoginSuccess();
       
     } catch (error) {
       console.error('Error de autenticación:', error);
@@ -685,7 +688,7 @@ const Login = () => {
               <div className="flex justify-center">
                 <div className="google-btn-wrapper p-2 sm:p-3 rounded-lg transition-all border border-gray-200 shadow-md hover:shadow-lg w-full flex justify-center bg-white hover:bg-blue-50 hover:border-blue-100 transform hover:scale-[1.02]">
                   <GoogleLogin
-                    onSuccess={handleGoogleSuccess}
+                    onSuccess={handleGoogleSuccessFactory(onLoginSuccess)}
                     onError={() => {
                       console.error('Error en el login');
                       alert('Error al iniciar sesión con Google');
@@ -718,5 +721,4 @@ const Login = () => {
     </div>
   );
 };
-
 export default Login;
