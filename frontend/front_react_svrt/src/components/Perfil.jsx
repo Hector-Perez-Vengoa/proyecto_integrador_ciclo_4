@@ -30,6 +30,13 @@ const Perfil = () => {
     }
   }, []);
 
+  // Función para cerrar sesión
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    localStorage.removeItem('authToken');
+    window.location.href = '/';
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Barra lateral retráctil */}
@@ -57,14 +64,22 @@ const Perfil = () => {
           <img src="https://academico-cloud.tecsup.edu.pe/pcc/assets/layout/images/logo-2024.svg" alt="Tecsup" className="h-10" />
         </div>
         {/* Usuario */}
-        <div className={`flex items-center gap-3 px-6 mb-2 w-full group relative transition-all duration-500 ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}> 
-          <div className="w-12 h-12 rounded bg-green-600 flex items-center justify-center text-white font-bold text-xl cursor-pointer hover:bg-green-700 transition-all duration-200">
-            {user.name ? user.name[0] : 'U'}
+        <div className={`flex flex-col gap-2 px-6 mb-2 w-full group relative transition-all duration-500 ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}> 
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded bg-green-600 flex items-center justify-center text-white font-bold text-xl cursor-pointer hover:bg-green-700 transition-all duration-200">
+              {user.name ? user.name[0] : 'U'}
+            </div>
+            <div className="flex flex-col">
+              <span className="font-semibold text-gray-800 leading-tight group-hover:text-blue-700 transition-colors">{user.name}</span>
+              <span className="text-xs text-gray-500 leading-tight group-hover:text-blue-500 transition-colors">{user.email}</span>
+            </div>
           </div>
-          <div className="flex flex-col">
-            <span className="font-semibold text-gray-800 leading-tight group-hover:text-blue-700 transition-colors">{user.name}</span>
-            <span className="text-xs text-gray-500 leading-tight group-hover:text-blue-500 transition-colors">{user.email}</span>
-          </div>
+          <button
+            onClick={handleLogout}
+            className="mt-2 w-full text-sm text-red-600 hover:text-white hover:bg-red-500 py-1.5 px-2 rounded transition-all font-semibold shadow-sm border border-red-100"
+          >
+            Cerrar sesión
+          </button>
         </div>
         {/* Menú simulado */}
         <nav className={`flex-1 w-full mt-4 transition-all duration-500 ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>

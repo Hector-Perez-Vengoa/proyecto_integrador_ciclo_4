@@ -23,8 +23,8 @@ public class AulaVirtualDAOImpl implements AulaVirtualDAO {
     }
 
     @Override
-    public AulaVirtual BuscarPorCodigo(String codigo) {
-        return restTemplate.getForObject(BASE_URL + codigo + "/", AulaVirtual.class);
+    public AulaVirtual BuscarPorCodigo(Long id) {
+        return restTemplate.getForObject(BASE_URL + id + "/", AulaVirtual.class);
     }
 
     @Override
