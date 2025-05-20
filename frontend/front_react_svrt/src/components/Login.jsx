@@ -6,7 +6,6 @@ import axios from 'axios';
 import '../css/Login.css';
 import '../css/Login-fixes.css';
 
-// Importamos nuevamente las imágenes para el carrusel
 import login1 from '../assets/Login1.jpg';
 import login2 from '../assets/Login2.jpg';
 import login3 from '../assets/Login3.jpg';
@@ -30,7 +29,7 @@ const ImageCarousel = () => {
   const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
-    // Cambia la imagen cada 6 segundos con animación mejorada
+    // Cambia la imagen cada 6 segundos 
     const interval = setInterval(() => {
       setIsAnimating(true);
       setTimeout(() => {
@@ -96,6 +95,33 @@ const ImageCarousel = () => {
   );
 };
 
+// Función para mostrar notificaciones toast
+const showToast = (message, type = 'success') => {
+  const bgColor = type === 'success' ? 'bg-green-500' : 
+                 type === 'error' ? 'bg-red-500' : 
+                 type === 'info' ? 'bg-blue-500' : 'bg-gray-500';
+                 
+  const iconPath = type === 'success' ? 'M5 13l4 4L19 7' : 
+                  type === 'error' ? 'M6 18L18 6M6 6l12 12' : 
+                  type === 'info' ? 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' : '';
+                  
+  const toast = document.createElement('div');
+  toast.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-in slide-in-from-right`;
+  toast.innerHTML = `
+    <div class="flex items-center">
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${iconPath}"></path>
+      </svg>
+      ${message}
+    </div>
+  `;
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.classList.add('fade-out');
+    setTimeout(() => document.body.removeChild(toast), 500);
+  }, 3000);
+};
+
 // Función para manejo de login con Google
 // Recibe onLoginSuccess como argumento
 const handleGoogleSuccessFactory = (onLoginSuccess) => async (credentialResponse) => {
@@ -104,50 +130,33 @@ const handleGoogleSuccessFactory = (onLoginSuccess) => async (credentialResponse
 
     // Verificar dominio tecsup.edu.pe
     if (!decoded.email.endsWith('@tecsup.edu.pe')) {
-     
-      const errorToast = document.createElement('div');
-      errorToast.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-in slide-in-from-right';
-      errorToast.innerHTML = `
-        <div class="flex items-center">
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-          Solo se permiten correos con dominio @tecsup.edu.pe
-        </div>
-      `;
-      document.body.appendChild(errorToast);
-      setTimeout(() => {
-        errorToast.classList.add('fade-out');
-        setTimeout(() => document.body.removeChild(errorToast), 500);
-      }, 3000);
+      showToast('Solo se permiten correos con dominio @tecsup.edu.pe', 'error');
       return;
     }
 
-    // token backend
+  // token backend
     const response = await axios.post('http://127.0.0.1:8000/api/auth/google/', {
       token: credentialResponse.credential
     });
 
-  
+    // Verificar si el usuario necesita crear contraseña
+    if (response.data.need_password) {
+      // Guardar datos temporales para usarlos después
+      localStorage.setItem('googleCredential', credentialResponse.credential);
+      localStorage.setItem('user', JSON.stringify({
+        name: response.data.name,
+        email: response.data.email
+      }));
+      localStorage.setItem('authToken', response.data.token || '');
+      showToast(`Bienvenido ${response.data.name}. Por favor configura tu contraseña.`, 'info');
+      if (onLoginSuccess) onLoginSuccess();
+      return;
+    }
+    
+    // Usuario existente, guardar token normal
     localStorage.setItem('authToken', response.data.token);
-    localStorage.setItem('user', JSON.stringify(decoded));
-
-    // Mostrar mensaje de éxito 
-    const successToast = document.createElement('div');
-    successToast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-in slide-in-from-right';
-    successToast.innerHTML = `
-      <div class="flex items-center">
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-        </svg>
-        ¡Bienvenido ${decoded.name}!
-      </div>
-    `;
-    document.body.appendChild(successToast);
-    setTimeout(() => {
-      successToast.classList.add('fade-out');
-      setTimeout(() => document.body.removeChild(successToast), 500);
-    }, 3000);
+    localStorage.setItem('user', JSON.stringify(decoded));    // Mostrar mensaje de éxito 
+    showToast(`¡Bienvenido ${decoded.name}!`);
 
     setTimeout(() => {
       console.log('Autenticación exitosa:', decoded);
@@ -168,6 +177,16 @@ const Login = ({ onLoginSuccess }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
+  // Limpiar credenciales temporales al cargar el componente de inicio de sesión
+  useEffect(() => {
+    // Al estar en el login, no debería haber credenciales temporales
+    // Esto limpia credenciales parciales en caso de que el usuario haya abandonado
+    // el proceso de configuración de contraseña
+    if (localStorage.getItem('googleCredential')) {
+      localStorage.removeItem('googleCredential');
+    }
+  }, []);
+
   // Ajustar altura del contenedor al cargar y cuando cambia el tamaño de la ventana
   useEffect(() => {
     const handleResize = () => {
@@ -329,44 +348,7 @@ const Login = ({ onLoginSuccess }) => {
     if (formErrors[name]) {
       setFormErrors({ ...formErrors, [name]: null });
     }
-  };
-  // Función para mostrar toast de éxito
-  const showSuccessToast = (message) => {
-    const successToast = document.createElement('div');
-    successToast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-in slide-in-from-right';
-    successToast.innerHTML = `
-      <div class="flex items-center">
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-        </svg>
-        ${message}
-      </div>
-    `;
-    document.body.appendChild(successToast);
-    setTimeout(() => {
-      successToast.classList.add('fade-out');
-      setTimeout(() => document.body.removeChild(successToast), 500);
-    }, 3000);
-  };
-  
-  // Función para mostrar toast de error
-  const showErrorToast = (message) => {
-    const errorToast = document.createElement('div');
-    errorToast.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-in slide-in-from-right';
-    errorToast.innerHTML = `
-      <div class="flex items-center">
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-        </svg>
-        ${message}
-      </div>
-    `;
-    document.body.appendChild(errorToast);
-    setTimeout(() => {
-      errorToast.classList.add('fade-out');
-      setTimeout(() => document.body.removeChild(errorToast), 500);
-    }, 3000);
-  };
+  };  // Usamos la función global showToast definida arriba
   
   // Manejar envío del formulario
   const handleSubmit = async (e) => {
@@ -404,9 +386,8 @@ const Login = ({ onLoginSuccess }) => {
       };
       
       localStorage.setItem('user', JSON.stringify(userData));
-      
-      // Mostrar mensaje de éxito
-      showSuccessToast(`¡Bienvenido${userData.name ? ' ' + userData.name : ''}!`);
+        // Mostrar mensaje de éxito
+      showToast(`¡Bienvenido${userData.name ? ' ' + userData.name : ''}!`);
       
       // Para debug
       console.log('Autenticación exitosa:', userData);
@@ -425,7 +406,7 @@ const Login = ({ onLoginSuccess }) => {
         errorMsg = 'No se pudo conectar al servidor';
       }
       
-      showErrorToast(errorMsg);
+      showToast(errorMsg, 'error');
     } finally {
       setLoading(false);
     }
