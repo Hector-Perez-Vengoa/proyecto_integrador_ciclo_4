@@ -40,7 +40,7 @@ class CarreraDB(models.Model):
 class CursoDB(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField()
-    departamento = models.ForeignKey(DepartamentoDB, on_delete=models.CASCADE)
+    carrera = models.ForeignKey(CarreraDB, on_delete=models.CASCADE, default=1)
     duracion = models.PositiveIntegerField(help_text="Duración en horas")
     fecha_creacion = models.DateField(auto_now_add=True)
 
