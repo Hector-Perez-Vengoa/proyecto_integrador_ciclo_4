@@ -6,7 +6,7 @@ class ProfesorSerializer(serializers.ModelSerializer):
         model = ProfesorDB
         fields = '__all__'
 
-class CubiculoSerializer(serializers.ModelSerializer):
+class AulaVirtualSerializer(serializers.ModelSerializer):
     class Meta:
         model = AulaVirtualDB
         fields = '__all__'

@@ -11,7 +11,7 @@ def api_root(request, format=None):
     
     return Response({
         # API de recursos
-        "cubiculos": f"{base_url}/api/cubiculos/",
+        "Aula Virtual": f"{base_url}/api/aula-virtual/",
         "profesores": f"{base_url}/api/profesores/",
         "departamentos": f"{base_url}/api/departamentos/",
         "cursos": f"{base_url}/api/cursos/",
