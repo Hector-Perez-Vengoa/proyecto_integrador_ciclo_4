@@ -24,10 +24,10 @@ public class AulaVirtualController {
         return aulaVirtualService.listar();
     }
 
-    // GET http://localhost:8080/aula-virtual/{codigo}
-    @GetMapping("/{codigo}")
-    public AulaVirtual obtener(@PathVariable String codigo) {
-        return aulaVirtualService.obtener(codigo);
+    // GET http://localhost:8080/aula-virtual/{id}
+    @GetMapping("/{id}")
+    public AulaVirtual obtener(@PathVariable Long id) {
+        return aulaVirtualService.obtener(id);
     }
 
     // POST http://localhost:8080/aula-virtual
