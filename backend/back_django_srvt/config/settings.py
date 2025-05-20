@@ -28,7 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-SITE_ID = 2
+SITE_ID = 3
 
 # Application definition
 
@@ -55,23 +55,18 @@ INSTALLED_APPS = [
 # Configuración para restringir inicio de sesión a dominio tecsup.edu.pe
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
-        "SCOPE": {
+        "SCOPE": [
             "profile",
             "email"
-        },
+        ],
         "AUTH_PARAMS": {"access_type": "online"},
         "VERIFIED_EMAIL": True,
-        "DOMAIN_AS_USERNAME": True,
-        "DOMAINS": ["tecsup.edu.pe"]
+      
     }
 }
 
 # Configuración adicional de allauth
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
-SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
-SOCIALACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "opcional"
 SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_ADAPTER = 'authentication.adapters.TecsupSocialAccountAdapter'
 
@@ -200,7 +195,7 @@ AUTHENTICATION_BACKENDS = (
 
 LOGIN_REDIRECT_URL = '/'  
 
-LOGOUT_REDIRECT_URL = '/'  
+LOGOUT_REDIRECT_URL = '/'
 
 
 

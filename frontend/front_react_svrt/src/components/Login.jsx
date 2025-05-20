@@ -328,9 +328,46 @@ const Login = () => {
       setFormErrors({ ...formErrors, [name]: null });
     }
   };
-
+  // Función para mostrar toast de éxito
+  const showSuccessToast = (message) => {
+    const successToast = document.createElement('div');
+    successToast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-in slide-in-from-right';
+    successToast.innerHTML = `
+      <div class="flex items-center">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        ${message}
+      </div>
+    `;
+    document.body.appendChild(successToast);
+    setTimeout(() => {
+      successToast.classList.add('fade-out');
+      setTimeout(() => document.body.removeChild(successToast), 500);
+    }, 3000);
+  };
+  
+  // Función para mostrar toast de error
+  const showErrorToast = (message) => {
+    const errorToast = document.createElement('div');
+    errorToast.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-in slide-in-from-right';
+    errorToast.innerHTML = `
+      <div class="flex items-center">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+        ${message}
+      </div>
+    `;
+    document.body.appendChild(errorToast);
+    setTimeout(() => {
+      errorToast.classList.add('fade-out');
+      setTimeout(() => document.body.removeChild(errorToast), 500);
+    }, 3000);
+  };
+  
   // Manejar envío del formulario
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     const errors = validateForm();
@@ -341,31 +378,54 @@ const Login = () => {
     
     setLoading(true);
     
-    setTimeout(() => {
-      if (isLogin) {
-        console.log('Iniciar sesión con:', formData);
-      } else {
-        console.log('Registrar usuario:', formData);
+    try {
+      let response;
+      let endpoint = isLogin ? 'login' : 'register';
+      
+      // Preparar los datos según sea login o registro
+      const requestData = isLogin 
+        ? { email: formData.email, password: formData.password }
+        : { email: formData.email, password: formData.password, name: formData.name };
+      
+      // Enviar solicitud al backend
+      response = await axios.post(`http://127.0.0.1:8000/api/auth/${endpoint}/`, requestData);
+      
+      // Guardar token y datos del usuario
+      localStorage.setItem('authToken', response.data.token);
+      
+      // Crear objeto de usuario similar al que devuelve Google OAuth
+      const userData = {
+        email: response.data.user.email,
+        name: response.data.user.name,
+        id: response.data.user.id,
+        username: response.data.user.username
+      };
+      
+      localStorage.setItem('user', JSON.stringify(userData));
+      
+      // Mostrar mensaje de éxito
+      showSuccessToast(`¡Bienvenido${userData.name ? ' ' + userData.name : ''}!`);
+      
+      // Para debug
+      console.log('Autenticación exitosa:', userData);
+      
+    } catch (error) {
+      console.error('Error de autenticación:', error);
+      
+      let errorMsg = 'Error al procesar la solicitud';
+      
+      if (error.response) {
+        // El servidor respondió con un estado de error
+        errorMsg = error.response.data.error || errorMsg;
+      } else if (error.request) {
+        // La solicitud fue hecha pero no se recibió respuesta
+        errorMsg = 'No se pudo conectar al servidor';
       }
+      
+      showErrorToast(errorMsg);
+    } finally {
       setLoading(false);
-      
-      const successToast = document.createElement('div');
-      successToast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-in';
-      successToast.innerHTML = `
-        <div class="flex items-center">
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-          </svg>
-          ${isLogin ? 'Inicio de sesión exitoso' : 'Cuenta creada exitosamente'}
-        </div>
-      `;
-      document.body.appendChild(successToast);
-      setTimeout(() => {
-        successToast.classList.add('fade-out');
-        setTimeout(() => document.body.removeChild(successToast), 500);
-      }, 3000);
-      
-    }, 1500);
+    }
   };
 
   // Renderizar componente

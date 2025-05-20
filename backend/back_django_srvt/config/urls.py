@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.documentation import include_docs_urls
-from .api_router import api_router
+
 from .views import api_root
 
 urlpatterns = [
@@ -19,7 +19,7 @@ urlpatterns = [
     path("api/auth/", include("authentication.api_urls")),
     
     # API router - Corregido para usar include() con los urls del router
-    path("api/", include(api_router.urls)),
+ 
     
     # Comentado temporalmente para solucionar problema de coreapi
     # path("api/docs/", include_docs_urls(title="API de Reservas Tecsup")),
