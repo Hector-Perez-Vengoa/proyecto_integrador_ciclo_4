@@ -1,7 +1,7 @@
 from rest_framework import viewsets
-from .models import ProfesorDB, AulaVirtualDB, DepartamentoDB, CarreraDB, CursoDB
+from .models import ProfesorDB, AulaVirtualDB, DepartamentoDB, CarreraDB, CursoDB, ReservaDB
 from .serializers import (
-    ProfesorSerializer, AulaVirtualSerializer, DepartamentoSerializer, CarreraSerializer, CursoSerializer
+    ProfesorSerializer, AulaVirtualSerializer, DepartamentoSerializer, CarreraSerializer, CursoSerializer, ReservaSerializer
 )
 
 class ProfesorViewSet(viewsets.ModelViewSet):
@@ -23,3 +23,7 @@ class CarreraViewSet(viewsets.ModelViewSet):
 class CursoViewSet(viewsets.ModelViewSet):
     queryset = CursoDB.objects.all()
     serializer_class = CursoSerializer
+
+class ReservaViewSet(viewsets.ModelViewSet):
+    queryset = ReservaDB.objects.all()
+    serializer_class = ReservaSerializer

@@ -11,11 +11,12 @@ def api_root(request, format=None):
     
     return Response({
         # API de recursos
+        "Departamentos": f"{base_url}/api/departamentos/",
+        "Carreras": f"{base_url}/api/carreras/",
+        "Cursos": f"{base_url}/api/cursos/",
+        "Profesores": f"{base_url}/api/profesores/",
         "Aula Virtual": f"{base_url}/api/aula-virtual/",
-        "profesores": f"{base_url}/api/profesores/",
-        "departamentos": f"{base_url}/api/departamentos/",
-        "cursos": f"{base_url}/api/cursos/",
-        "carreras": f"{base_url}/api/carreras/",
+        "Reservas": f"{base_url}/api/reservas/",
         
         # API de autenticación
         "auth": f"{base_url}/api/auth/",

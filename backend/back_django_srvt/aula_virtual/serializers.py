@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ProfesorDB, AulaVirtualDB, DepartamentoDB, CarreraDB, CursoDB
+from .models import ProfesorDB, AulaVirtualDB, DepartamentoDB, CarreraDB, CursoDB, ReservaDB
 
 class ProfesorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -24,4 +24,9 @@ class CarreraSerializer(serializers.ModelSerializer):
 class CursoSerializer(serializers.ModelSerializer):
     class Meta:
         model = CursoDB
+        fields = '__all__'
+
+class ReservaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReservaDB
         fields = '__all__'

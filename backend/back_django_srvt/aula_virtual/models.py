@@ -1,10 +1,10 @@
 from django.db import models
+from django.contrib.auth.models import User
+
 
 class DepartamentoDB(models.Model):
-    nombre = models.CharField(max_length=100)
-    codigo = models.CharField(max_length=10, unique=True, null=True, blank=True)
+    nombre = models.CharField(max_length=100, blank=True)  # blank=True está bien para permitir vacíos en formularios
     descripcion = models.TextField(blank=True, null=True)
-    jefe = models.CharField(max_length=100, blank=True, null=True) 
     fecha_creacion = models.DateField(auto_now_add=True)
 
     def __str__(self):
@@ -18,13 +18,10 @@ class DepartamentoDB(models.Model):
 
 
 class CarreraDB(models.Model):
-    nombre = models.CharField(max_length=100)
-    codigo = models.CharField(max_length=10, unique=True)
+    nombre = models.CharField(max_length=100, blank=True)
+    codigo = models.CharField(max_length=3, blank=True, unique=True)
     descripcion = models.TextField(blank=True, null=True)
-    cursos = models.ManyToManyField('CursoDB', related_name='carreras')
-    profesores = models.ManyToManyField('ProfesorDB', related_name='carreras_profesor')  # Cambié el related_name aquí
-    departamento = models.ForeignKey(DepartamentoDB, on_delete=models.CASCADE, related_name='carreras')
-    fecha_creacion = models.DateField(auto_now_add=True)
+    departamento = models.ForeignKey(DepartamentoDB, blank=True, null=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.nombre
@@ -36,12 +33,12 @@ class CarreraDB(models.Model):
         verbose_name_plural = "Carreras"
 
 
-
 class CursoDB(models.Model):
-    nombre = models.CharField(max_length=100)
-    descripcion = models.TextField()
-    carrera = models.ForeignKey(CarreraDB, on_delete=models.CASCADE, default=1)
-    duracion = models.PositiveIntegerField(help_text="Duración en horas")
+    nombre = models.CharField(max_length=100, blank=True)
+    descripcion = models.TextField(blank=True, null=True)
+    duracion = models.PositiveIntegerField(help_text="Duración en horas", blank=True, null=True)
+    fecha = models.DateField(blank=True, null=True)
+    carrera = models.ForeignKey(CarreraDB, blank=True, null=True, on_delete=models.CASCADE)
     fecha_creacion = models.DateField(auto_now_add=True)
 
     def __str__(self):
@@ -55,19 +52,18 @@ class CursoDB(models.Model):
 
 
 class ProfesorDB(models.Model):
-    nombre = models.CharField(max_length=100)
-    apellidos = models.CharField(max_length=100)
-    codigo = models.CharField(max_length=9, unique=True)
-    correo = models.EmailField(unique=True)
-    departamento = models.ForeignKey(DepartamentoDB, on_delete=models.CASCADE)
-    carreras = models.ManyToManyField('CarreraDB', related_name='profesores_relacionados')  # Cambié el related_name aquí
-    cursos = models.ManyToManyField(CursoDB)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
+    codigo = models.CharField(max_length=9, unique=True, blank=True, null=True)
+    nombres = models.CharField(max_length=100, blank=True)
+    apellidos = models.CharField(max_length=100, blank=True)
+    correo = models.EmailField(unique=True, blank=True, null=True)
+    departamento = models.ForeignKey(DepartamentoDB, blank=True, null=True, on_delete=models.CASCADE)
+    carreras = models.ManyToManyField(CarreraDB, blank=True, related_name='profesores')  # Cambiado a ManyToManyField
+    cursos = models.ManyToManyField(CursoDB, blank=True, related_name='profesores')
     fecha_creacion = models.DateField(auto_now_add=True)
-    fecha_ingreso = models.DateField()
-    observaciones = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.nombre} {self.apellidos}"
+        return f"{self.nombres} {self.apellidos}"
 
     class Meta:
         db_table = 'ProfesorDB'
@@ -78,20 +74,55 @@ class ProfesorDB(models.Model):
 
 class AulaVirtualDB(models.Model):
     codigo = models.CharField(unique=True, max_length=2)
-    profesor = models.ForeignKey(ProfesorDB, on_delete=models.CASCADE)
-    curso = models.ForeignKey(CursoDB, on_delete=models.CASCADE)
-    estado = models.CharField(max_length=20, choices=[('disponible', 'Disponible'), ('reservado', 'Reservado')], default='disponible')
-    hora_inicio = models.TimeField()
-    hora_fin = models.TimeField()
-    fecha_reserva = models.DateField()
-    motivo_reserva = models.CharField(max_length=100, blank=True, null=True)
-    fecha_creacion = models.DateField(auto_now_add=True)
+    descripcion = models.TextField(blank=True, null=True)
+    estado = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        choices=[
+            ('disponible', 'Disponible'),
+            ('reservada', 'Reservada'),
+            ('en_uso', 'En Uso'),
+            ('en_mantenimiento', 'En_Mantenimiento'),
+            ('inactiva', 'Inactiva'),
+            ('bloqueada', 'Bloqueada')
+        ],
+        default='disponible'
+    )
 
     def __str__(self):
-        return f"Cubículo {self.codigo} - {self.profesor}"
+        return f"AulaVirtual {self.codigo} "
 
     class Meta:
         db_table = 'Aula_VirtualDB'
         ordering = ['codigo']
         verbose_name = "Aula Virtual"
         verbose_name_plural = "Aulas Virtuales"
+
+
+class ReservaDB(models.Model):
+    profesor = models.ForeignKey(ProfesorDB, on_delete=models.CASCADE)
+    aula_virtual = models.ForeignKey(AulaVirtualDB, on_delete=models.CASCADE)
+    curso = models.ForeignKey(CursoDB, on_delete=models.CASCADE)
+    hora_inicio = models.TimeField()
+    hora_fin = models.TimeField()
+    fecha_reserva = models.DateField()
+    motivo = models.CharField(max_length=100, blank=True, null=True)
+    estado = models.CharField(
+        max_length=20,
+        choices=[
+            ('disponible', 'Disponible'),
+            ('reservado', 'Reservado')
+        ],
+        default='disponible'
+    )
+    fecha_creacion = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Reserva de {self.profesor} para {self.curso} el {self.fecha_reserva}"
+
+    class Meta:
+        db_table = 'ReservaDB'
+        ordering = ['fecha_reserva']
+        verbose_name = "Reserva"
+        verbose_name_plural = "Reservas"
