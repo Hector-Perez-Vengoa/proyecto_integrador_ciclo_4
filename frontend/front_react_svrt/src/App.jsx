@@ -1,32 +1,40 @@
-import { useState, useEffect } from 'react';
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import Login from './components/Login.jsx';
-import Perfil from './components/Perfil.jsx';
+// src/App.jsx
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './logic/useAuth';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import LoadingSpinner from './components/ui/LoadingSpinner';
 import './App.css';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const navigate = useNavigate();
+  const { isAuthenticated, loading, login } = useAuth();
 
-  useEffect(() => {
-    const userData = localStorage.getItem('user');
-    setIsAuthenticated(!!userData);
-  }, []);
-
-  const handleLoginSuccess = () => {
-    setIsAuthenticated(true);
-    navigate('/perfil');
-  };
+  if (loading) {
+    return <LoadingSpinner size="lg" text="Cargando aplicación..." />;
+  }
 
   return (
     <div className="app fixed inset-0 w-screen h-screen">
-      <Routes>
-        <Route path="/" element={
-          isAuthenticated ? <Navigate to="/perfil" replace /> : <Login onLoginSuccess={handleLoginSuccess} />
-        } />
-        <Route path="/perfil" element={
-          isAuthenticated ? <Perfil /> : <Navigate to="/" replace />
-        } />
+      <Routes>        <Route 
+          path="/" 
+          element={
+            isAuthenticated ? (
+              <Navigate to="/perfil" replace />
+            ) : (
+              <Login onLoginSuccess={login} />
+            )
+          } 
+        />
+        <Route 
+          path="/perfil" 
+          element={
+            isAuthenticated ? (
+              <Dashboard />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          } 
+        />
       </Routes>
     </div>
   );

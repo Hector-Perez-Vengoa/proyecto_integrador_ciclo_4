@@ -1,9 +1,21 @@
 /* App.css */
 
-/* Asegurar que la app ocupe todo el espacio disponible */
+/* Asegurar que la app ocupe todo el espacio disponible sin scroll */
 .app {
-  min-height: 100vh;
-  width: 100%;
-  overflow: auto;
-  position: relative;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+/* Responsive para dispositivos móviles */
+@media (max-width: 768px) {
+  .app {
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height para móviles */
+  }
 }

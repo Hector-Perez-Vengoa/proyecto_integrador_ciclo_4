@@ -21,8 +21,7 @@ urlpatterns = [
     # Rutas de la API de aula_virtual
     path("api/", include("aula_virtual.urls")),
 
-    # Comentado temporalmente para solucionar problema de coreapi
-    # path("api/docs/", include_docs_urls(title="API de Reservas Tecsup")),
+   
 ]
 
 
