@@ -15,7 +15,8 @@ function App() {
 
   return (
     <div className="app fixed inset-0 w-screen h-screen">
-      <Routes>        <Route 
+      <Routes>        
+        <Route 
           path="/" 
           element={
             isAuthenticated ? (
