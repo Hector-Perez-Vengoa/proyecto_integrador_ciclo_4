@@ -1,4 +1,3 @@
-// src/utils/validationUtils.js
 export const validatePassword = (password) => {
   const errors = {};
   
@@ -24,16 +23,56 @@ export const validatePasswordConfirmation = (password, confirmPassword) => {
 export const validateProfileData = (data) => {
   const errors = {};
   
-  if (!data.firstName) {
+  // Campos requeridos
+  if (!data.firstName || data.firstName.trim() === '') {
     errors.firstName = 'El nombre es requerido';
   }
   
-  if (!data.lastName) {
+  if (!data.lastName || data.lastName.trim() === '') {
     errors.lastName = 'El apellido es requerido';
   }
   
-  if (!data.email) {
+  if (!data.email || data.email.trim() === '') {
     errors.email = 'El email es requerido';
+  }
+  
+  if (!data.telefono || data.telefono.trim() === '') {
+    errors.telefono = 'El teléfono es requerido';
+  } else if (!/^\+?[\d\s\-\(\)]+$/.test(data.telefono)) {
+    errors.telefono = 'Formato de teléfono inválido';
+  }
+  
+  if (!data.fechaNacimiento || data.fechaNacimiento.trim() === '') {
+    errors.fechaNacimiento = 'La fecha de nacimiento es requerida';
+  }
+  
+  if (!data.biografia || data.biografia.trim() === '') {
+    errors.biografia = 'La biografía es requerida';
+  }
+  
+  // Validaciones opcionales para URLs
+  if (data.sitioWeb && data.sitioWeb.trim() !== '') {
+    try {
+      new URL(data.sitioWeb);
+    } catch {
+      errors.sitioWeb = 'URL del sitio web inválida';
+    }
+  }
+  
+  if (data.linkedin && data.linkedin.trim() !== '') {
+    try {
+      new URL(data.linkedin);
+    } catch {
+      errors.linkedin = 'URL de LinkedIn inválida';
+    }
+  }
+  
+  if (data.twitter && data.twitter.trim() !== '') {
+    try {
+      new URL(data.twitter);
+    } catch {
+      errors.twitter = 'URL de Twitter inválida';
+    }
   }
   
   return errors;

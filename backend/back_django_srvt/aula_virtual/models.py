@@ -61,7 +61,7 @@ class ProfesorDB(models.Model):
     carreras = models.ManyToManyField(CarreraDB, blank=True, related_name='profesores')  # Cambiado a ManyToManyField
     cursos = models.ManyToManyField(CursoDB, blank=True, related_name='profesores')
     fecha_creacion = models.DateField(auto_now_add=True)
-
+    
     def __str__(self):
         return f"{self.nombres} {self.apellidos}"
 

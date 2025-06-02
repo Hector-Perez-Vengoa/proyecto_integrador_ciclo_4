@@ -2,7 +2,7 @@
 import { useSidebar } from '../../logic/useSidebar';
 import UserProfile from './UserProfile';
 
-const Sidebar = ({ user, onLogout }) => {
+const Sidebar = ({ user, onLogout, currentView, onViewChange }) => {
   const { sidebarOpen, openMenus, toggleSidebar, toggleMenu } = useSidebar();
 
   const MenuItem = ({ title, icon, isOpen, onToggle, children }) => (
@@ -34,11 +34,14 @@ const Sidebar = ({ user, onLogout }) => {
       )}
     </li>
   );
-
-  const SubMenuItem = ({ title, onClick }) => (
+  const SubMenuItem = ({ title, onClick, active = false }) => (
     <li>
       <div 
-        className="ml-7 px-3 py-2 rounded text-gray-700 hover:bg-blue-50 hover:text-blue-700 cursor-pointer transition-all"
+        className={`ml-7 px-3 py-2 rounded cursor-pointer transition-all ${
+          active 
+            ? 'bg-blue-100 text-blue-700 font-medium' 
+            : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'
+        }`}
         onClick={onClick}
       >
         {title}
@@ -69,29 +72,64 @@ const Sidebar = ({ user, onLogout }) => {
       <div className={`transition-all duration-500 ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
         <UserProfile user={user} onLogout={onLogout} />
       </div>
-      
-      {/* Menú */}
+        {/* Menú */}
       <nav className={`flex-1 w-full mt-4 transition-all duration-500 ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
         <ul className="space-y-1 px-2">
+          {/* Perfil */}
+          <li>
+            <div 
+              className={`flex items-center gap-2 px-3 py-2 rounded cursor-pointer transition-all ${
+                currentView === 'profile' 
+                  ? 'bg-blue-100 text-blue-700 font-medium' 
+                  : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'
+              }`}
+              onClick={() => onViewChange('profile')}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <span>Mi Perfil</span>
+            </div>
+          </li>
+
           <MenuItem
             title="Reservas"
             icon="M5 13l4 4L19 7"
             isOpen={openMenus.reservas}
             onToggle={() => toggleMenu('reservas')}
           >
-            <SubMenuItem title="Aulas virtuales" />
-            <SubMenuItem title="Mis Reservas" />
-            <SubMenuItem title="Calendario de reservas" />
-            <SubMenuItem title="Historial de Reservas" />
+            <SubMenuItem 
+              title="Aulas virtuales" 
+              onClick={() => onViewChange('aulas')}
+              active={currentView === 'aulas'}
+            />
+            <SubMenuItem 
+              title="Mis Reservas" 
+              onClick={() => onViewChange('mis-reservas')}
+              active={currentView === 'mis-reservas'}
+            />
+            <SubMenuItem 
+              title="Calendario de reservas" 
+              onClick={() => onViewChange('calendario')}
+              active={currentView === 'calendario'}
+            />
+            <SubMenuItem 
+              title="Historial de Reservas" 
+              onClick={() => onViewChange('historial')}
+              active={currentView === 'historial'}
+            />
           </MenuItem>
-          
-          <MenuItem
+            <MenuItem
             title="Reglamento"
             icon="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
             isOpen={openMenus.reglamento}
             onToggle={() => toggleMenu('reglamento')}
           >
-            <SubMenuItem title="Uso de las aulas virtuales" />
+            <SubMenuItem 
+              title="Uso de las aulas virtuales" 
+              onClick={() => onViewChange('reglamento')}
+              active={currentView === 'reglamento'}
+            />
           </MenuItem>
         </ul>
       </nav>

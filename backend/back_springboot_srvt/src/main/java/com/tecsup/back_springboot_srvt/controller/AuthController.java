@@ -4,6 +4,7 @@ import com.tecsup.back_springboot_srvt.model.User;
 import com.tecsup.back_springboot_srvt.repository.UserRepository;
 import com.tecsup.back_springboot_srvt.security.JwtUtils;
 import com.tecsup.back_springboot_srvt.security.UserDetailsImpl;
+import com.tecsup.back_springboot_srvt.service.GoogleAuthService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -34,10 +35,12 @@ public class AuthController {
     UserRepository userRepository;
 
     @Autowired
-    PasswordEncoder encoder;
-
+    PasswordEncoder encoder;    
     @Autowired
     JwtUtils jwtUtils;
+
+    @Autowired
+    GoogleAuthService googleAuthService;
 
     // Endpoint de prueba
     @GetMapping("/test")
@@ -208,26 +211,45 @@ public class AuthController {
             return ResponseEntity.status(500).body(error);
         }    }    // Google OAuth Login
     @PostMapping("/google")
-    public ResponseEntity<?> googleAuth(@Valid @RequestBody GoogleAuthRequest googleRequest) {        try {
-            // Extraer email del token si viene en el request
-            String email = googleRequest.getEmail();
+    public ResponseEntity<?> googleAuth(@Valid @RequestBody GoogleAuthRequest googleRequest) {
+        try {
+            // SEGURIDAD: Verificar el token con Google antes de confiar en los datos
+            String idToken = googleRequest.getToken();
             
-            // Si no viene email, intentar extraerlo del token (implementación básica)
-            if (email == null && googleRequest.getToken() != null) {
-                // Aquí deberías decodificar el JWT de Google, pero por ahora usamos valores del frontend
-                email = googleRequest.getEmail();
-            }
-            
-            // Validar email y limpiarlo
-            if (email == null || email.trim().isEmpty()) {
+            if (idToken == null || idToken.trim().isEmpty()) {
                 Map<String, Object> error = new HashMap<>();
-                error.put("error", "Email requerido");
-                error.put("message", "Email es requerido para Google OAuth");
+                error.put("error", "Token requerido");
+                error.put("message", "Token de Google es requerido para autenticación");
                 return ResponseEntity.badRequest().body(error);
             }
             
-            email = email.trim().toLowerCase(); // Normalizar email
+            // Verificar el token con Google y obtener datos verificados
+            GoogleAuthService.GoogleUserInfo userInfo = googleAuthService.verifyGoogleToken(idToken);
             
+            if (userInfo == null) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("error", "Token inválido");
+                error.put("message", "El token de Google no es válido o ha expirado");
+                return ResponseEntity.status(401).body(error);
+            }
+            
+            // Extraer datos verificados del token (NO del frontend)
+            String email = userInfo.getEmail();
+            String firstName = userInfo.getGivenName();
+            String lastName = userInfo.getFamilyName();
+            
+            // Validar que el token contenga email
+            if (email == null || email.trim().isEmpty()) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("error", "Email no encontrado");
+                error.put("message", "El token de Google no contiene información de email");
+                return ResponseEntity.badRequest().body(error);
+            }
+            
+            // Normalizar email
+            email = email.trim().toLowerCase();
+            
+            // Verificar dominio TECSUP
             if (!email.endsWith("@tecsup.edu.pe")) {
                 Map<String, Object> error = new HashMap<>();
                 error.put("error", "Dominio no permitido");
@@ -238,9 +260,19 @@ public class AuthController {
 
             // Buscar usuario existente
             User existingUser = userRepository.findByEmail(email).orElse(null);
-              if (existingUser != null) {
-                // Usuario existente - verificar si necesita configurar contraseña
+            
+            if (existingUser != null) {
+                // Usuario existente - actualizar datos y login
                 existingUser.setLastLogin(LocalDateTime.now());
+                
+                // Actualizar nombre si cambió en Google
+                if (firstName != null && !firstName.trim().isEmpty()) {
+                    existingUser.setFirstName(firstName.trim());
+                }
+                if (lastName != null && !lastName.trim().isEmpty()) {
+                    existingUser.setLastName(lastName.trim());
+                }
+                
                 userRepository.save(existingUser);
                 
                 // Generate JWT token
@@ -249,7 +281,8 @@ public class AuthController {
                 Map<String, Object> response = new HashMap<>();
                 response.put("token", jwt);
                 response.put("type", "Bearer");
-                  // Verificar si necesita configurar contraseña
+                
+                // Verificar si necesita configurar contraseña
                 boolean needsPassword = GOOGLE_TEMP_PASSWORD.equals(existingUser.getPassword());
                 
                 if (needsPassword) {
@@ -263,12 +296,16 @@ public class AuthController {
                     "lastName", existingUser.getLastName()
                 ));
                 
-                return ResponseEntity.ok(response);            } else {                // Usuario nuevo - crear cuenta
+                return ResponseEntity.ok(response);
+                
+            } else {
+                // Usuario nuevo - crear cuenta con datos verificados
                 User newUser = new User();
                 newUser.setUsername(email);
                 newUser.setEmail(email);
-                newUser.setFirstName(googleRequest.getFirstName());
-                newUser.setLastName(googleRequest.getLastName());
+                newUser.setFirstName(firstName != null ? firstName.trim() : "");
+                newUser.setLastName(lastName != null ? lastName.trim() : "");
+                
                 // Asignar contraseña temporal que indica que necesita configuración
                 newUser.setPassword(GOOGLE_TEMP_PASSWORD);
                 newUser.setDateJoined(LocalDateTime.now());

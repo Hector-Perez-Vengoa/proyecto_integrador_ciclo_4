@@ -21,7 +21,6 @@ import java.util.Map;
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:8000"})
 public class UserController {
 
-    // Constante para identificar usuarios que necesitan configurar contraseña
     private static final String GOOGLE_TEMP_PASSWORD = "GOOGLE_OAUTH_NEEDS_PASSWORD_SETUP";
 
     @Autowired
@@ -65,46 +64,6 @@ public class UserController {
         }
     }
 
-    // Actualizar perfil de usuario
-    @PutMapping("/profile")
-    public ResponseEntity<?> updateProfile(@Valid @RequestBody UpdateProfileRequest updateRequest) {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-            
-            User user = userRepository.findByUsername(userDetails.getUsername()).orElse(null);
-            if (user == null) {
-                return ResponseEntity.notFound().build();
-            }
-
-            // Actualizar campos si están presentes
-            if (updateRequest.getFirstName() != null && !updateRequest.getFirstName().trim().isEmpty()) {
-                user.setFirstName(updateRequest.getFirstName().trim());
-            }
-            if (updateRequest.getLastName() != null && !updateRequest.getLastName().trim().isEmpty()) {
-                user.setLastName(updateRequest.getLastName().trim());
-            }
-
-            userRepository.save(user);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Perfil actualizado exitosamente");
-            response.put("user", Map.of(
-                "id", user.getId(),
-                "email", user.getEmail(),
-                "firstName", user.getFirstName(),
-                "lastName", user.getLastName()
-            ));
-
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            Map<String, Object> error = new HashMap<>();
-            error.put("error", "Error al actualizar el perfil");
-            error.put("message", e.getMessage());
-            return ResponseEntity.status(500).body(error);
-        }
-    }
 
     // Cambiar contraseña
     @PutMapping("/password")
@@ -149,7 +108,8 @@ public class UserController {
             error.put("message", e.getMessage());
             return ResponseEntity.status(500).body(error);
         }
-    }    // Configurar contraseña para usuarios de Google
+    }    
+    // Configurar contraseña para usuarios de Google
     @PostMapping("/setup-password")
     public ResponseEntity<?> setupPassword(@Valid @RequestBody SetupPasswordRequest passwordRequest) {
         try {
@@ -192,21 +152,8 @@ public class UserController {
             error.put("message", e.getMessage());
             return ResponseEntity.status(500).body(error);
         }
-    }
-
+    }    
     // DTOs
-    public static class UpdateProfileRequest {
-        private String firstName;
-        private String lastName;
-
-        // Getters y setters
-        public String getFirstName() { return firstName; }
-        public void setFirstName(String firstName) { this.firstName = firstName; }
-
-        public String getLastName() { return lastName; }
-        public void setLastName(String lastName) { this.lastName = lastName; }
-    }
-
     public static class ChangePasswordRequest {
         private String currentPassword;
         private String newPassword;

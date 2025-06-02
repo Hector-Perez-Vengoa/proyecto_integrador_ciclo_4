@@ -40,7 +40,9 @@ api.interceptors.response.use(
 );
 
 // Servicios de autenticación
-export const authService = {  // Login con email y password
+export const authService = {  
+  
+  // Login con email y password
   login: async (email, password) => {
     try {
       console.log('Attempting login...');
@@ -77,7 +79,9 @@ export const authService = {  // Login con email y password
       console.error('Register error:', error);
       throw error;
     }
-  },  // Autenticación con Google
+  },  
+  
+  // Autenticación con Google
   googleAuth: async (googleAuthRequest) => {
     try {
       console.log('Attempting Google authentication...');

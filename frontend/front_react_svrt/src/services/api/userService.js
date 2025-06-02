@@ -2,12 +2,6 @@
 import api from './authService';
 
 export const userService = {
-  // Actualizar perfil de usuario
-  updateProfile: async (userData) => {
-    const response = await api.put('/user/profile', userData);
-    return response.data;
-  },
-
   // Cambiar contraseña
   changePassword: async (currentPassword, newPassword) => {
     const response = await api.put('/user/password', {

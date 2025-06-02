@@ -13,6 +13,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,8 +29,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-SITE_ID = 3
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -40,73 +39,31 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rest_framework_simplejwt',
     'corsheaders',
     'authentication',
-    'django.contrib.sites',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
     'aula_virtual',
 ]
 
 
-# Configuración para restringir inicio de sesión a dominio tecsup.edu.pe
-SOCIALACCOUNT_PROVIDERS = {
-    "google": {
-        "SCOPE": [
-            "profile",
-            "email"
-        ],
-        "AUTH_PARAMS": {"access_type": "online"},
-        "VERIFIED_EMAIL": True,
-      
-    }
-}
-
-# Configuración adicional de allauth
-ACCOUNT_EMAIL_VERIFICATION = "opcional"
-SOCIALACCOUNT_AUTO_SIGNUP = True
-SOCIALACCOUNT_ADAPTER = 'authentication.adapters.TecsupSocialAccountAdapter'
-
-# Configuración de REST Framework con autenticación JWT
+# Configuración de REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
 }
 
-# Configuración de JWT
-from datetime import timedelta
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-    'ROTATE_REFRESH_TOKENS': False,
-    'BLACKLIST_AFTER_ROTATION': True,
-}
-
 # Configuración de CORS
 CORS_ALLOW_ALL_ORIGINS = True  # Para desarrollo, en producción especifica los orígenes
-CORS_ALLOWED_ORIGINS = [
-     "http://localhost:5173",  # Origen de tu frontend en desarrollo
- ]
- 
-CORS_ALLOW_CREDENTIALS = True
-
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',  # Añadido para CORS
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # middleware de allauth
-    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -186,16 +143,6 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-AUTHENTICATION_BACKENDS = (
-    "django.contrib.auth.backends.ModelBackend",  
-    'allauth.account.auth_backends.AuthenticationBackend',
-        
-)
-
-
-LOGIN_REDIRECT_URL = '/'  
-
-LOGOUT_REDIRECT_URL = '/'
 
 
 

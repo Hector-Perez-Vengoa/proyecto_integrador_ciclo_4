@@ -5,7 +5,6 @@ export const dashboardService = {
   // Obtener datos del dashboard
   getDashboardData: async () => {
     try {
-      // Simular datos del dashboard hasta que se implemente el backend
       return {
         reservations: [],
         availableRooms: [

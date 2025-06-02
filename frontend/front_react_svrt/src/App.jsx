@@ -1,6 +1,7 @@
 // src/App.jsx
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './logic/useAuth';
+import { WelcomeProvider } from './context/WelcomeContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import LoadingSpinner from './components/ui/LoadingSpinner';
@@ -14,30 +15,50 @@ function App() {
   }
 
   return (
-    <div className="app fixed inset-0 w-screen h-screen">
-      <Routes>        
-        <Route 
-          path="/" 
-          element={
-            isAuthenticated ? (
-              <Navigate to="/perfil" replace />
-            ) : (
-              <Login onLoginSuccess={login} />
-            )
-          } 
-        />
-        <Route 
-          path="/perfil" 
-          element={
-            isAuthenticated ? (
-              <Dashboard />
-            ) : (
-              <Navigate to="/" replace />
-            )
-          } 
-        />
-      </Routes>
-    </div>
+    <WelcomeProvider>
+      <div className="app fixed inset-0 w-screen h-screen">
+        <Routes>
+          <Route
+            path="/"
+            element={
+              isAuthenticated ? (
+                <Navigate to="/home" replace />
+              ) : (
+                <Login onLoginSuccess={login} />
+              )
+            }
+          />
+          <Route
+            path="/home"
+            element={
+              isAuthenticated ? (
+                <Dashboard initialView="dashboard" />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />          <Route
+            path="/perfil"
+            element={
+              isAuthenticated ? (
+                <Dashboard initialView="profile" />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
+          <Route
+            path="/perfil/edit"
+            element={
+              isAuthenticated ? (
+                <Dashboard initialView="profile" editing={true} />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          /></Routes>
+      </div>
+    </WelcomeProvider>
   );
 }
 

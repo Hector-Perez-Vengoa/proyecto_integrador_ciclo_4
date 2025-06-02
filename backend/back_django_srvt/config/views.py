@@ -1,6 +1,5 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.reverse import reverse
 
 @api_view(['GET'])
 def api_root(request, format=None):
@@ -10,7 +9,7 @@ def api_root(request, format=None):
     base_url = request.build_absolute_uri('/').rstrip('/')
     
     return Response({
-        # API de recursos
+        # API de recursos principales (aula_virtual)
         "Departamentos": f"{base_url}/api/departamentos/",
         "Carreras": f"{base_url}/api/carreras/",
         "Cursos": f"{base_url}/api/cursos/",
@@ -18,9 +17,7 @@ def api_root(request, format=None):
         "Aula Virtual": f"{base_url}/api/aula-virtual/",
         "Reservas": f"{base_url}/api/reservas/",
         
-        # API de autenticación
-        "auth": f"{base_url}/api/auth/",
-        "auth/google": f"{base_url}/api/auth/google/",
-        "auth/users": f"{base_url}/api/auth/users/",
-        "auth/user": f"{base_url}/api/auth/me/"
+        # Django Admin
+        "admin": f"{base_url}/admin/",
+        "message": "Sistema de Aulas Virtuales - Tecsup (Backend Django para gestión de recursos)"
     })
