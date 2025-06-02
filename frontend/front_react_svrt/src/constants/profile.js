@@ -15,7 +15,7 @@ export const PROFILE_SECTIONS = {
   PERSONAL: {
     title: 'Información Personal',
     icon: 'User',
-    gradient: 'from-blue-500 to-purple-600',
+    gradient: 'from-tecsup-primary to-tecsup-blue-700',
     fields: [
       {
         name: 'firstName',
@@ -61,7 +61,7 @@ export const PROFILE_SECTIONS = {
   },  ADDITIONAL: {
     title: 'Información Adicional',
     icon: 'Star',
-    gradient: 'from-purple-500 to-pink-600',
+    gradient: 'from-tecsup-secondary to-tecsup-cyan-600',
     fields: [
       {
         name: 'biografia',

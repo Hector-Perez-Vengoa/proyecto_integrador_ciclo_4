@@ -1,5 +1,4 @@
-# Serializers básicos para el admin de Django
-# Solo se mantienen para funcionalidad administrativa
+
 
 from rest_framework import serializers
 from django.contrib.auth import get_user_model

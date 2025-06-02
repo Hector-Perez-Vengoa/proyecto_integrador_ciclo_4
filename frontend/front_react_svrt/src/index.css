@@ -1,4 +1,5 @@
 @import "tailwindcss";
+
 /* Reset básico para asegurar consistency */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -16,5 +17,224 @@ html, body {
   width: 100%;
   height: 100%;
   min-height: 100vh;
+}
+
+/* Animaciones personalizadas más suaves para el perfil */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%) skewX(-12deg);
+  }
+  100% {
+    transform: translateX(200%) skewX(-12deg);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes pulse-soft {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+@keyframes hover-glow {
+  0% {
+    box-shadow: 0 0 0 rgba(0, 91, 161, 0);
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(0, 91, 161, 0.2);
+  }
+}
+
+/* Clases de utilidad para animaciones más suaves */
+.animate-fade-in {
+  animation: fade-in 0.8s ease-out forwards;
+}
+
+.animate-slide-in {
+  animation: slide-in 0.7s ease-out forwards;
+}
+
+.animate-shimmer {
+  animation: shimmer 3s infinite;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 4s ease-in-out infinite;
+}
+
+/* Efectos de hover super suaves */
+.hover-lift {
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.hover-lift:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 91, 161, 0.12);
+}
+
+.hover-scale-gentle {
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.hover-scale-gentle:hover {
+  transform: scale(1.02);
+}
+
+.hover-glow {
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 20px rgba(0, 91, 161, 0.15);
+}
+
+/* Gradientes personalizados para TECSUP - Paleta oficial */
+.bg-tecsup-primary {
+  background: linear-gradient(135deg, #005BA1 0%, #004d87 50%, #003f6d 100%);
+}
+
+.bg-tecsup-secondary {
+  background: linear-gradient(135deg, #00B0F0 0%, #0094cc 50%, #0078a8 100%);
+}
+
+.bg-tecsup-success {
+  background: linear-gradient(135deg, #28A745 0%, #22913b 50%, #1e7b32 100%);
+}
+
+.bg-tecsup-danger {
+  background: linear-gradient(135deg, #DC3545 0%, #c82333 50%, #b21e2f 100%);
+}
+
+.bg-tecsup-accent {
+  background: linear-gradient(135deg, #005BA1 0%, #00B0F0 50%, #005BA1 100%);
+}
+
+.bg-tecsup-gradient-light {
+  background: linear-gradient(135deg, #e6f3ff 0%, #b3ecff 50%, #e6f9ff 100%);
+}
+
+/* Gradientes de texto */
+.text-tecsup-gradient {
+  background: linear-gradient(135deg, #005BA1 0%, #00B0F0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Sombras personalizadas con nuevos colores TECSUP */
+.shadow-tecsup {
+  box-shadow: 0 4px 20px rgba(0, 91, 161, 0.08), 0 1px 4px rgba(0, 91, 161, 0.04);
+}
+
+.shadow-tecsup-lg {
+  box-shadow: 0 10px 40px rgba(0, 91, 161, 0.12), 0 4px 16px rgba(0, 91, 161, 0.08);
+}
+
+.shadow-tecsup-hover {
+  box-shadow: 0 8px 30px rgba(0, 91, 161, 0.15), 0 3px 12px rgba(0, 91, 161, 0.1);
+}
+
+.shadow-cyan {
+  box-shadow: 0 4px 20px rgba(0, 176, 240, 0.08), 0 1px 4px rgba(0, 176, 240, 0.04);
+}
+
+.shadow-success {
+  box-shadow: 0 4px 20px rgba(40, 167, 69, 0.08), 0 1px 4px rgba(40, 167, 69, 0.04);
+}
+
+/* Efectos de vidrio (glassmorphism) con colores TECSUP */
+.glass-effect {
+  backdrop-filter: blur(12px);
+  background: rgba(0, 91, 161, 0.05);
+  border: 1px solid rgba(0, 91, 161, 0.1);
+}
+
+.glass-effect-light {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 91, 161, 0.1);
+}
+
+/* Responsive mejorado */
+@media (max-width: 640px) {
+  .mobile-optimized {
+    padding: 1rem;
+  }
+  
+  .mobile-text-scale {
+    font-size: clamp(0.875rem, 2.5vw, 1rem);
+  }
+  
+  /* Reducir animaciones en móvil para mejor rendimiento */
+  .hover-scale-gentle:hover {
+    transform: scale(1.01);
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-0.5px);
+  }
+}
+
+/* Transiciones suaves globales mejoradas */
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Curva más suave */
+  transition-duration: 300ms; /* Duración más larga para suavidad */
+}
+
+/* Transiciones específicas para elementos interactivos */
+button, a, .clickable {
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Reducir motion para usuarios que lo prefieren */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .hover-scale-gentle:hover,
+  .hover-lift:hover {
+    transform: none;
+  }
 }
 
