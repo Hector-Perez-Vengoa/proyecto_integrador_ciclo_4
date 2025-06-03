@@ -1,5 +1,5 @@
 // src/components/aulas/AulasDisponibles.jsx
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { aulaVirtualService } from '../../services';
 import { FILTROS_AULA, ORDENAMIENTO, ESTADOS_AULA } from '../../constants/aulaVirtual';
 import AulaCard from './AulaCard';
@@ -12,24 +12,28 @@ const AulasDisponibles = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filtroActual, setFiltroActual] = useState(FILTROS_AULA.DISPONIBLES);
-  const [ordenamiento, setOrdenamiento] = useState(ORDENAMIENTO.CODIGO_ASC);
-  const [busqueda, setBusqueda] = useState('');
-  const [aulaSeleccionada, setAulaSeleccionada] = useState(null);
-  const [datosProfesor, setDatosProfesor] = useState({ profesor: '', total: 0 });
+  const [ordenamiento, setOrdenamiento] = useState(ORDENAMIENTO.CODIGO_ASC);  const [busqueda, setBusqueda] = useState('');
+  const [aulaSeleccionada, setAulaSeleccionada] = useState(null);  const [datosProfesor, setDatosProfesor] = useState({ profesor: '', total: 0 });
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  
+  const hasLoadedOnce = useRef(false);
 
-  // Cargar aulas disponibles al montar el componente
   useEffect(() => {
-    cargarAulasDisponibles();
+    if (!hasLoadedOnce.current) {
+      hasLoadedOnce.current = true;
+      cargarAulasDisponibles();
+    }
   }, []);
+
   const cargarAulasDisponibles = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      // Debug: verificar token de autenticación
       const token = localStorage.getItem('authToken');
       console.log('🔐 Token de autenticación:', token ? 'Existe' : 'No existe');
       console.log('🔗 Intentando conectar con:', 'http://127.0.0.1:8080/api/aula-virtual/disponibles');
+      console.log('🎯 Llamada desde:', hasLoadedOnce.current ? 'FILTRO CAMBIO' : 'CARGA INICIAL');
       
       const response = await aulaVirtualService.obtenerAulasDisponibles();
       console.log('📡 Respuesta del servidor:', response);
@@ -53,7 +57,6 @@ const AulasDisponibles = () => {
     }
   };
 
-  // Función para cargar todas las aulas si es necesario
   const cargarTodasLasAulas = async () => {
     try {
       setLoading(true);
@@ -72,11 +75,15 @@ const AulasDisponibles = () => {
       setError('Error de conexión. Por favor, intenta de nuevo.');
     } finally {
       setLoading(false);
-    }
-  };
-
-  // Cambiar entre diferentes tipos de filtros
+    }  };
+  
+  // Cambiar entre diferentes tipos de filtros (sin ejecutar en carga inicial)
   useEffect(() => {
+    if (isInitialLoad) {
+      setIsInitialLoad(false);
+      return; // No ejecutar en la primera carga
+    }
+    
     if (filtroActual === FILTROS_AULA.DISPONIBLES) {
       cargarAulasDisponibles();
     } else {
