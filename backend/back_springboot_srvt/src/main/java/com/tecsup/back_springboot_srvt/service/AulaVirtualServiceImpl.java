@@ -23,6 +23,11 @@ public class AulaVirtualServiceImpl implements AulaVirtualService{
     }
 
     @Override
+    public List<AulaVirtual> listarDisponibles() {
+        return aulaVirtualDAO.ListarDisponibles();
+    }
+
+    @Override
     public AulaVirtual obtener(Long id) {
         return aulaVirtualDAO.BuscarPorCodigo(id);
     }

@@ -41,9 +41,7 @@ public class PerfilController {
     @Value("${upload.directory:uploads/}")
     private String uploadDirectory;
     
-    /**
-     * Método helper para validar token JWT y extraer username
-     */
+    
     private String validarYExtraerUsername(String token) {
         try {
             String jwtToken = token.replace("Bearer ", "");
@@ -318,7 +316,7 @@ public class PerfilController {
             
             User user = userOpt.get();
             
-            // Buscar o crear perfil
+            // Buscar perfil, crear uno nuevo si no existe
             Optional<Perfil> perfilOpt = perfilRepository.findByUserId(user.getId());
             Perfil perfil;
             
@@ -344,7 +342,7 @@ public class PerfilController {
                         Files.deleteIfExists(oldFilePath);
                     }
                 } catch (Exception e) {
-                    // Log error pero continúa con la subida
+
                     System.err.println("Error eliminando imagen anterior: " + e.getMessage());
                 }
             }

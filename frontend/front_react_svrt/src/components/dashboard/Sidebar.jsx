@@ -1,8 +1,9 @@
 // src/components/dashboard/Sidebar.jsx
+import { NavLink } from 'react-router-dom';
 import { useSidebar } from '../../logic/useSidebar';
 import UserProfile from './UserProfile';
 
-const Sidebar = ({ user, onLogout, currentView, onViewChange }) => {
+const Sidebar = ({ user, onLogout }) => {
   const { sidebarOpen, openMenus, toggleSidebar, toggleMenu } = useSidebar();
 
   const MenuItem = ({ title, icon, isOpen, onToggle, children }) => (
@@ -33,19 +34,25 @@ const Sidebar = ({ user, onLogout, currentView, onViewChange }) => {
         </ul>
       )}
     </li>
-  );
-  const SubMenuItem = ({ title, onClick, active = false }) => (
+  );  const SubMenuItem = ({ title, to, icon }) => (
     <li>
-      <div 
-        className={`ml-7 px-3 py-2 rounded cursor-pointer transition-all ${
-          active 
-            ? 'bg-blue-100 text-blue-700 font-medium' 
-            : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'
-        }`}
-        onClick={onClick}
+      <NavLink 
+        to={to}
+        className={({ isActive }) => 
+          `ml-7 px-3 py-2 rounded cursor-pointer transition-all flex items-center gap-2 ${
+            isActive 
+              ? 'bg-blue-100 text-blue-700 font-medium' 
+              : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'
+          }`
+        }
       >
+        {icon && (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
+          </svg>
+        )}
         {title}
-      </div>
+      </NavLink>
     </li>
   );
   return (
@@ -73,26 +80,24 @@ const Sidebar = ({ user, onLogout, currentView, onViewChange }) => {
         <UserProfile user={user} onLogout={onLogout} />
       </div>
         {/* Menú */}
-      <nav className={`flex-1 w-full mt-4 transition-all duration-500 ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-        <ul className="space-y-1 px-2">
-          {/* Perfil */}
-          <li>
-            <div 
-              className={`flex items-center gap-2 px-3 py-2 rounded cursor-pointer transition-all ${
-                currentView === 'profile' 
-                  ? 'bg-blue-100 text-blue-700 font-medium' 
-                  : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'
-              }`}
-              onClick={() => onViewChange('profile')}
+      <nav className={`flex-1 w-full mt-4 transition-all duration-500 ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>        <ul className="space-y-1 px-2">
+          {/* Perfil */}          <li>
+            <NavLink 
+              to="/home/perfil"
+              className={({ isActive }) => 
+                `flex items-center gap-2 px-3 py-2 rounded cursor-pointer transition-all ${
+                  isActive 
+                    ? 'bg-blue-100 text-blue-700 font-medium' 
+                    : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'
+                }`
+              }
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
               <span>Mi Perfil</span>
-            </div>
-          </li>
-
-          <MenuItem
+            </NavLink>
+          </li>          <MenuItem
             title="Reservas"
             icon="M5 13l4 4L19 7"
             isOpen={openMenus.reservas}
@@ -100,26 +105,25 @@ const Sidebar = ({ user, onLogout, currentView, onViewChange }) => {
           >
             <SubMenuItem 
               title="Aulas virtuales" 
-              onClick={() => onViewChange('aulas')}
-              active={currentView === 'aulas'}
+              to="/home/aulas"
+              icon="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
             />
             <SubMenuItem 
               title="Mis Reservas" 
-              onClick={() => onViewChange('mis-reservas')}
-              active={currentView === 'mis-reservas'}
+              to="/home/mis-reservas"
+              icon="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
             />
             <SubMenuItem 
               title="Calendario de reservas" 
-              onClick={() => onViewChange('calendario')}
-              active={currentView === 'calendario'}
+              to="/home/calendario"
+              icon="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
             />
             <SubMenuItem 
               title="Historial de Reservas" 
-              onClick={() => onViewChange('historial')}
-              active={currentView === 'historial'}
+              to="/home/historial"
+              icon="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
             />
-          </MenuItem>
-            <MenuItem
+          </MenuItem>            <MenuItem
             title="Reglamento"
             icon="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
             isOpen={openMenus.reglamento}
@@ -127,8 +131,8 @@ const Sidebar = ({ user, onLogout, currentView, onViewChange }) => {
           >
             <SubMenuItem 
               title="Uso de las aulas virtuales" 
-              onClick={() => onViewChange('reglamento')}
-              active={currentView === 'reglamento'}
+              to="/home/reglamento"
+              icon="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
             />
           </MenuItem>
         </ul>

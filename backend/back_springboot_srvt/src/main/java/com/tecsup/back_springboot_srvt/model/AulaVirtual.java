@@ -1,32 +1,34 @@
 package com.tecsup.back_springboot_srvt.model;
 
-import java.sql.Date;
-import java.sql.Time;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "aula_virtualdb")
 public class AulaVirtual {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    @Column(name = "codigo", unique = true, nullable = false)
     private String codigo;
-    private int profesor;
-    private int curso;
+    
+    @Column(name = "estado", nullable = false)
     private String estado;
-    private Time hora_inicio;
-    private Time hora_fin;
-    private Date fecha_reserva;
-    private String motivo_reserva;
-    private Date fecha_creacion;
+    
+    @Column(name = "descripcion")
+    private String descripcion;
 
+    // Constructores
     public AulaVirtual() {}
 
-    public AulaVirtual(Long id, String codigo, int profesor, int curso, String estado, Time hora_inicio, Time hora_fin, Date fecha_reserva, String motivo_reserva, Date fecha_creacion) {
-        this.id = id;
+    public AulaVirtual(String codigo, String estado, String descripcion) {
         this.codigo = codigo;
-        this.profesor = profesor;
-        this.curso = curso;
         this.estado = estado;
-        this.hora_inicio = hora_inicio;
-        this.hora_fin = hora_fin;
+        this.descripcion = descripcion;
     }
 
+    // Getters y Setters
     public Long getId() {
         return id;
     }
@@ -35,44 +37,12 @@ public class AulaVirtual {
         this.id = id;
     }
 
-    public Date getFecha_creacion() {
-        return fecha_creacion;
+    public String getCodigo() {
+        return codigo;
     }
 
-    public void setFecha_creacion(Date fecha_creacion) {
-        this.fecha_creacion = fecha_creacion;
-    }
-
-    public String getMotivo_reserva() {
-        return motivo_reserva;
-    }
-
-    public void setMotivo_reserva(String motivo_reserva) {
-        this.motivo_reserva = motivo_reserva;
-    }
-
-    public Date getFecha_reserva() {
-        return fecha_reserva;
-    }
-
-    public void setFecha_reserva(Date fecha_reserva) {
-        this.fecha_reserva = fecha_reserva;
-    }
-
-    public Time getHora_fin() {
-        return hora_fin;
-    }
-
-    public void setHora_fin(Time hora_fin) {
-        this.hora_fin = hora_fin;
-    }
-
-    public Time getHora_inicio() {
-        return hora_inicio;
-    }
-
-    public void setHora_inicio(Time hora_inicio) {
-        this.hora_inicio = hora_inicio;
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
     }
 
     public String getEstado() {
@@ -83,28 +53,12 @@ public class AulaVirtual {
         this.estado = estado;
     }
 
-    public int getCurso() {
-        return curso;
+    public String getDescripcion() {
+        return descripcion;
     }
 
-    public void setCurso(int curso) {
-        this.curso = curso;
-    }
-
-    public int getProfesor() {
-        return profesor;
-    }
-
-    public void setProfesor(int profesor) {
-        this.profesor = profesor;
-    }
-
-    public String getCodigo() {
-        return codigo;
-    }
-
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
     }
 }
 

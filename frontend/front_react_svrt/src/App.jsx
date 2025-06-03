@@ -4,7 +4,18 @@ import { useAuth } from './logic/useAuth';
 import { WelcomeProvider } from './context/WelcomeContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 import LoadingSpinner from './components/ui/LoadingSpinner';
+import {
+  DashboardHome,
+  ProfilePage,
+  ProfileEditPage,
+  AulasPage,
+  MisReservasPage,
+  CalendarioPage,
+  HistorialPage,
+  ReglamentoPage
+} from './pages/dashboard/index.js';
 import './App.css';
 
 function App() {
@@ -18,6 +29,7 @@ function App() {
     <WelcomeProvider>
       <div className="app fixed inset-0 w-screen h-screen">
         <Routes>
+          {/* Ruta pública - Login */}
           <Route
             path="/"
             element={
@@ -28,35 +40,41 @@ function App() {
               )
             }
           />
+          
+          {/* Rutas protegidas anidadas */}
           <Route
             path="/home"
             element={
-              isAuthenticated ? (
-                <Dashboard initialView="dashboard" />
-              ) : (
-                <Navigate to="/" replace />
-              )
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
             }
-          />          <Route
-            path="/perfil"
-            element={
-              isAuthenticated ? (
-                <Dashboard initialView="profile" />
-              ) : (
-                <Navigate to="/" replace />
-              )
-            }
-          />
-          <Route
-            path="/perfil/edit"
-            element={
-              isAuthenticated ? (
-                <Dashboard initialView="profile" editing={true} />
-              ) : (
-                <Navigate to="/" replace />
-              )
-            }
-          /></Routes>
+          >
+            {/* Ruta por defecto del dashboard */}
+            <Route index element={<DashboardHome />} />
+            
+            {/* Rutas de perfil */}
+            <Route path="perfil" element={<ProfilePage />} />
+            <Route path="perfil/edit" element={<ProfileEditPage />} />
+            
+            {/* Rutas de reservas */}
+            <Route path="aulas" element={<AulasPage />} />
+            <Route path="mis-reservas" element={<MisReservasPage />} />
+            <Route path="calendario" element={<CalendarioPage />} />
+            <Route path="historial" element={<HistorialPage />} />
+            
+            {/* Ruta de reglamento */}
+            <Route path="reglamento" element={<ReglamentoPage />} />
+          </Route>
+
+          {/* Rutas legacy - Redireccionamientos para compatibilidad */}
+          <Route path="/perfil" element={<Navigate to="/home/perfil" replace />} />
+          <Route path="/perfil/edit" element={<Navigate to="/home/perfil/edit" replace />} />
+          <Route path="/dashboard/aulavirtual" element={<Navigate to="/home/aulas" replace />} />
+          
+          {/* Ruta catch-all */}
+          <Route path="*" element={<Navigate to="/home" replace />} />
+        </Routes>
       </div>
     </WelcomeProvider>
   );

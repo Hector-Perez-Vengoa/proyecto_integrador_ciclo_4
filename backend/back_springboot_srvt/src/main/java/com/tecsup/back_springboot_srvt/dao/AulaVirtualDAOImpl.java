@@ -1,44 +1,59 @@
 package com.tecsup.back_springboot_srvt.dao;
 
 import com.tecsup.back_springboot_srvt.model.AulaVirtual;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Repository
+@Transactional
 public class AulaVirtualDAOImpl implements AulaVirtualDAO {
 
-    private final String BASE_URL = "http://127.0.0.1:8000/api/aula-virtual/";
-
-    @Autowired
-    private RestTemplate restTemplate;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
     public List<AulaVirtual> Listar() {
-        AulaVirtual[] aulas = restTemplate.getForObject(BASE_URL, AulaVirtual[].class);
-        return Arrays.asList(aulas);
+        TypedQuery<AulaVirtual> query = entityManager.createQuery(
+            "SELECT a FROM AulaVirtual a", AulaVirtual.class);
+        return query.getResultList();
+    }
+
+    @Override
+    public List<AulaVirtual> ListarDisponibles() {
+        TypedQuery<AulaVirtual> query = entityManager.createQuery(
+            "SELECT a FROM AulaVirtual a WHERE a.estado = 'disponible'", AulaVirtual.class);
+        return query.getResultList();
     }
 
     @Override
     public AulaVirtual BuscarPorCodigo(Long id) {
-        return restTemplate.getForObject(BASE_URL + id + "/", AulaVirtual.class);
+        return entityManager.find(AulaVirtual.class, id);
     }
 
     @Override
     public void guardar(AulaVirtual aulaVirtual) {
-        restTemplate.postForObject(BASE_URL, aulaVirtual, AulaVirtual.class);
+        entityManager.persist(aulaVirtual);
     }
 
     @Override
     public void actualizar(AulaVirtual aulaVirtual) {
-        restTemplate.put(BASE_URL + aulaVirtual.getCodigo() + "/", aulaVirtual);
+        entityManager.merge(aulaVirtual);
     }
 
     @Override
     public void eliminar(String codigo) {
-        restTemplate.delete(BASE_URL + codigo + "/");
+        TypedQuery<AulaVirtual> query = entityManager.createQuery(
+            "SELECT a FROM AulaVirtual a WHERE a.codigo = :codigo", AulaVirtual.class);
+        query.setParameter("codigo", codigo);
+        
+        List<AulaVirtual> aulas = query.getResultList();
+        if (!aulas.isEmpty()) {
+            entityManager.remove(aulas.get(0));
+        }
     }
 }

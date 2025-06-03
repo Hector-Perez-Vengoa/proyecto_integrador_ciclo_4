@@ -41,14 +41,4 @@ class PerfilDB(models.Model):
         verbose_name = "Perfil"
         verbose_name_plural = "Perfiles"
 
-@receiver(post_save, sender=User)
-def crear_perfil_usuario(sender, instance, created, **kwargs):
-    if created:
-        PerfilDB.objects.create(user=instance)
 
-@receiver(post_save, sender=User)
-def guardar_perfil_usuario(sender, instance, **kwargs):
-    try:
-        instance.perfildb.save()
-    except PerfilDB.DoesNotExist:
-        PerfilDB.objects.create(user=instance)

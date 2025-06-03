@@ -17,7 +17,7 @@ const ProfileSection = ({ section, profile, editing, formData, handleInputChange
   };  return (
     <div className="relative group overflow-hidden bg-white rounded-3xl shadow-tecsup-lg border border-tecsup-gray-light/50 hover:shadow-tecsup-hover transition-all duration-600 hover:border-tecsup-primary/20 hover-scale-gentle">
       
-      {/* Fondo decorativo con colores TECSUP */}
+      {/* Fondo */}
       <div className="absolute inset-0 bg-gradient-to-br from-tecsup-primary/3 via-tecsup-secondary/2 to-tecsup-primary/3 group-hover:from-tecsup-primary/5 group-hover:via-tecsup-secondary/3 group-hover:to-tecsup-primary/5 transition-all duration-600"></div>
       <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-tecsup-secondary/8 to-transparent rounded-full -translate-y-16 translate-x-16 group-hover:scale-125 transition-transform duration-800"></div>
       

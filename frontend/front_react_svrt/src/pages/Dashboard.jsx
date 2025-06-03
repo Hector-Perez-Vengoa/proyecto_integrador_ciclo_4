@@ -1,47 +1,24 @@
 // src/pages/Dashboard.jsx
-import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import { useAuth } from '../logic/useAuth';
 import { useDashboard } from '../logic/useDashboard';
 import { showToast } from '../utils/authUtils';
 import Sidebar from '../components/dashboard/Sidebar';
-import MainContent from '../components/dashboard/MainContent';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import PasswordSetupForm from '../components/dashboard/PasswordSetupForm';
 
-const Dashboard = ({ initialView = 'dashboard', editing = false }) => {
+const Dashboard = () => {
   const { user, logout } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
   const { 
     dashboardData, 
     loading, 
     needsPassword, 
     onPasswordSetupComplete 
   } = useDashboard();
-  
-  const getCurrentView = () => {
-    if (location.pathname === '/perfil' || location.pathname === '/perfil/edit') return 'profile';
-    return 'dashboard';
-  };
-
-  const [currentView, setCurrentView] = useState(getCurrentView());
-
-  useEffect(() => {
-    setCurrentView(getCurrentView());
-  }, [location.pathname]);
 
   const handleLogout = () => {
     showToast('Sesión cerrada exitosamente');
     logout();
-  };
-
-  const handleViewChange = (view) => {
-    if (view === 'profile') {
-      navigate('/perfil');
-    } else {
-      navigate('/home');
-    }
-    setCurrentView(view);
   };
 
   if (loading) {
@@ -57,15 +34,14 @@ const Dashboard = ({ initialView = 'dashboard', editing = false }) => {
       <Sidebar 
         user={user} 
         onLogout={handleLogout} 
-        currentView={currentView}
-        onViewChange={handleViewChange}
-      />      <MainContent 
-        user={user} 
-        needsPassword={needsPassword}
-        onPasswordSetupComplete={onPasswordSetupComplete}
-        currentView={currentView}
-        editing={editing}
-      />
+      />      
+      <main className="flex-1 flex flex-col p-4 overflow-y-auto">
+        {needsPassword ? (
+          <PasswordSetupForm onSuccess={onPasswordSetupComplete} />
+        ) : (
+          <Outlet />
+        )}
+      </main>
     </div>
   );
 };

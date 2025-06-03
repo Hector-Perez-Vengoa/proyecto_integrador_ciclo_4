@@ -49,7 +49,8 @@ const Login = ({ onLoginSuccess }) => {
       </div>
       
       {/* Contenedor principal responsivo */}
-      <div className="main-form-container">        {/* Panel izquierdo - Carrusel (oculto en móvil) */}
+      <div className="main-form-container">        
+        {/* Panel izquierdo - Carrusel (oculto en móvil) */}
         <div className="carousel-panel hidden md:block">
           <ImageCarousel />
           <br />
@@ -204,15 +205,13 @@ const Login = ({ onLoginSuccess }) => {
                 </div>
               </div>
             </div>
-            
-            {/* Google Login */}
+              {/* Google Login */}
             <div className="form-item google-login-container">
               <GoogleLogin
                 onSuccess={handleGoogleSuccess}
                 onError={handleGoogleError}
                 theme="outline"
                 size="large"
-                width="100%"
                 text={isLogin ? "signin_with" : "signup_with"}
               />
             </div>

@@ -3,3 +3,4 @@ export { authService } from './api/authService';
 export { userService } from './api/userService';
 export { dashboardService } from './api/dashboardService';
 export { profileService } from './api/profileService';
+export { aulaVirtualService } from './api/aulaVirtualService';

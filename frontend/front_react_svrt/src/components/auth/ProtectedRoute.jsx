@@ -1,19 +1,20 @@
 // src/components/auth/ProtectedRoute.jsx
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../logic/useAuth';
+import LoadingSpinner from '../ui/LoadingSpinner';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
+    return <LoadingSpinner size="lg" text="Verificando autenticación..." />;
   }
 
-  return isAuthenticated ? children : <Navigate to="/" replace />;
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
 };
 
 export default ProtectedRoute;
