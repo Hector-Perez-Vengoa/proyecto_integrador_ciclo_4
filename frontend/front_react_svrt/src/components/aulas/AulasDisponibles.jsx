@@ -5,19 +5,21 @@ import { FILTROS_AULA, ORDENAMIENTO, ESTADOS_AULA } from '../../constants/aulaVi
 import AulaCard from './AulaCard';
 import AulaFilters from './AulaFilters';
 import AulaLoading from './AulaLoading';
+import FiltrosAvanzados from './FiltrosAvanzados';
 
-const AulasDisponibles = () => {
-  // Estados
+const AulasDisponibles = () => {  // Estados
   const [aulas, setAulas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filtroActual, setFiltroActual] = useState(FILTROS_AULA.DISPONIBLES);
-  const [ordenamiento, setOrdenamiento] = useState(ORDENAMIENTO.CODIGO_ASC);  const [busqueda, setBusqueda] = useState('');
-  const [aulaSeleccionada, setAulaSeleccionada] = useState(null);  const [datosProfesor, setDatosProfesor] = useState({ profesor: '', total: 0 });
+  const [ordenamiento, setOrdenamiento] = useState(ORDENAMIENTO.CODIGO_ASC);
+  const [busqueda, setBusqueda] = useState('');
+  const [aulaSeleccionada, setAulaSeleccionada] = useState(null);
+  const [datosProfesor, setDatosProfesor] = useState({ profesor: '', total: 0 });
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [filtrosAvanzados, setFiltrosAvanzados] = useState({});
   
   const hasLoadedOnce = useRef(false);
-
   useEffect(() => {
     if (!hasLoadedOnce.current) {
       hasLoadedOnce.current = true;
@@ -25,7 +27,20 @@ const AulasDisponibles = () => {
     }
   }, []);
 
-  const cargarAulasDisponibles = async () => {
+  // Manejar cambios en filtros avanzados
+  const handleFiltrosAvanzadosChange = (nuevosFiltros) => {
+    console.log('🔄 Filtros avanzados cambiados:', nuevosFiltros);
+    setFiltrosAvanzados(nuevosFiltros);
+    
+    // Aplicar filtros inmediatamente si hay algún filtro activo
+    if (Object.values(nuevosFiltros).some(valor => valor !== '')) {
+      cargarAulasDisponibles(nuevosFiltros);
+    } else {
+      // Si no hay filtros, cargar todas las aulas disponibles
+      cargarAulasDisponibles();
+    }
+  };
+  const cargarAulasDisponibles = async (filtrosPersonalizados = {}) => {
     try {
       setLoading(true);
       setError(null);
@@ -33,9 +48,9 @@ const AulasDisponibles = () => {
       const token = localStorage.getItem('authToken');
       console.log('🔐 Token de autenticación:', token ? 'Existe' : 'No existe');
       console.log('🔗 Intentando conectar con:', 'http://127.0.0.1:8080/api/aula-virtual/disponibles');
-      console.log('🎯 Llamada desde:', hasLoadedOnce.current ? 'FILTRO CAMBIO' : 'CARGA INICIAL');
+      console.log('🎯 Filtros aplicados:', filtrosPersonalizados);
       
-      const response = await aulaVirtualService.obtenerAulasDisponibles();
+      const response = await aulaVirtualService.obtenerAulasDisponibles(filtrosPersonalizados);
       console.log('📡 Respuesta del servidor:', response);
       
       if (response.success) {
@@ -213,8 +228,13 @@ const AulasDisponibles = () => {
                 Reintentar
               </button>
             </div>
-          </div>
-        )}
+          </div>        )}
+
+        {/* Filtros Avanzados */}
+        <FiltrosAvanzados
+          onFiltrosChange={handleFiltrosAvanzadosChange}
+          filtrosIniciales={filtrosAvanzados}
+        />
 
         {/* Filtros */}
         <AulaFilters

@@ -28,6 +28,16 @@ public class AulaVirtualServiceImpl implements AulaVirtualService{
     }
 
     @Override
+    public List<AulaVirtual> listarDisponiblesConFiltros(String codigo, String descripcion) {
+        return aulaVirtualDAO.ListarDisponiblesConFiltros(codigo, descripcion);
+    }
+
+    @Override
+    public List<AulaVirtual> listarDisponiblesConFiltrosAvanzados(String fecha, String horaInicio, String horaFin, Long cursoId) {
+        return aulaVirtualDAO.ListarDisponiblesConFiltrosAvanzados(fecha, horaInicio, horaFin, cursoId);
+    }
+
+    @Override
     public AulaVirtual obtener(Long id) {
         return aulaVirtualDAO.BuscarPorCodigo(id);
     }

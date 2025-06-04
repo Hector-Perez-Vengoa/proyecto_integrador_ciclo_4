@@ -59,11 +59,28 @@ export const aulaVirtualService = {
       };
     }
   },
-
-  // Obtener solo las aulas disponibles
-  async obtenerAulasDisponibles() {
+  // Obtener solo las aulas disponibles con filtros opcionales
+  async obtenerAulasDisponibles(filtros = {}) {
     try {
-      const response = await api.get('/aula-virtual/disponibles');
+      // Construir parámetros de consulta
+      const params = new URLSearchParams();
+      
+      // Filtros básicos
+      if (filtros.codigo) params.append('codigo', filtros.codigo);
+      if (filtros.descripcion) params.append('descripcion', filtros.descripcion);
+      
+      // Filtros avanzados
+      if (filtros.fecha) params.append('fecha', filtros.fecha);
+      if (filtros.horaInicio) params.append('horaInicio', filtros.horaInicio);
+      if (filtros.horaFin) params.append('horaFin', filtros.horaFin);
+      if (filtros.cursoId) params.append('cursoId', filtros.cursoId);
+      
+      const url = `/aula-virtual/disponibles${params.toString() ? `?${params.toString()}` : ''}`;
+      
+      console.log('🔍 Llamando API con filtros:', filtros);
+      console.log('🌐 URL construida:', url);
+      
+      const response = await api.get(url);
       return {
         success: true,
         data: response.data.data || {},
@@ -73,7 +90,7 @@ export const aulaVirtualService = {
       console.error('Error al obtener aulas disponibles:', error);
       return {
         success: false,
-        data: { aulas: [], total: 0, profesor: '' },
+        data: { aulas: [], total: 0, profesor: '', filtros: {} },
         message: error.response?.data?.message || 'Error al obtener las aulas disponibles'
       };
     }

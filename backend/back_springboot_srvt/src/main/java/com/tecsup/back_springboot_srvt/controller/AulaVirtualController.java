@@ -90,11 +90,16 @@ public class AulaVirtualController {
             return ResponseEntity.status(500)
                 .body(crearRespuestaError("Error al obtener aulas virtuales: " + e.getMessage()));
         }
-    }
-
-    // GET http://localhost:8080/api/aula-virtual/disponibles
+    }    // GET http://localhost:8080/api/aula-virtual/disponibles
     @GetMapping("/disponibles")
-    public ResponseEntity<?> listarDisponibles(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> listarDisponibles(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(value = "codigo", required = false) String codigo,
+            @RequestParam(value = "descripcion", required = false) String descripcion,
+            @RequestParam(value = "fecha", required = false) String fecha,
+            @RequestParam(value = "horaInicio", required = false) String horaInicio,
+            @RequestParam(value = "horaFin", required = false) String horaFin,
+            @RequestParam(value = "cursoId", required = false) Long cursoId) {
         try {
             // Verificar autenticación
             String username = validarYExtraerUsername(token);
@@ -103,12 +108,35 @@ public class AulaVirtualController {
                     .body(crearRespuestaError("Token inválido o expirado"));
             }
 
-            List<AulaVirtual> aulasDisponibles = aulaVirtualService.listarDisponibles();
+            List<AulaVirtual> aulasDisponibles;
+            
+            // Determinar qué tipo de filtros usar
+            if (fecha != null || horaInicio != null || horaFin != null || cursoId != null) {
+                // Usar filtros avanzados por fecha, hora y curso
+                aulasDisponibles = aulaVirtualService.listarDisponiblesConFiltrosAvanzados(
+                    fecha, horaInicio, horaFin, cursoId);
+            } else if (codigo != null || descripcion != null) {
+                // Usar filtros básicos por código y descripción
+                aulasDisponibles = aulaVirtualService.listarDisponiblesConFiltros(codigo, descripcion);
+            } else {
+                // Sin filtros, obtener todas las disponibles
+                aulasDisponibles = aulaVirtualService.listarDisponibles();
+            }
             
             Map<String, Object> respuestaData = new HashMap<>();
             respuestaData.put("aulas", aulasDisponibles);
             respuestaData.put("total", aulasDisponibles.size());
             respuestaData.put("profesor", username);
+            
+            // Agregar información de filtros aplicados
+            Map<String, Object> filtrosAplicados = new HashMap<>();
+            filtrosAplicados.put("codigo", codigo);
+            filtrosAplicados.put("descripcion", descripcion);
+            filtrosAplicados.put("fecha", fecha);
+            filtrosAplicados.put("horaInicio", horaInicio);
+            filtrosAplicados.put("horaFin", horaFin);
+            filtrosAplicados.put("cursoId", cursoId);
+            respuestaData.put("filtros", filtrosAplicados);
 
             return ResponseEntity.ok()
                 .body(crearRespuestaExitosa("Aulas virtuales disponibles obtenidas correctamente", respuestaData));
