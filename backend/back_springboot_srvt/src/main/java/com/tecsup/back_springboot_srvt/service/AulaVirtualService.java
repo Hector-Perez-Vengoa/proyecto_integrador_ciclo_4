@@ -7,7 +7,6 @@ public interface AulaVirtualService {
     List<AulaVirtual> listar();
     List<AulaVirtual> listarDisponibles();
     
-    // Métodos de filtros
     List<AulaVirtual> listarDisponiblesConFiltros(String codigo, String descripcion);
     List<AulaVirtual> listarDisponiblesConFiltrosAvanzados(String fecha, String horaInicio, String horaFin, Long cursoId);
     
