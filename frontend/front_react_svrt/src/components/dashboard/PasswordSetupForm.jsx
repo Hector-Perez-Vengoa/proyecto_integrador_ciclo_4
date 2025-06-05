@@ -1,5 +1,5 @@
 // src/components/dashboard/PasswordSetupForm.jsx
-import { usePasswordSetup } from '../../logic/usePasswordSetup';
+import { usePasswordSetup } from '../../hooks/usePasswordSetup';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 

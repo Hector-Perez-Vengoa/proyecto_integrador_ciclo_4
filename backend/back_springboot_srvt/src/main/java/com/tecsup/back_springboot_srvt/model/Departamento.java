@@ -15,9 +15,6 @@ public class Departamento {
     @Column(name = "nombre", nullable = false)
     private String nombre;
     
-    @Column(name = "codigo", unique = true, nullable = false)
-    private String codigo;
-    
     @Column(name = "descripcion")
     private String descripcion;
     
@@ -31,9 +28,8 @@ public class Departamento {
     private List<Carrera> carreras;    // Constructors
     public Departamento() {}
 
-    public Departamento(String nombre, String codigo, String descripcion, String jefe) {
+    public Departamento(String nombre, String descripcion, String jefe) {
         this.nombre = nombre;
-        this.codigo = codigo;
         this.descripcion = descripcion;
         this.jefe = jefe;
         this.fecha_creacion = LocalDateTime.now();
@@ -52,14 +48,6 @@ public class Departamento {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
-    }
-
-    public String getCodigo() {
-        return codigo;
-    }
-
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
     }
 
     public String getDescripcion() {

@@ -1,5 +1,5 @@
 // src/pages/dashboard/DashboardHome.jsx
-import { useAuth } from '../../logic/useAuth';
+import { useAuth } from '../../hooks/useAuth';
 import { getUserFullName } from '../../utils/dashboardUtils';
 
 const DashboardHome = () => {

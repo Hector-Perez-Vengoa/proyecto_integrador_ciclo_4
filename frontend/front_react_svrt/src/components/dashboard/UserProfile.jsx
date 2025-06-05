@@ -1,7 +1,7 @@
 // src/components/dashboard/UserProfile.jsx
 import { getUserInitials, getUserFullName } from '../../utils/dashboardUtils';
 import { getImageUrl, getInitials } from '../../utils/profileUtils';
-import { useProfile } from '../../logic/useProfile';
+import { useProfile } from '../../hooks/useProfile';
 import Button from '../ui/Button';
 
 const UserProfile = ({ user, onLogout }) => {

@@ -1,7 +1,7 @@
 // src/pages/Dashboard.jsx
 import { Outlet } from 'react-router-dom';
-import { useAuth } from '../logic/useAuth';
-import { useDashboard } from '../logic/useDashboard';
+import { useAuth } from '../hooks/useAuth';
+import { useDashboard } from '../hooks/useDashboard';
 import { showToast } from '../utils/authUtils';
 import Sidebar from '../components/dashboard/Sidebar';
 import LoadingSpinner from '../components/ui/LoadingSpinner';

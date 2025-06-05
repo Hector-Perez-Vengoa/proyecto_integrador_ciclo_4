@@ -1,6 +1,6 @@
 // src/components/profile/ProfileView.jsx
 import React, { useState, useEffect } from 'react';
-import { useProfile } from '../../logic/useProfile';
+import { useProfile } from '../../hooks/useProfile';
 import { useWelcome } from '../../context/WelcomeContext';
 import { Edit, User, Mail, Save, X, CheckCircle, AlertCircle, Camera, Plus } from 'lucide-react';
 import LoadingSpinner from '../ui/LoadingSpinner';

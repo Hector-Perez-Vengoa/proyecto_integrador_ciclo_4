@@ -1,8 +1,8 @@
 // src/pages/Login.jsx
 import { useEffect, useCallback } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
-import { useAuth } from '../logic/useAuth';
-import { useLoginForm } from '../logic/useLoginForm';
+import { useAuth } from '../hooks/useAuth';
+import { useLoginForm } from '../hooks/useLoginForm';
 import { AUTH_CONFIG } from '../constants/auth';
 import { ImageCarousel } from '../components/login';
 import '../assets/css/Login-new.css';

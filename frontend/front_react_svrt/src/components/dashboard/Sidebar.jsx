@@ -1,6 +1,6 @@
 // src/components/dashboard/Sidebar.jsx
 import { NavLink } from 'react-router-dom';
-import { useSidebar } from '../../logic/useSidebar';
+import { useSidebar } from '../../hooks/useSidebar';
 import UserProfile from './UserProfile';
 
 const Sidebar = ({ user, onLogout }) => {

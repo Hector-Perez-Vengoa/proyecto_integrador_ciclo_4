@@ -1,6 +1,6 @@
 // src/App.jsx
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from './logic/useAuth';
+import { useAuth } from './hooks/useAuth.js';
 import { WelcomeProvider } from './context/WelcomeContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';

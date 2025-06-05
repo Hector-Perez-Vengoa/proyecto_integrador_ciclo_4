@@ -1,7 +1,7 @@
 // src/pages/AulasVirtualesPage.jsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../logic/useAuth';
+import { useAuth } from '../hooks/useAuth';
 import { showToast } from '../utils/authUtils';
 import { Home, ArrowLeft, LogOut } from 'lucide-react';
 import Button from '../components/ui/Button';
