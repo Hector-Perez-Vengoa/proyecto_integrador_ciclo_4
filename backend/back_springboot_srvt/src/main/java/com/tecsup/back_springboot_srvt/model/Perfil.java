@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "PerfilDB")
+@Table(name = "perfildb")
 public class Perfil {
     
     @Id
