@@ -1,25 +1,43 @@
 package com.tecsup.back_springboot_srvt.model;
-import java.sql.Date;
 
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Entity
+@Table(name = "departamentodb")
 public class Departamento {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    @Column(name = "nombre", nullable = false)
     private String nombre;
+    
+    @Column(name = "codigo", unique = true, nullable = false)
     private String codigo;
+    
+    @Column(name = "descripcion")
     private String descripcion;
+    
+    @Column(name = "jefe")
     private String jefe;
-    private Date fecha_creacion;
-
+    
+    @Column(name = "fecha_creacion")
+    private LocalDateTime fecha_creacion;
+    
+    @OneToMany(mappedBy = "departamento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Carrera> carreras;    // Constructors
     public Departamento() {}
 
-    public Departamento(String jefe, Date fecha_creacion, String descripcion, String codigo, String nombre, Long id) {
-        this.jefe = jefe;
-        this.fecha_creacion = fecha_creacion;
-        this.descripcion = descripcion;
-        this.codigo = codigo;
+    public Departamento(String nombre, String codigo, String descripcion, String jefe) {
         this.nombre = nombre;
-        this.id = id;
-    }
-
+        this.codigo = codigo;
+        this.descripcion = descripcion;
+        this.jefe = jefe;
+        this.fecha_creacion = LocalDateTime.now();
+    }    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -28,12 +46,20 @@ public class Departamento {
         this.id = id;
     }
 
-    public Date getFecha_creacion() {
-        return fecha_creacion;
+    public String getNombre() {
+        return nombre;
     }
 
-    public void setFecha_creacion(Date fecha_creacion) {
-        this.fecha_creacion = fecha_creacion;
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getCodigo() {
+        return codigo;
+    }
+
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
     }
 
     public String getDescripcion() {
@@ -52,19 +78,19 @@ public class Departamento {
         this.jefe = jefe;
     }
 
-    public String getCodigo() {
-        return codigo;
+    public LocalDateTime getFecha_creacion() {
+        return fecha_creacion;
     }
 
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
+    public void setFecha_creacion(LocalDateTime fecha_creacion) {
+        this.fecha_creacion = fecha_creacion;
     }
 
-    public String getNombre() {
-        return nombre;
+    public List<Carrera> getCarreras() {
+        return carreras;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setCarreras(List<Carrera> carreras) {
+        this.carreras = carreras;
     }
 }
