@@ -1,11 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
+
 class DepartamentoDB(models.Model):
     nombre = models.CharField(max_length=100, blank=True)  # blank=True está bien para permitir vacíos en formularios
     descripcion = models.TextField(blank=True, null=True)
     fecha_creacion = models.DateField(auto_now_add=True)
     jefe = models.CharField(max_length=100, blank=True, null=True)
-    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_creacion = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
         return self.nombre
@@ -22,7 +23,7 @@ class CarreraDB(models.Model):
     codigo = models.CharField(max_length=3, blank=True, unique=True)
     descripcion = models.TextField(blank=True, null=True)
     departamento = models.ForeignKey(DepartamentoDB, blank=True, null=True, on_delete=models.CASCADE)
-    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_creacion = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
         return self.nombre
@@ -40,7 +41,7 @@ class CursoDB(models.Model):
     duracion = models.PositiveIntegerField(help_text="Duración en horas", blank=True, null=True)
     fecha = models.DateField(blank=True, null=True)
     carrera = models.ForeignKey(CarreraDB, blank=True, null=True, on_delete=models.CASCADE)
-    fecha_creacion = models.DateField(auto_now_add=True)
+    fecha_creacion = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
         return self.nombre
@@ -61,7 +62,7 @@ class ProfesorDB(models.Model):
     departamento = models.ForeignKey(DepartamentoDB, blank=True, null=True, on_delete=models.CASCADE)
     carreras = models.ManyToManyField(CarreraDB, blank=True, related_name='profesores')  # Cambiado a ManyToManyField
     cursos = models.ManyToManyField(CursoDB, blank=True, related_name='profesores')
-    fecha_creacion = models.DateField(auto_now_add=True)
+    fecha_creacion = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
         return f"{self.nombres} {self.apellidos}"
@@ -71,6 +72,7 @@ class ProfesorDB(models.Model):
         ordering = ['apellidos']
         verbose_name = "Profesor"
         verbose_name_plural = "Profesores"
+        
 
 
 class AulaVirtualDB(models.Model):
@@ -90,6 +92,7 @@ class AulaVirtualDB(models.Model):
         ],
         default='disponible'
     )
+    fecha_creacion = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
         return f"AulaVirtual {self.codigo} "
@@ -117,7 +120,7 @@ class ReservaDB(models.Model):
         ],
         default='disponible'
     )
-    fecha_creacion = models.DateField(auto_now_add=True)
+    fecha_creacion = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
         return f"Reserva de {self.profesor} para {self.curso} el {self.fecha_reserva}"

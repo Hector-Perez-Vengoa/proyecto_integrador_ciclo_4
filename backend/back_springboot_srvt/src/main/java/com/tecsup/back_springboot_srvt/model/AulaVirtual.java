@@ -2,6 +2,8 @@ package com.tecsup.back_springboot_srvt.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "aula_virtualdb")
 public class AulaVirtual {
@@ -19,6 +21,9 @@ public class AulaVirtual {
     @Column(name = "descripcion")
     private String descripcion;
 
+    @Column(name = "fecha_creacion")
+    private LocalDateTime fechaCreacion;
+
     // Constructores
     public AulaVirtual() {}
 
@@ -26,6 +31,7 @@ public class AulaVirtual {
         this.codigo = codigo;
         this.estado = estado;
         this.descripcion = descripcion;
+        this.fechaCreacion = LocalDateTime.now();
     }
 
     // Getters y Setters
@@ -59,6 +65,14 @@ public class AulaVirtual {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
     }
 }
 
