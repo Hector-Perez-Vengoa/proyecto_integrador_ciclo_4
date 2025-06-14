@@ -43,11 +43,10 @@ export const PROFILE_SECTIONS = {
         readOnly: true
       },
       {
-        name: 'telefono',
-        label: 'Teléfono',
+        name: 'departamento',
+        label: 'Departamento',
         type: 'tel',
-        placeholder: '+51 999 999 999',
-        icon: 'Phone',
+        icon: 'Department',
         required: true
       },
       {
@@ -79,27 +78,6 @@ export const PROFILE_SECTIONS = {
         placeholder: 'Lima, Perú',
         icon: 'MapPin'
       },
-      {
-        name: 'sitioWeb',
-        label: 'Sitio Web',
-        type: 'url',
-        placeholder: 'https://mi-sitio.com',
-        icon: 'Globe'
-      },
-      {
-        name: 'linkedin',
-        label: 'LinkedIn',
-        type: 'url',
-        placeholder: 'https://linkedin.com/in/usuario',
-        icon: 'Linkedin'
-      },
-      {
-        name: 'twitter',
-        label: 'Twitter',
-        type: 'url',
-        placeholder: 'https://twitter.com/usuario',
-        icon: 'Twitter'
-      }
     ]
   }
 };
