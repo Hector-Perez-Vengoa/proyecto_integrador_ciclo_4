@@ -1,0 +1,13 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.Front_kotlin_svrt" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="colorPrimary">@color/tecsup_blue</item>
+        <item name="colorPrimaryVariant">@color/tecsup_dark_blue</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/tecsup_light_blue</item>
+    </style>
+
+    <style name="Theme.Front_kotlin_svrt.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+</resources>

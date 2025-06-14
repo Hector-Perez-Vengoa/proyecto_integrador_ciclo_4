@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tecsup</string>
+    <string name="tecsup_logo">Logo de Tecsup</string>
+    <string name="iniciar_sesion">Iniciar Sesión</string>
+    <string name="usuario">Usuario</string>
+    <string name="contrasena">Contraseña</string>
+    <string name="ingresar">INGRESAR</string>
+    <string name="olvidaste_contrasena">¿Olvidaste tu contraseña?</string>
+    <string name="tecsup">TECSUP</string>
+    <string name="instituto_educacion">Instituto de Educación Superior</string>
+    <string name="bienvenido">¡Bienvenido!</string>
+    <string name="credenciales_incorrectas">Usuario o contraseña incorrectos</string>
+    <string name="ingrese_usuario">Ingrese su usuario</string>
+    <string name="ingrese_contrasena">Ingrese su contraseña</string>
+    <string name="ingresando">Ingresando...</string>
+</resources>
