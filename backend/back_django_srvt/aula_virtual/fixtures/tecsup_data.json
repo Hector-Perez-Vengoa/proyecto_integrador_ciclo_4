@@ -1,0 +1,276 @@
+[
+  {
+    "model": "aula_virtual.DepartamentoDB",
+    "pk": 1,
+    "fields": {
+      "nombre": "Electricidad y Electrónica",
+      "descripcion": "Área especializada en sistemas eléctricos, electrónicos, instrumentación y control de procesos industriales. Forma profesionales para el diseño, implementación y mantenimiento de sistemas eléctricos de potencia, automatización industrial y mecatrónica.",
+      "jefe": "Ing. Carlos Mendoza Ramos"
+    }
+  },
+  {
+    "model": "aula_virtual.DepartamentoDB",
+    "pk": 2,
+    "fields": {
+      "nombre": "Gestión y Producción",
+      "descripcion": "Departamento enfocado en la formación de profesionales para la gestión empresarial, optimización de procesos productivos, administración de negocios digitales y diseño industrial con enfoque en la mejora continua y productividad.",
+      "jefe": "Ing. María Elena Vargas Torres"
+    }
+  },
+  {
+    "model": "aula_virtual.DepartamentoDB",
+    "pk": 3,
+    "fields": {
+      "nombre": "Mecánica y Aviación",
+      "descripcion": "Área especializada en mantenimiento de maquinaria pesada, sistemas automotrices, aviación y plantas industriales. Desarrolla competencias técnicas para el sector industrial, minero, transporte y aeronáutico.",
+      "jefe": "Ing. Roberto Silva Chávez"
+    }
+  },
+  {
+    "model": "aula_virtual.DepartamentoDB",
+    "pk": 4,
+    "fields": {
+      "nombre": "Minería y Procesos Químico-Metalúrgicos",
+      "descripcion": "Departamento especializado en operaciones mineras, procesamiento de minerales, topografía y procesos químico-metalúrgicos. Forma profesionales para la industria minera y metalúrgica con enfoque en sostenibilidad ambiental.",
+      "jefe": "Ing. Ana Patricia Morales Huamán"
+    }
+  },
+  {
+    "model": "aula_virtual.DepartamentoDB",
+    "pk": 5,
+    "fields": {
+      "nombre": "Seguridad y Salud en el Trabajo",
+      "descripcion": "Área dedicada a la formación de profesionales en gestión de seguridad y salud ocupacional, prevención de riesgos laborales y creación de entornos de trabajo seguros y saludables en cumplimiento del marco normativo vigente.",
+      "jefe": "Ing. Luis Fernando Castillo Pérez"
+    }
+  },
+  {
+    "model": "aula_virtual.DepartamentoDB",
+    "pk": 6,
+    "fields": {
+      "nombre": "Tecnología Digital",
+      "descripcion": "Departamento de vanguardia en tecnologías digitales, desarrollo de software, ciberseguridad, big data, inteligencia artificial y creación de contenido digital. Prepara profesionales para la transformación digital de las empresas.",
+      "jefe": "Ing. Sandra Beatriz Romero Jiménez"
+    }
+  },
+  {
+    "model": "aula_virtual.CarreraDB",
+    "pk": 1,
+    "fields": {
+      "nombre": "Electricidad Industrial con mención en Sistemas Eléctricos de Potencia",
+      "codigo": "EI-SEP",
+      "descripcion": "Desarrolla competencias para el análisis, diseño, implementación, automatización, mantenimiento y gestión de sistemas eléctricos para generación, transmisión, distribución y aprovechamiento de energía eléctrica.",
+      "departamento": 1
+    }
+  },
+  {
+    "model": "aula_virtual.CarreraDB",
+    "pk": 2,
+    "fields": {
+      "nombre": "Instrumentación y Control de Procesos",
+      "codigo": "ICP",
+      "descripcion": "Forma profesionales para diseñar e implementar sistemas de instrumentación y control de procesos industriales, aplicando tecnologías de la Industria 4.0 y automatización industrial.",
+      "departamento": 1
+    }
+  },
+  {
+    "model": "aula_virtual.CarreraDB",
+    "pk": 3,
+    "fields": {
+      "nombre": "Tecnología Mecánica Eléctrica",
+      "codigo": "TME",
+      "descripcion": "Capacita para diseñar, instalar y gestionar el mantenimiento de equipos y sistemas electromecánicos y de automatización industrial, elevando la productividad y eficiencia.",
+      "departamento": 1
+    }
+  },
+  {
+    "model": "aula_virtual.CarreraDB",
+    "pk": 4,
+    "fields": {
+      "nombre": "Mecatrónica Industrial",
+      "codigo": "MI",
+      "descripcion": "Forma profesionales con dominio global en sistemas mecatrónicos y robótica aplicados a plantas industriales, integrando mecánica, electrónica y control automatizado.",
+      "departamento": 1
+    }
+  },
+  {
+    "model": "aula_virtual.CarreraDB",
+    "pk": 5,
+    "fields": {
+      "nombre": "Administración y Emprendimiento en Negocios Digitales",
+      "codigo": "AEND",
+      "descripcion": "Forma líderes para gestionar empresas con estrategias digitales innovadoras, optimizando procesos comerciales y administrativos mediante herramientas tecnológicas avanzadas.",
+      "departamento": 2
+    }
+  },
+  {
+    "model": "aula_virtual.CarreraDB",
+    "pk": 6,
+    "fields": {
+      "nombre": "Diseño Industrial",
+      "codigo": "DI",
+      "descripcion": "Integra creatividad y tecnología para crear productos y servicios de alta demanda, usando herramientas innovadoras con un enfoque interdisciplinario que mejora la calidad de vida.",
+      "departamento": 2
+    }
+  },
+  {
+    "model": "aula_virtual.CarreraDB",
+    "pk": 7,
+    "fields": {
+      "nombre": "Producción y Gestión Industrial",
+      "codigo": "PGI",
+      "descripcion": "Desarrolla capacidades para el análisis, diseño y gestión de procesos clave como fabricación, almacenamiento, control de calidad y gestión comercial en diferentes sectores empresariales.",
+      "departamento": 2
+    }
+  },
+  {
+    "model": "aula_virtual.CarreraDB",
+    "pk": 8,
+    "fields": {
+      "nombre": "Mantenimiento de Maquinaria Pesada",
+      "codigo": "MMP",
+      "descripcion": "Especializada en mantenimiento de maquinaria pesada con convenio con Ferreyros. Incluye entrenamiento especializado, pasantías y posibilidad de continuar estudios en USA.",
+      "departamento": 3
+    }
+  },
+  {
+    "model": "aula_virtual.CarreraDB",
+    "pk": 9,
+    "fields": {
+      "nombre": "Mecatrónica y Gestión Automotriz",
+      "codigo": "MGA",
+      "descripcion": "Forma profesionales para analizar, evaluar y diagnosticar fallas de sistemas mecatrónicos del vehículo, realizando mantenimiento preventivo, correctivo y predictivo de sistemas automotrices.",
+      "departamento": 3
+    }
+  },
+  {
+    "model": "aula_virtual.CarreraDB",
+    "pk": 10,
+    "fields": {
+      "nombre": "Aviónica, Mecánica y Aeronáutica",
+      "codigo": "AMA",
+      "descripcion": "Desarrolla capacidades para la gestión, mantenimiento y reparación de sistemas que aseguren la operatividad de aeronaves en tres áreas: Aviónica, Célula y sistema motopropulsor.",
+      "departamento": 3
+    }
+  },
+  {
+    "model": "aula_virtual.CarreraDB",
+    "pk": 11,
+    "fields": {
+      "nombre": "Mantenimiento y Gestión de Plantas Industriales",
+      "codigo": "MGPI",
+      "descripcion": "Capacita para diseñar, planificar y programar el mantenimiento de maquinaria industrial, diseñar componentes y evaluar soluciones de mantenimiento en procesos productivos.",
+      "departamento": 3
+    }
+  },
+  {
+    "model": "aula_virtual.CarreraDB",
+    "pk": 12,
+    "fields": {
+      "nombre": "Topografía y Geomática",
+      "codigo": "TG",
+      "descripcion": "Forma profesionales para ejecutar levantamientos topográficos, replanteos, cubicaciones, relevando y procesando información mediante métodos topográficos directos e indirectos.",
+      "departamento": 4
+    }
+  },
+  {
+    "model": "aula_virtual.CarreraDB",
+    "pk": 13,
+    "fields": {
+      "nombre": "Procesos Químicos y Metalúrgicos",
+      "codigo": "PQM",
+      "descripcion": "Comprende procesos industriales, química analítica y procesamiento de minerales, proporcionando un amplio rango de posibilidades laborales en la industria química y metalúrgica.",
+      "departamento": 4
+    }
+  },
+  {
+    "model": "aula_virtual.CarreraDB",
+    "pk": 14,
+    "fields": {
+      "nombre": "Operaciones Mineras",
+      "codigo": "OM",
+      "descripcion": "Desarrolla capacidades para planificar, diseñar y ejecutar operaciones industriales del ciclo productivo minero, con enfoque en protección ambiental y gestión eficiente de recursos.",
+      "departamento": 4
+    }
+  },
+  {
+    "model": "aula_virtual.CarreraDB",
+    "pk": 15,
+    "fields": {
+      "nombre": "Operación de Plantas de Procesamiento de Minerales",
+      "codigo": "OPPM",
+      "descripcion": "Prepara profesionales para supervisión, control y operación de plantas de procesamiento de minerales, incluyendo soporte en laboratorios químicos, metalúrgicos y ambientales.",
+      "departamento": 4
+    }
+  },
+  {
+    "model": "aula_virtual.CarreraDB",
+    "pk": 16,
+    "fields": {
+      "nombre": "Gestión de Seguridad y Salud en el Trabajo",
+      "codigo": "GSST",
+      "descripcion": "Forma profesionales para crear entornos seguros y saludables para empleados, garantizando bienestar laboral mediante prevención de riesgos ocupacionales y cumplimiento normativo.",
+      "departamento": 5
+    }
+  },
+  {
+    "model": "aula_virtual.CarreraDB",
+    "pk": 17,
+    "fields": {
+      "nombre": "Modelado y Animación Digital",
+      "codigo": "MAD",
+      "descripcion": "Desarrolla habilidades técnicas y artísticas para crear recursos visuales como modelado 3D, texturizado y animación para entretenimiento, cine, videojuegos, publicidad y simulación.",
+      "departamento": 6
+    }
+  },
+  {
+    "model": "aula_virtual.CarreraDB",
+    "pk": 18,
+    "fields": {
+      "nombre": "Ciberseguridad",
+      "codigo": "CS",
+      "descripcion": "Diseñada para desarrollar capacidades en dominios críticos de ciberseguridad, considerando frameworks importantes de la industria para proteger sistemas informáticos, redes y datos.",
+      "departamento": 6
+    }
+  },
+  {
+    "model": "aula_virtual.CarreraDB",
+    "pk": 19,
+    "fields": {
+      "nombre": "Diseño y Desarrollo de Software",
+      "codigo": "DDS",
+      "descripcion": "Transforma ideas en aplicaciones innovadoras para móvil, web y nube. Enseña diseño de interfaces intuitivas, construcción de sistemas robustos y resolución de problemas complejos.",
+      "departamento": 6
+    }
+  },
+  {
+    "model": "aula_virtual.CarreraDB",
+    "pk": 20,
+    "fields": {
+      "nombre": "Diseño y Desarrollo de Simuladores y Videojuegos",
+      "codigo": "DDSV",
+      "descripcion": "Desarrolla competencias para diseñar y crear simuladores y videojuegos para diversas plataformas, empleando realidad virtual, aumentada y convenio con Voxel School de España.",
+      "departamento": 6
+    }
+  },
+  {
+    "model": "aula_virtual.CarreraDB",
+    "pk": 21,
+    "fields": {
+      "nombre": "Administración de Redes y Comunicaciones",
+      "codigo": "ARC",
+      "descripcion": "Brinda habilidades para diseño, implementación y gestión de redes de computadoras, sistemas de comunicación, servicios de voz, Cloud Computing e IoT (Internet of Things).",
+      "departamento": 6
+    }
+  },
+  {
+    "model": "aula_virtual.CarreraDB",
+    "pk": 22,
+    "fields": {
+      "nombre": "Big Data y Ciencia de Datos",
+      "codigo": "BDCD",
+      "descripcion": "Proporciona habilidades para análisis e interpretación de grandes volúmenes de datos, utilizando herramientas de análisis estadístico, machine learning, minería de datos e inteligencia artificial.",
+      "departamento": 6
+    }
+  }
+]

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tecsup</string>
+    <string name="tecsup_logo">Logo de Tecsup</string>
+    <string name="iniciar_sesion">Iniciar Sesión</string>
+    <string name="usuario">Usuario</string>
+    <string name="contrasena">Contraseña</string>
+    <string name="ingresar">INGRESAR</string>
+    <string name="olvidaste_contrasena">¿Olvidaste tu contraseña?</string>
+    <string name="tecsup">TECSUP</string>
+    <string name="instituto_educacion">Instituto de Educación Superior</string>
+    <string name="bienvenido">¡Bienvenido!</string>
+    <string name="credenciales_incorrectas">Usuario o contraseña incorrectos</string>
+    <string name="ingrese_usuario">Ingrese su usuario</string>
+    <string name="ingrese_contrasena">Ingrese su contraseña</string>
+    <string name="ingresando">Ingresando...</string>
+    <string name="default_web_client_id">168128064756-8jiti0v3clhlcso3blmc19bqs59u1s2g.apps.googleusercontent.com</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Sistema de Aulas Virtuales</string>
+    <string name="nav_header_subtitle">TECSUP</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="title_inicio">Inicio</string>
+    <string name="title_anuncios">Anuncios</string>
+    <string name="title_asistencia">Asistencia</string>
+    <string name="title_avance">Avance de carrera</string>
+    <string name="title_menu">Menú</string>
+    <string name="error_network">Error de conexión</string>
+    <string name="error_load_data">Error al cargar datos</string>
+    <string name="success_login">Login exitoso</string>
+    <dimen name="nav_header_vertical_spacing">8dp</dimen>
+    <dimen name="nav_header_height">176dp</dimen>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+</resources>

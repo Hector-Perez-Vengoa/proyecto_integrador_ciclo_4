@@ -31,11 +31,10 @@ export const PROFILE_SECTIONS = {
         readOnly: true
       },
       {
-        name: 'telefono',
-        label: 'Teléfono',
+        name: 'departamento',
+        label: 'Departamento',
         type: 'tel',
-        placeholder: '+51 999 999 999',
-        icon: 'Phone',
+        icon: 'Department',
         required: true
       },
       {
@@ -50,40 +49,36 @@ export const PROFILE_SECTIONS = {
         type: 'textarea',
         placeholder: 'Cuéntanos sobre tu experiencia profesional y académica...',
         icon: 'FileText',
-        required: true,
-        rows: 4
-      }
-    ]
-  },  ACADEMIC: {
-    title: 'Información Académica',
-    icon: 'GraduationCap',
-    gradient: 'from-tecsup-secondary to-tecsup-primary',
-    fields: [      {
-        name: 'departamentoId',
-        label: 'Departamento',
-        type: 'select',
-        placeholder: 'Selecciona tu departamento',
-        icon: 'Building',
-        required: true,
-        options: [] // Se llena dinámicamente
+        rows: 4,
+        required: true
       },
       {
-        name: 'carreraIds',
-        label: 'Carreras',
-        type: 'multiselect',
-        placeholder: 'Selecciona las carreras que enseñas',
-        icon: 'BookOpen',
-        required: false,
-        options: [] // Se llena dinámicamente
+        name: 'ubicacion',
+        label: 'Ubicación',
+        type: 'text',
+        placeholder: 'Lima, Perú',
+        icon: 'MapPin'
       },
       {
-        name: 'cursoIds',
-        label: 'Cursos',
-        type: 'multiselect',
-        placeholder: 'Selecciona los cursos que enseñas',
-        icon: 'Book',
-        required: false,
-        options: [] // Se llena dinámicamente
+        name: 'sitioWeb',
+        label: 'Sitio Web',
+        type: 'url',
+        placeholder: 'https://mi-sitio.com',
+        icon: 'Globe'
+      },
+      {
+        name: 'linkedin',
+        label: 'LinkedIn',
+        type: 'url',
+        placeholder: 'https://linkedin.com/in/usuario',
+        icon: 'Linkedin'
+      },
+      {
+        name: 'twitter',
+        label: 'Twitter',
+        type: 'url',
+        placeholder: 'https://twitter.com/usuario',
+        icon: 'Twitter'
       }
     ]
   }
