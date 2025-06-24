@@ -1,18 +1,34 @@
-import React, { useState } from "react";
-
-const reservasEjemplo = [
-  { id: 1, usuario: "Juan Pérez", aula: "Aula 101", fecha: "2025-06-05", estado: "Activa" },
-  { id: 2, usuario: "Ana Torres", aula: "Aula 102", fecha: "2025-06-06", estado: "Cancelada" },
-  { id: 3, usuario: "Luis Gómez", aula: "Aula 201", fecha: "2025-06-07", estado: "Activa" },
-  { id: 4, usuario: "María Ruiz", aula: "Aula 202", fecha: "2025-06-08", estado: "Finalizada" },
-];
+import React, { useState, useEffect } from "react";
 
 const PanelReservas = () => {
+  const [reservas, setReservas] = useState([]);
   const [filtro, setFiltro] = useState("");
-  const reservasFiltradas = reservasEjemplo.filter(r =>
-    r.usuario.toLowerCase().includes(filtro.toLowerCase()) ||
-    r.aula.toLowerCase().includes(filtro.toLowerCase()) ||
-    r.estado.toLowerCase().includes(filtro.toLowerCase())
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetch("http://localhost:8000/api/reservas/")
+      .then(res => {
+        if (!res.ok) throw new Error("Error al cargar las reservas");
+        return res.json();
+      })
+      .then(data => {
+        setReservas(data);
+        setCargando(false);
+      })
+      .catch(err => {
+        setError(err.message);
+        setCargando(false);
+      });
+  }, []);
+
+  const reservasFiltradas = reservas.filter(r =>
+    (r.motivo || '').toLowerCase().includes(filtro.toLowerCase()) ||
+    (r.estado || '').toLowerCase().includes(filtro.toLowerCase()) ||
+    (r.id + '').includes(filtro) ||
+    (r.aula_virtual_codigo || '').toLowerCase().includes(filtro.toLowerCase()) ||
+    (r.curso_nombre || '').toLowerCase().includes(filtro.toLowerCase()) ||
+    (r.profesor_nombre || '').toLowerCase().includes(filtro.toLowerCase())
   );
 
   return (
@@ -20,36 +36,50 @@ const PanelReservas = () => {
       <h3 className="text-xl font-semibold mb-4 text-gray-700">Administrar Reservas</h3>
       <input
         type="text"
-        placeholder="Buscar por usuario, aula o estado..."
+        placeholder="Buscar por cualquier campo..."
         className="mb-4 px-4 py-2 border rounded-lg w-full focus:outline-none focus:ring focus:border-blue-400"
         value={filtro}
         onChange={e => setFiltro(e.target.value)}
       />
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-sm">
-          <thead>
-            <tr className="bg-blue-50">
-              <th className="py-2 px-3 text-left">Usuario</th>
-              <th className="py-2 px-3 text-left">Aula</th>
-              <th className="py-2 px-3 text-left">Fecha</th>
-              <th className="py-2 px-3 text-left">Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            {reservasFiltradas.map(r => (
-              <tr key={r.id} className="border-b hover:bg-blue-50">
-                <td className="py-2 px-3">{r.usuario}</td>
-                <td className="py-2 px-3">{r.aula}</td>
-                <td className="py-2 px-3">{r.fecha}</td>
-                <td className="py-2 px-3">{r.estado}</td>
-              </tr>
-            ))}
-            {reservasFiltradas.length === 0 && (
-              <tr><td colSpan={4} className="py-4 text-center text-gray-400">No se encontraron reservas</td></tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      {cargando ? (
+        <div className="text-center text-gray-400 py-4">Cargando reservas...</div>
+      ) : error ? (
+        <div className="text-center text-red-500 py-4">{error}</div>
+      ) : (
+        <div className="divide-y divide-blue-100">
+          <div className="hidden sm:flex font-bold text-blue-700 py-2">
+            <div className="flex-1">ID</div>
+            <div className="flex-1">Hora Inicio</div>
+            <div className="flex-1">Hora Fin</div>
+            <div className="flex-1">Fecha Reserva</div>
+            <div className="flex-1">Motivo</div>
+            <div className="flex-1">Estado</div>
+            <div className="flex-1">Fecha Creación</div>
+            <div className="flex-1">Aula Virtual</div>
+            <div className="flex-1">Curso</div>
+            <div className="flex-1">Profesor</div>
+          </div>
+          {reservasFiltradas.map(r => (
+            <div key={r.id} className="flex flex-col sm:flex-row sm:items-center py-4 gap-2 text-sm">
+              <div className="flex-1">{r.id}</div>
+              <div className="flex-1">{r.hora_inicio}</div>
+              <div className="flex-1">{r.hora_fin}</div>
+              <div className="flex-1">{r.fecha_reserva}</div>
+              <div className="flex-1">{r.motivo}</div>
+              <div className="flex-1">
+                <span className="px-2 py-1 bg-blue-200 text-blue-800 rounded-full text-xs font-medium">{r.estado}</span>
+              </div>
+              <div className="flex-1">{r.fecha_creacion}</div>
+              <div className="flex-1">{r.aula_virtual_codigo || r.aula_virtual_id}</div>
+              <div className="flex-1">{r.curso_nombre || r.curso_id}</div>
+              <div className="flex-1">{r.profesor_nombre || r.profesor_id}</div>
+            </div>
+          ))}
+          {reservasFiltradas.length === 0 && (
+            <div className="text-center text-gray-400 py-4">No se encontraron reservas</div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
