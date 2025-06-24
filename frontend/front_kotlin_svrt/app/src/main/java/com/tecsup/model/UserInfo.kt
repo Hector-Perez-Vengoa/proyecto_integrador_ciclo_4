@@ -1,4 +1,9 @@
 package com.tecsup.model
 
-class UserInfo {
-}
+data class UserInfo(
+    val id: Long,
+    val username: String?,
+    val email: String,
+    val firstName: String?,
+    val lastName: String?
+)

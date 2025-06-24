@@ -1,4 +1,7 @@
 package com.tecsup.model
 
-class ApiResponse {
-}
+data class ApiResponse<T>(
+    val message: String,
+    val success: Boolean,
+    val data: T
+)

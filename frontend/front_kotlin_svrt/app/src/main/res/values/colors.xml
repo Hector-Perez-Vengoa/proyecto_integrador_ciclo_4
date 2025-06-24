@@ -1,24 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Colores principales de Tecsup -->
     <color name="tecsup_blue">#00BFFF</color>
     <color name="tecsup_dark_blue">#0080CC</color>
     <color name="tecsup_light_blue">#87CEEB</color>
-
-    <!-- Colores de apoyo -->
+    <color name="colorPrimary">#2196F3</color>
+    <color name="colorPrimaryDark">#1976D2</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="success">#4CAF50</color>
+    <color name="error">#F44336</color>
+    <color name="warning">#FF9800</color>
+    <color name="primary_blue">#2196F3</color>
+    <color name="primary_blue_dark">#1976D2</color>
+    <color name="primary_blue_light">#64B5F6</color>
+    <color name="background_gray">#F5F5F5</color>
+    <color name="card_background">#FFFFFF</color>
+    <color name="aula_background">#424242</color>
+    <color name="text_dark">#212121</color>
+    <color name="text_gray">#757575</color>
+    <color name="text_light_gray">#BDBDBD</color>
+    <color name="bottom_nav_selected">#2196F3</color>
+    <color name="bottom_nav_unselected">#9E9E9E</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="gray_light">#F5F5F5</color>
     <color name="gray_medium">#CCCCCC</color>
     <color name="gray_dark">#666666</color>
 
-    <!-- Colores del sistema -->
-    <color name="colorPrimary">@color/tecsup_blue</color>
-    <color name="colorPrimaryDark">@color/tecsup_dark_blue</color>
-    <color name="colorAccent">@color/tecsup_blue</color>
-
-    <!-- Estados -->
-    <color name="success">#4CAF50</color>
-    <color name="error">#F44336</color>
-    <color name="warning">#FF9800</color>
 </resources>
