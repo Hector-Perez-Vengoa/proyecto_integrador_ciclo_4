@@ -13,7 +13,6 @@ import {
   AulasPage,
   MisReservasPage,
   CalendarioPage,
-  HistorialPage,
   ReglamentoPage
 } from './pages/dashboard/index.js';
 import './App.css';
@@ -61,7 +60,6 @@ function App() {
             <Route path="aulas" element={<AulasPage />} />
             <Route path="mis-reservas" element={<MisReservasPage />} />
             <Route path="calendario" element={<CalendarioPage />} />
-            <Route path="historial" element={<HistorialPage />} />
             
             {/* Ruta de reglamento */}
             <Route path="reglamento" element={<ReglamentoPage />} />

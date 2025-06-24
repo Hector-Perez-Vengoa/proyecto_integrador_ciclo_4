@@ -45,6 +45,9 @@ public class User {    @Id
     @Transient
     private Set<Role> roles = new HashSet<>();
 
+    @Column(name = "google_image_url")
+    private String googleImageUrl;
+
     // Constructor vacío
     public User() {}
 
@@ -159,5 +162,13 @@ public class User {    @Id
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public String getGoogleImageUrl() {
+        return googleImageUrl;
+    }
+
+    public void setGoogleImageUrl(String googleImageUrl) {
+        this.googleImageUrl = googleImageUrl;
     }
 }

@@ -1,59 +1,202 @@
 // src/components/profile/ProfileSection.jsx
 import React from 'react';
-import * as Icons from 'lucide-react';
-import ProfileField from './ProfileField';
+import MultiSelectField from './MultiSelectField';
 import { formatDate } from '../../utils/profileUtils';
+import { ProfileIcon } from '../../constants/profileIcons.jsx';
 
-const ProfileSection = ({ section, profile, editing, formData, handleInputChange }) => {
-  const IconComponent = Icons[section.icon];
-
+const ProfileSection = ({ 
+  section, 
+  profile, 
+  editing, 
+  formData, 
+  handleInputChange, 
+  handleFieldChange, 
+  academicOptions = {},
+  loadingOptions = false 
+}) => {
   const getFieldValue = (fieldName) => {
     return editing ? formData[fieldName] : profile[fieldName];
   };
 
   const getFormatValue = (field) => {
-    if (field.type === 'date') return formatDate;
-    return null;
-  };  return (
-    <div className="relative group overflow-hidden bg-white rounded-3xl shadow-tecsup-lg border border-tecsup-gray-light/50 hover:shadow-tecsup-hover transition-all duration-600 hover:border-tecsup-primary/20 hover-scale-gentle">
-      
-      {/* Fondo */}
-      <div className="absolute inset-0 bg-gradient-to-br from-tecsup-primary/3 via-tecsup-secondary/2 to-tecsup-primary/3 group-hover:from-tecsup-primary/5 group-hover:via-tecsup-secondary/3 group-hover:to-tecsup-primary/5 transition-all duration-600"></div>
-      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-tecsup-secondary/8 to-transparent rounded-full -translate-y-16 translate-x-16 group-hover:scale-125 transition-transform duration-800"></div>
-      
-      {/* Contenido */}
-      <div className="relative z-10 p-6 lg:p-8">
-        
-        {/* Header de la sección */}
-        <div className="flex items-center gap-4 mb-8">
-          <div className={`relative w-12 h-12 bg-gradient-to-r ${section.gradient} rounded-2xl flex items-center justify-center shadow-tecsup group-hover:scale-105 group-hover:rotate-1 transition-all duration-500`}>
-            <IconComponent className="w-6 h-6 text-white" />
-            {/* Brillo animado */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 group-hover:animate-shimmer transition-opacity duration-600"></div>
+    if (field.type === 'date') {
+      return (value) => formatDate(value);
+    }
+    if (field.type === 'select' || field.type === 'multiselect') {
+      return (value, options) => {
+        if (field.name === 'departamentoId') {
+          return profile?.departamento?.nombre || 'No especificado';
+        } else if (field.name === 'carreraIds') {
+          return profile?.carreras?.map(c => c.nombre).join(', ') || 'No especificado';
+        } else if (field.name === 'cursoIds') {
+          return profile?.cursos?.map(c => c.nombre).join(', ') || 'No especificado';
+        }
+        return 'No especificado';
+      };
+    }
+    return (value) => value || 'No especificado';
+  };  const getFieldOptions = (fieldName) => {
+    switch (fieldName) {
+      case 'departamentoId':
+        return academicOptions.departamentos || [];
+      case 'carreraIds':
+        // Solo mostrar carreras si hay departamento seleccionado
+        return (formData.departamentoId && academicOptions.carreras) ? academicOptions.carreras : [];
+      case 'cursoIds':
+        // Solo mostrar cursos si hay carreras seleccionadas
+        return (formData.carreraIds && formData.carreraIds.length > 0 && academicOptions.cursos) ? academicOptions.cursos : [];
+      default:
+        return [];
+    }
+  };
+
+  const isFieldDisabled = (fieldName) => {
+    if (!editing) return true;
+    
+    switch (fieldName) {
+      case 'carreraIds':
+        return !formData.departamentoId; // Deshabilitado si no hay departamento
+      case 'cursoIds':
+        return !formData.carreraIds || formData.carreraIds.length === 0; // Deshabilitado si no hay carreras
+      default:
+        return false;
+    }
+  };
+  const getFieldMessage = (fieldName) => {
+    switch (fieldName) {
+      case 'carreraIds':
+        return !formData.departamentoId ? 'Selecciona un departamento primero' : null;
+      case 'cursoIds':
+        return (!formData.carreraIds || formData.carreraIds.length === 0) ? 
+          'Selecciona al menos una carrera primero' : null;
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className={`bg-white rounded-xl shadow-tecsup border-0 overflow-hidden card-elegant-hover mode-transition-container ${editing ? 'editing ring-1 ring-tecsup-primary/8 glass-effect-elegant' : 'viewing'} edit-mode-transition`}>      {/* Header de la sección */}
+      <div className="relative bg-gradient-to-r from-tecsup-primary/5 to-tecsup-secondary/5 px-6 py-4 border-b border-tecsup-gray-100">        <div className="flex items-center gap-3">
+          <div style={{
+            width: '40px',
+            height: '40px',
+            background: 'linear-gradient(135deg, #00b6f1 0%, #0ea5e9 100%)',
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+          }}>            <ProfileIcon 
+              iconName={section.title === 'Información Personal' ? 'User' : 'GraduationCap'} 
+              style={{ width: '20px', height: '20px', color: 'white' }}
+            />
           </div>
-          <h2 className="text-xl lg:text-2xl font-bold text-tecsup-gradient">
+          <h2 className="text-lg font-semibold text-tecsup-gray-700">
             {section.title}
           </h2>
-        </div>
-        
-        {/* Campos */}
-        <div className="space-y-6 lg:space-y-8">
-          {section.fields.map((field, index) => (
-            <div 
-              key={field.name} 
-              className="animate-fade-in"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <ProfileField
-                field={field}
-                value={getFieldValue(field.name)}
-                editing={editing}
-                onChange={handleInputChange}
-                formatValue={getFormatValue(field)}
-              />
+          {editing && (
+            <div className="ml-auto">
+              <div className="w-2 h-2 bg-tecsup-primary rounded-full animate-pulse"></div>
             </div>
-          ))}
+          )}
         </div>
+      </div>
+      
+      {/* Contenido */}
+      <div className={`p-6 space-y-6 ${editing ? 'field-edit-highlight' : ''}`}>
+        {section.fields.map((field, index) => {
+          const fieldValue = getFieldValue(field.name);
+          const formatFunction = getFormatValue(field);
+
+          return (
+            <div key={field.name} className="space-y-2">              
+            {/* Label */}
+              <label className="flex items-center gap-2 text-sm font-medium text-tecsup-gray-600 ultra-smooth">
+                <div className="w-4 h-4 rounded bg-tecsup-primary/10 flex items-center justify-center ultra-smooth icon-hover-effect">
+                  <ProfileIcon iconName={field.icon} className="w-3 h-3 text-tecsup-primary icon-smooth-entrance" />
+                </div>
+                {field.label}
+                {field.required && <span className="text-red-500">*</span>}
+              </label>              {/* Campo */}
+              {editing ? (
+                // Modo edición
+                field.type === 'select' ? (
+                  // Select simple (especialmente para departamento)
+                  <select
+                    name={field.name}
+                    value={fieldValue || ''}
+                    onChange={(e) => {
+                      if (field.name === 'departamentoId') {
+                        // Usar handleFieldChange para departamento (activará el filtrado cascada)
+                        handleFieldChange && handleFieldChange(field.name, e.target.value);
+                      } else {
+                        handleInputChange(e);
+                      }
+                    }}
+                    disabled={loadingOptions}
+                    className="w-full px-3 py-2.5 bg-white border border-tecsup-gray-200 rounded-lg focus:ring-2 focus:ring-tecsup-primary/20 focus:border-tecsup-primary ultra-smooth text-tecsup-gray-700 field-focus-glow disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <option value="">{loadingOptions ? 'Cargando...' : field.placeholder}</option>
+                    {getFieldOptions(field.name).map((option) => (
+                      <option key={option.id} value={option.id}>
+                        {option.nombre}
+                      </option>
+                    ))}
+                  </select>                ) : field.type === 'multiselect' ? (                  // Multiselect mejorado (para carreras y cursos)
+                  <MultiSelectField
+                    field={field}
+                    value={fieldValue}
+                    options={getFieldOptions(field.name)}
+                    formData={formData}                      onChange={(selectedValues) => {
+                      if (field.name === 'carreraIds' || field.name === 'cursoIds') {
+                        // Usar handleFieldChange para carreras y cursos (activará el filtrado cascada)
+                        handleFieldChange && handleFieldChange(field.name, selectedValues);
+                      } else {
+                        handleInputChange({ target: { name: field.name, value: selectedValues } });
+                      }
+                    }}
+                    disabled={isFieldDisabled(field.name)}
+                  />
+                ) : field.type === 'textarea' ? (
+                  // Textarea
+                  <textarea
+                    name={field.name}
+                    value={fieldValue || ''}
+                    onChange={handleInputChange}
+                    readOnly={field.readOnly}
+                    rows={field.rows || 4}
+                    placeholder={field.placeholder}
+                    className={`w-full px-3 py-2.5 border border-tecsup-gray-200 rounded-lg focus:ring-2 focus:ring-tecsup-primary/20 focus:border-tecsup-primary ultra-smooth resize-none text-tecsup-gray-700 field-focus-glow ${
+                      field.readOnly ? 'bg-tecsup-gray-50 cursor-not-allowed' : 'bg-white'
+                    }`}
+                  />
+                ) : (
+                  // Input normal
+                  <input
+                    type={field.type}
+                    name={field.name}
+                    value={fieldValue || ''}
+                    onChange={handleInputChange}
+                    readOnly={field.readOnly}
+                    placeholder={field.placeholder}
+                    className={`w-full px-3 py-2.5 border border-tecsup-gray-200 rounded-lg focus:ring-2 focus:ring-tecsup-primary/20 focus:border-tecsup-primary ultra-smooth text-tecsup-gray-700 field-focus-glow ${
+                      field.readOnly ? 'bg-tecsup-gray-50 cursor-not-allowed' : 'bg-white'
+                    }`}
+                  />
+                )
+              ) : (
+                // Modo vista
+                <div className="px-3 py-2.5 bg-tecsup-gray-50/50 rounded-lg border-0 ultra-smooth">
+                  <p className={`text-sm ultra-smooth ${
+                    fieldValue ? 'text-tecsup-gray-700 font-medium' : 'text-tecsup-gray-400 italic'
+                  }`}>
+                    {formatFunction(fieldValue) || 'No especificado'}
+                  </p>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

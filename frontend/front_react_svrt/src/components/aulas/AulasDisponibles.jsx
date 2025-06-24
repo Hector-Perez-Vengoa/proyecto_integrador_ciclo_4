@@ -2,12 +2,16 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { aulaVirtualService } from '../../services';
 import { FILTROS_AULA, ORDENAMIENTO, ESTADOS_AULA } from '../../constants/aulaVirtual';
+import { useAuth } from '../../hooks/useAuth';
+import { showToast } from '../../utils/authUtils';
 import AulaCard from './AulaCard';
 import AulaFilters from './AulaFilters';
 import AulaLoading from './AulaLoading';
 import FiltrosAvanzados from './FiltrosAvanzados';
+import ReservaModal from '../reservas/ReservaModal';
 
-const AulasDisponibles = () => {  // Estados
+const AulasDisponibles = () => {
+  // Estados
   const [aulas, setAulas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -19,6 +23,11 @@ const AulasDisponibles = () => {  // Estados
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [filtrosAvanzados, setFiltrosAvanzados] = useState({});
   
+  // Estados para el modal de reserva
+  const [modalReservaAbierto, setModalReservaAbierto] = useState(false);
+  const [aulaParaReserva, setAulaParaReserva] = useState(null);
+  
+  const { user } = useAuth();
   const hasLoadedOnce = useRef(false);
   useEffect(() => {
     if (!hasLoadedOnce.current) {
@@ -29,7 +38,6 @@ const AulasDisponibles = () => {  // Estados
 
   // Manejar cambios en filtros avanzados
   const handleFiltrosAvanzadosChange = (nuevosFiltros) => {
-    console.log('🔄 Filtros avanzados cambiados:', nuevosFiltros);
     setFiltrosAvanzados(nuevosFiltros);
     
     // Aplicar filtros inmediatamente si hay algún filtro activo
@@ -45,27 +53,18 @@ const AulasDisponibles = () => {  // Estados
       setLoading(true);
       setError(null);
       
-      const token = localStorage.getItem('authToken');
-      console.log('🔐 Token de autenticación:', token ? 'Existe' : 'No existe');
-      console.log('🔗 Intentando conectar con:', 'http://127.0.0.1:8080/api/aula-virtual/disponibles');
-      console.log('🎯 Filtros aplicados:', filtrosPersonalizados);
-      
       const response = await aulaVirtualService.obtenerAulasDisponibles(filtrosPersonalizados);
-      console.log('📡 Respuesta del servidor:', response);
       
       if (response.success) {
-        console.log('✅ Datos de aulas recibidos:', response.data);
         setAulas(response.data.aulas || []);
         setDatosProfesor({
           profesor: response.data.profesor || '',
           total: response.data.total || 0
         });
       } else {
-        console.log('❌ Error en respuesta:', response.message);
         setError(response.message || 'Error al cargar las aulas disponibles');
       }
     } catch (err) {
-      console.error('💥 Error al cargar aulas:', err);
       setError('Error de conexión. Por favor, intenta de nuevo.');
     } finally {
       setLoading(false);
@@ -86,7 +85,6 @@ const AulasDisponibles = () => {  // Estados
         setError(response.message || 'Error al cargar las aulas');
       }
     } catch (err) {
-      console.error('Error al cargar aulas:', err);
       setError('Error de conexión. Por favor, intenta de nuevo.');
     } finally {
       setLoading(false);
@@ -155,10 +153,38 @@ const AulasDisponibles = () => {  // Estados
       cargarTodasLasAulas();
     }
   };
-
   // Manejar selección de aula
   const handleSeleccionarAula = (aula) => {
     setAulaSeleccionada(aulaSeleccionada?.id === aula.id ? null : aula);
+    
+    // Abrir modal de reserva si el aula está disponible
+    if (aula.estado === 'disponible') {
+      setAulaParaReserva(aula);
+      setModalReservaAbierto(true);
+    }
+  };
+
+  // Manejar cierre del modal
+  const handleCerrarModal = () => {
+    setModalReservaAbierto(false);
+    setAulaParaReserva(null);
+  };
+
+  // Manejar éxito de reserva
+  const handleReservaExitosa = () => {
+    showToast('¡Reserva creada exitosamente!', 'success');
+    handleCerrarModal();
+    // Recargar la lista de aulas para mostrar los cambios
+    if (filtroActual === FILTROS_AULA.DISPONIBLES) {
+      cargarAulasDisponibles(filtrosAvanzados);
+    } else {
+      cargarTodasLasAulas();
+    }
+  };
+
+  // Manejar error de reserva
+  const handleErrorReserva = (mensaje) => {
+    showToast(mensaje || 'Error al crear la reserva', 'error');
   };
 
   if (loading) {
@@ -185,14 +211,18 @@ const AulasDisponibles = () => {  // Estados
               )}
             </div>
             
-            <div className="mt-4 lg:mt-0 flex items-center space-x-4">
+            <div className="mt-4 lg:mt-0 flex items-center space-x-4">              
               <button
                 onClick={handleReintento}
                 className="
-                  flex items-center space-x-2 px-4 py-2 bg-tecsup-primary text-white 
-                  rounded-lg hover:bg-tecsup-primary/90 transition-all duration-200
-                  focus:ring-2 focus:ring-tecsup-primary/20 focus:outline-none
+                  flex items-center space-x-2 px-4 py-2 text-white 
+                  rounded-lg transition-all duration-200 shadow-md hover:shadow-lg
+                  focus:ring-2 focus:ring-blue-500/20 focus:outline-none
+                  transform hover:scale-105 active:scale-95
                 "
+                style={{
+                  background: 'linear-gradient(135deg, #00b6f1 0%, #0ea5e9 100%)'
+                }}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -288,20 +318,34 @@ const AulasDisponibles = () => {  // Estados
               />
             ))}
           </div>
-        )}
-
-        {/* Información adicional si hay aula seleccionada */}
+        )}        {/* Información adicional si hay aula seleccionada */}
         {aulaSeleccionada && (
           <div className="mt-8 bg-white rounded-xl shadow-lg border border-tecsup-primary/20 p-6">
             <h3 className="text-lg font-semibold text-tecsup-gray-dark mb-4">
               Aula Seleccionada: {aulaSeleccionada.codigo}
             </h3>
             <div className="text-sm text-tecsup-gray-medium">
-              <p>Aquí puedes agregar acciones adicionales para el aula seleccionada</p>
-              <p>como reservar, ver detalles completos, o gestionar el estado.</p>
+              <p>📝 <strong>Descripción:</strong> {aulaSeleccionada.descripcion}</p>
+              <p>👥 <strong>Capacidad:</strong> {aulaSeleccionada.capacidad} estudiantes</p>
+              <p>📊 <strong>Estado:</strong> {aulaSeleccionada.estado}</p>
+              {aulaSeleccionada.estado === 'disponible' && (
+                <p className="mt-2 text-tecsup-primary font-medium">
+                  ✨ Haz clic en el aula para hacer una reserva
+                </p>
+              )}
             </div>
           </div>
         )}
+        
+        {/* Modal de Reserva */}
+        <ReservaModal
+          isOpen={modalReservaAbierto}
+          onClose={handleCerrarModal}
+          aula={aulaParaReserva}
+          profesor={user}
+          onSuccess={handleReservaExitosa}
+          onError={handleErrorReserva}
+        />
       </div>
     </div>
   );

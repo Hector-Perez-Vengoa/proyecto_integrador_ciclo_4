@@ -1,23 +1,11 @@
 // src/constants/profile.js
 
-export const PROFILE_FIELDS = {
-  REQUIRED: ['firstName', 'lastName', 'email', 'telefono', 'fechaNacimiento', 'biografia'],
-  ALL: ['firstName', 'lastName', 'email', 'telefono', 'fechaNacimiento', 'biografia', 'ubicacion', 'sitioWeb', 'linkedin', 'twitter', 'imagenPerfil']
-};
-
-export const COMPLETENESS_THRESHOLDS = {
-  LOW: 50,
-  MEDIUM: 80,
-  HIGH: 100
-};
-
 export const PROFILE_SECTIONS = {
   PERSONAL: {
     title: 'Información Personal',
     icon: 'User',
-    gradient: 'from-tecsup-primary to-tecsup-blue-700',
-    fields: [
-      {
+    gradient: 'from-tecsup-primary to-tecsup-secondary',
+    fields: [      {
         name: 'firstName',
         label: 'Nombre',
         type: 'text',
@@ -56,56 +44,58 @@ export const PROFILE_SECTIONS = {
         type: 'date',
         icon: 'Calendar',
         required: true
-      }
-    ]
-  },  ADDITIONAL: {
-    title: 'Información Adicional',
-    icon: 'Star',
-    gradient: 'from-tecsup-secondary to-tecsup-cyan-600',
-    fields: [
-      {
+      },      {
         name: 'biografia',
         label: 'Biografía',
         type: 'textarea',
-        placeholder: 'Cuéntanos sobre ti...',
+        placeholder: 'Cuéntanos sobre tu experiencia profesional y académica...',
         icon: 'FileText',
-        rows: 4,
-        required: true
+        required: true,
+        rows: 4
+      }
+    ]
+  },  ACADEMIC: {
+    title: 'Información Académica',
+    icon: 'GraduationCap',
+    gradient: 'from-tecsup-secondary to-tecsup-primary',
+    fields: [      {
+        name: 'departamentoId',
+        label: 'Departamento',
+        type: 'select',
+        placeholder: 'Selecciona tu departamento',
+        icon: 'Building',
+        required: true,
+        options: [] // Se llena dinámicamente
       },
       {
-        name: 'ubicacion',
-        label: 'Ubicación',
-        type: 'text',
-        placeholder: 'Lima, Perú',
-        icon: 'MapPin'
+        name: 'carreraIds',
+        label: 'Carreras',
+        type: 'multiselect',
+        placeholder: 'Selecciona las carreras que enseñas',
+        icon: 'BookOpen',
+        required: false,
+        options: [] // Se llena dinámicamente
       },
       {
-        name: 'sitioWeb',
-        label: 'Sitio Web',
-        type: 'url',
-        placeholder: 'https://mi-sitio.com',
-        icon: 'Globe'
-      },
-      {
-        name: 'linkedin',
-        label: 'LinkedIn',
-        type: 'url',
-        placeholder: 'https://linkedin.com/in/usuario',
-        icon: 'Linkedin'
-      },
-      {
-        name: 'twitter',
-        label: 'Twitter',
-        type: 'url',
-        placeholder: 'https://twitter.com/usuario',
-        icon: 'Twitter'
+        name: 'cursoIds',
+        label: 'Cursos',
+        type: 'multiselect',
+        placeholder: 'Selecciona los cursos que enseñas',
+        icon: 'Book',
+        required: false,
+        options: [] // Se llena dinámicamente
       }
     ]
   }
 };
 
 export const WELCOME_BENEFITS = [
-  'Personaliza tu experiencia',
-  'Conecta con otros profesores',
-  'Accede a funciones exclusivas'
+  'Personaliza tu experiencia académica',
+  'Gestiona tu perfil profesional',
+  'Accede a herramientas del sistema'
+];
+
+export const PROFILE_TABS = [
+  { id: 'basic', label: 'Información Básica', icon: 'User' },
+  { id: 'academic', label: 'Información Académica', icon: 'GraduationCap' }
 ];

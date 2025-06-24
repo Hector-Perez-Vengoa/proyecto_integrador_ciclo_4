@@ -111,9 +111,9 @@ export const useLoginForm = (onSuccess) => {
         firstName: decoded.given_name || '',
         lastName: decoded.family_name || ''
       };
-      
-      const response = await authService.googleAuth(googleAuthRequest);
-      console.log('Backend response:', response);
+        const response = await authService.googleAuth(googleAuthRequest);
+      console.log('Google Backend response:', response);
+      console.log('Google User data from response:', response.user);
 
       // Verificar respuesta válida
       if (!response) {
@@ -128,8 +128,11 @@ export const useLoginForm = (onSuccess) => {
         email: response.user?.email || decoded.email,
         firstName: response.user?.firstName || decoded.given_name || '',
         lastName: response.user?.lastName || decoded.family_name || '',
-        id: response.user?.id || decoded.sub
-      };      // Verificar si el usuario necesita crear contraseña
+        id: response.user?.id || decoded.sub,
+        profesorId: response.user?.profesorId // Añadir profesorId
+      };
+      
+      console.log('Google Final userData object:', userData);// Verificar si el usuario necesita crear contraseña
       if (response.requirePassword || response.needsPassword) {
         localStorage.setItem(AUTH_CONFIG.GOOGLE_CREDENTIAL_KEY, credentialResponse.credential);
         localStorage.setItem(AUTH_CONFIG.USER_KEY, JSON.stringify(userData));
@@ -201,6 +204,9 @@ export const useLoginForm = (onSuccess) => {
           throw new Error('Token de autenticación no recibido después del registro');
         }
       }
+        // Log para debugging
+      console.log('Login/Register response:', response);
+      console.log('User data from response:', response.user);
       
       // Crear objeto de usuario
       const userData = {
@@ -211,8 +217,11 @@ export const useLoginForm = (onSuccess) => {
         firstName: response.user?.firstName || formData.name.split(' ')[0],
         lastName: response.user?.lastName || formData.name.split(' ').slice(1).join(' '),
         id: response.user?.id,
+        profesorId: response.user?.profesorId, // Añadir profesorId
         username: response.user?.username || response.user?.email
       };
+      
+      console.log('Final userData object:', userData);
         // Ejecutar callback inmediatamente para redirección rápida
       if (onSuccess) {
         onSuccess(response.token, userData);

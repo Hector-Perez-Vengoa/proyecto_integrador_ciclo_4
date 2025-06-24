@@ -27,8 +27,6 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error('Aula Virtual API Error:', error);
-    
     // Si el token es inválido, redirigir al login
     if (error.response?.status === 401) {
       localStorage.removeItem(AUTH_CONFIG.TOKEN_KEY);
@@ -51,7 +49,6 @@ export const aulaVirtualService = {
         message: response.data.message || 'Aulas obtenidas correctamente'
       };
     } catch (error) {
-      console.error('Error al obtener aulas virtuales:', error);
       return {
         success: false,
         data: [],
@@ -77,9 +74,6 @@ export const aulaVirtualService = {
       
       const url = `/aula-virtual/disponibles${params.toString() ? `?${params.toString()}` : ''}`;
       
-      console.log('🔍 Llamando API con filtros:', filtros);
-      console.log('🌐 URL construida:', url);
-      
       const response = await api.get(url);
       return {
         success: true,
@@ -87,7 +81,6 @@ export const aulaVirtualService = {
         message: response.data.message || 'Aulas disponibles obtenidas correctamente'
       };
     } catch (error) {
-      console.error('Error al obtener aulas disponibles:', error);
       return {
         success: false,
         data: { aulas: [], total: 0, profesor: '', filtros: {} },

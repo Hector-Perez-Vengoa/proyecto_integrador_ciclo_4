@@ -1,239 +1,219 @@
 package com.tecsup.back_springboot_srvt.controller;
 
-import com.tecsup.back_springboot_srvt.model.AulaVirtual;
+import com.tecsup.back_springboot_srvt.dto.*;
 import com.tecsup.back_springboot_srvt.service.AulaVirtualService;
-import com.tecsup.back_springboot_srvt.security.JwtUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/aula-virtual")
+@RequestMapping("/api/aulas")
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:8000"})
 public class AulaVirtualController {
 
-    private final AulaVirtualService aulaVirtualService;
-
     @Autowired
-    private JwtUtils jwtUtils;
-
-    @Autowired
-    public AulaVirtualController(AulaVirtualService aulaVirtualService) {
-        this.aulaVirtualService = aulaVirtualService;
-    }
+    private AulaVirtualService aulaVirtualService;
 
     /**
-     * Validar y extraer username del token JWT
+     * Listar todas las aulas
      */
-    private String validarYExtraerUsername(String token) {
-        try {
-            String jwtToken = token.replace("Bearer ", "");
-            String username = jwtUtils.getUserNameFromJwtToken(jwtToken);
-            
-            if (username == null || !jwtUtils.validateJwtToken(jwtToken)) {
-                return null;
-            }
-            
-            return username;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    /**
-     * Crear respuesta de error
-     */
-    private Map<String, Object> crearRespuestaError(String mensaje) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", mensaje);
-        response.put("success", false);
-        response.put("data", null);
-        return response;
-    }
-
-    /**
-     * Crear respuesta exitosa
-     */
-    private Map<String, Object> crearRespuestaExitosa(String mensaje, Object data) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", mensaje);
-        response.put("success", true);
-        response.put("data", data);
-        return response;
-    }
-
-    // GET http://localhost:8080/api/aula-virtual
     @GetMapping
-    public ResponseEntity<?> listar(@RequestHeader(value = "Authorization", required = false) String token) {
+    public ResponseEntity<?> listarAulas(@RequestHeader("Authorization") String authorization) {
         try {
-            // Verificar autenticación
-            if (token == null || token.trim().isEmpty()) {
-                return ResponseEntity.status(401)
-                    .body(crearRespuestaError("Token de autenticación requerido"));
-            }
-
-            String username = validarYExtraerUsername(token);
-            if (username == null) {
-                return ResponseEntity.status(401)
-                    .body(crearRespuestaError("Token inválido o expirado"));
-            }
-
-            List<AulaVirtual> aulas = aulaVirtualService.listar();
-            return ResponseEntity.ok()
-                .body(crearRespuestaExitosa("Aulas virtuales obtenidas correctamente", aulas));
-                
+            String token = extractToken(authorization);
+            List<AulaVirtualResponse> aulas = aulaVirtualService.listarTodasConAuth(token);
+            return ResponseEntity.ok(aulas);
+        } catch (IllegalArgumentException e) {
+            return createErrorResponse("Token inválido", e.getMessage(), null, 401);
         } catch (Exception e) {
-            return ResponseEntity.status(500)
-                .body(crearRespuestaError("Error al obtener aulas virtuales: " + e.getMessage()));
+            return createErrorResponse("Error interno del servidor", e.getMessage(), null, 500);
         }
-    }    // GET http://localhost:8080/api/aula-virtual/disponibles
+    }
+
+    /**
+     * Listar aulas disponibles
+     */
     @GetMapping("/disponibles")
-    public ResponseEntity<?> listarDisponibles(
-            @RequestHeader("Authorization") String token,
-            @RequestParam(value = "codigo", required = false) String codigo,
-            @RequestParam(value = "descripcion", required = false) String descripcion,
-            @RequestParam(value = "fecha", required = false) String fecha,
-            @RequestParam(value = "horaInicio", required = false) String horaInicio,
-            @RequestParam(value = "horaFin", required = false) String horaFin,
-            @RequestParam(value = "cursoId", required = false) Long cursoId) {
+    public ResponseEntity<?> listarAulasDisponibles(@RequestHeader("Authorization") String authorization) {
         try {
-            // Verificar autenticación
-            String username = validarYExtraerUsername(token);
-            if (username == null) {
-                return ResponseEntity.status(401)
-                    .body(crearRespuestaError("Token inválido o expirado"));
-            }
-
-            List<AulaVirtual> aulasDisponibles;
-            
-            // Determinar qué tipo de filtros usar
-            if (fecha != null || horaInicio != null || horaFin != null || cursoId != null) {
-                // Usar filtros avanzados por fecha, hora y curso
-                aulasDisponibles = aulaVirtualService.listarDisponiblesConFiltrosAvanzados(
-                    fecha, horaInicio, horaFin, cursoId);
-            } else if (codigo != null || descripcion != null) {
-                // Usar filtros básicos por código y descripción
-                aulasDisponibles = aulaVirtualService.listarDisponiblesConFiltros(codigo, descripcion);
-            } else {
-                // Sin filtros, obtener todas las disponibles
-                aulasDisponibles = aulaVirtualService.listarDisponibles();
-            }
-            
-            Map<String, Object> respuestaData = new HashMap<>();
-            respuestaData.put("aulas", aulasDisponibles);
-            respuestaData.put("total", aulasDisponibles.size());
-            respuestaData.put("profesor", username);
-            
-            // Agregar información de filtros aplicados
-            Map<String, Object> filtrosAplicados = new HashMap<>();
-            filtrosAplicados.put("codigo", codigo);
-            filtrosAplicados.put("descripcion", descripcion);
-            filtrosAplicados.put("fecha", fecha);
-            filtrosAplicados.put("horaInicio", horaInicio);
-            filtrosAplicados.put("horaFin", horaFin);
-            filtrosAplicados.put("cursoId", cursoId);
-            respuestaData.put("filtros", filtrosAplicados);
-
-            return ResponseEntity.ok()
-                .body(crearRespuestaExitosa("Aulas virtuales disponibles obtenidas correctamente", respuestaData));
-                
+            String token = extractToken(authorization);
+            List<AulaVirtualResponse> aulas = aulaVirtualService.listarDisponiblesConAuth(token);
+            return ResponseEntity.ok(aulas);
+        } catch (IllegalArgumentException e) {
+            return createErrorResponse("Token inválido", e.getMessage(), null, 401);
         } catch (Exception e) {
-            return ResponseEntity.status(500)
-                .body(crearRespuestaError("Error al obtener aulas virtuales disponibles: " + e.getMessage()));
+            return createErrorResponse("Error interno del servidor", e.getMessage(), null, 500);
         }
     }
 
-    // GET http://localhost:8080/api/aula-virtual/{id}
+    /**
+     * Listar aulas disponibles con filtros
+     */
+    @PostMapping("/disponibles/filtros")
+    public ResponseEntity<?> listarAulasConFiltros(
+            @RequestHeader("Authorization") String authorization,
+            @Valid @RequestBody AulaVirtualFilterRequest filtros) {
+        try {
+            String token = extractToken(authorization);
+            List<AulaVirtualResponse> aulas = aulaVirtualService.listarDisponiblesConFiltrosAuth(token, filtros);
+            return ResponseEntity.ok(aulas);
+        } catch (IllegalArgumentException e) {
+            return createErrorResponse("Token inválido", e.getMessage(), null, 401);
+        } catch (Exception e) {
+            return createErrorResponse("Error interno del servidor", e.getMessage(), null, 500);
+        }
+    }
+
+    /**
+     * Obtener aula por ID
+     */
     @GetMapping("/{id}")
-    public ResponseEntity<?> obtener(@PathVariable Long id, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> obtenerAula(
+            @RequestHeader("Authorization") String authorization,
+            @PathVariable Long id) {
         try {
-            // Verificar autenticación
-            String username = validarYExtraerUsername(token);
-            if (username == null) {
-                return ResponseEntity.status(401)
-                    .body(crearRespuestaError("Token inválido o expirado"));
+            String token = extractToken(authorization);
+            AulaVirtualResponse aula = aulaVirtualService.obtenerConAuth(token, id);
+            return ResponseEntity.ok(aula);
+        } catch (IllegalArgumentException e) {
+            String message = e.getMessage();
+            if (message.contains("token") || message.contains("Token")) {
+                return createErrorResponse("Token inválido", message, null, 401);
+            } else if (message.contains("no existe") || message.contains("no encontrada")) {
+                return createErrorResponse("Aula no encontrada", message, null, 404);
+            } else {
+                return createErrorResponse("Error de validación", message, null, 400);
             }
-
-            AulaVirtual aula = aulaVirtualService.obtener(id);
-            if (aula == null) {
-                return ResponseEntity.status(404)
-                    .body(crearRespuestaError("Aula virtual no encontrada"));
-            }
-
-            return ResponseEntity.ok()
-                .body(crearRespuestaExitosa("Aula virtual obtenida correctamente", aula));
-                
         } catch (Exception e) {
-            return ResponseEntity.status(500)
-                .body(crearRespuestaError("Error al obtener aula virtual: " + e.getMessage()));
+            return createErrorResponse("Error interno del servidor", e.getMessage(), null, 500);
         }
     }
 
-    // POST http://localhost:8080/api/aula-virtual
+    /**
+     * Crear nueva aula
+     */
     @PostMapping
-    public ResponseEntity<?> crear(@RequestBody AulaVirtual aulaVirtual, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> crearAula(
+            @RequestHeader("Authorization") String authorization,
+            @Valid @RequestBody AulaVirtualRequest request) {
         try {
-            // Verificar autenticación
-            String username = validarYExtraerUsername(token);
-            if (username == null) {
-                return ResponseEntity.status(401)
-                    .body(crearRespuestaError("Token inválido o expirado"));
+            // Validaciones básicas
+            if (request.getCodigo() == null || request.getCodigo().trim().isEmpty()) {
+                return createErrorResponse("Código requerido", "El código del aula es obligatorio", "codigo", 400);
             }
 
-            aulaVirtualService.crear(aulaVirtual);
-            return ResponseEntity.ok()
-                .body(crearRespuestaExitosa("Aula virtual creada correctamente", aulaVirtual));
-                
+            if (request.getEstado() == null || request.getEstado().trim().isEmpty()) {
+                return createErrorResponse("Estado requerido", "El estado del aula es obligatorio", "estado", 400);
+            }
+
+            String token = extractToken(authorization);
+            AulaVirtualResponse aula = aulaVirtualService.crearConAuth(token, request);
+            return ResponseEntity.ok(aula);
+
+        } catch (IllegalArgumentException e) {
+            String message = e.getMessage();
+            if (message.contains("token") || message.contains("Token")) {
+                return createErrorResponse("Token inválido", message, null, 401);
+            } else if (message.contains("ya existe") || message.contains("duplicado")) {
+                return createErrorResponse("Código en uso", message, "codigo", 409);
+            } else {
+                return createErrorResponse("Error de validación", message, null, 400);
+            }
         } catch (Exception e) {
-            return ResponseEntity.status(500)
-                .body(crearRespuestaError("Error al crear aula virtual: " + e.getMessage()));
+            return createErrorResponse("Error interno del servidor", e.getMessage(), null, 500);
         }
     }
 
-    // PUT http://localhost:8080/api/aula-virtual/{codigo}
+    /**
+     * Actualizar aula existente
+     */
     @PutMapping("/{codigo}")
-    public ResponseEntity<?> actualizar(@PathVariable String codigo, @RequestBody AulaVirtual aulaVirtual, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> actualizarAula(
+            @RequestHeader("Authorization") String authorization,
+            @PathVariable String codigo,
+            @Valid @RequestBody AulaVirtualRequest request) {
         try {
-            // Verificar autenticación
-            String username = validarYExtraerUsername(token);
-            if (username == null) {
-                return ResponseEntity.status(401)
-                    .body(crearRespuestaError("Token inválido o expirado"));
+            // Validaciones básicas
+            if (request.getEstado() == null || request.getEstado().trim().isEmpty()) {
+                return createErrorResponse("Estado requerido", "El estado del aula es obligatorio", "estado", 400);
             }
 
-            aulaVirtual.setCodigo(codigo);
-            aulaVirtualService.actualizar(aulaVirtual);
-            return ResponseEntity.ok()
-                .body(crearRespuestaExitosa("Aula virtual actualizada correctamente", aulaVirtual));
-                
+            String token = extractToken(authorization);
+            AulaVirtualResponse aula = aulaVirtualService.actualizarConAuth(token, codigo, request);
+            return ResponseEntity.ok(aula);
+
+        } catch (IllegalArgumentException e) {
+            String message = e.getMessage();
+            if (message.contains("token") || message.contains("Token")) {
+                return createErrorResponse("Token inválido", message, null, 401);
+            } else if (message.contains("no existe") || message.contains("no encontrada")) {
+                return createErrorResponse("Aula no encontrada", message, null, 404);
+            } else {
+                return createErrorResponse("Error de validación", message, null, 400);
+            }
         } catch (Exception e) {
-            return ResponseEntity.status(500)
-                .body(crearRespuestaError("Error al actualizar aula virtual: " + e.getMessage()));
+            return createErrorResponse("Error interno del servidor", e.getMessage(), null, 500);
         }
     }
 
-    // DELETE http://localhost:8080/api/aula-virtual/{codigo}
+    /**
+     * Eliminar aula
+     */
     @DeleteMapping("/{codigo}")
-    public ResponseEntity<?> eliminar(@PathVariable String codigo, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> eliminarAula(
+            @RequestHeader("Authorization") String authorization,
+            @PathVariable String codigo) {
         try {
-            // Verificar autenticación
-            String username = validarYExtraerUsername(token);
-            if (username == null) {
-                return ResponseEntity.status(401)
-                    .body(crearRespuestaError("Token inválido o expirado"));
-            }
+            String token = extractToken(authorization);
+            aulaVirtualService.eliminarConAuth(token, codigo);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Aula eliminada exitosamente");
+            response.put("codigo", codigo);
+            return ResponseEntity.ok(response);
 
-            aulaVirtualService.eliminar(codigo);
-            return ResponseEntity.ok()
-                .body(crearRespuestaExitosa("Aula virtual eliminada correctamente", null));
-                
+        } catch (IllegalArgumentException e) {
+            String message = e.getMessage();
+            if (message.contains("token") || message.contains("Token")) {
+                return createErrorResponse("Token inválido", message, null, 401);
+            } else if (message.contains("no existe") || message.contains("no encontrada")) {
+                return createErrorResponse("Aula no encontrada", message, null, 404);
+            } else if (message.contains("reservas") || message.contains("utilizada")) {
+                return createErrorResponse("No se puede eliminar", message, null, 409);
+            } else {
+                return createErrorResponse("Error de validación", message, null, 400);
+            }
         } catch (Exception e) {
-            return ResponseEntity.status(500)
-                .body(crearRespuestaError("Error al eliminar aula virtual: " + e.getMessage()));
+            return createErrorResponse("Error interno del servidor", e.getMessage(), null, 500);
         }
+    }
+
+    /**
+     * Extraer token del header Authorization
+     */
+    private String extractToken(String authorization) {
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("Token de autorización requerido");
+        }
+        return authorization.substring(7);
+    }
+
+    /**
+     * Helper method para crear respuestas de error
+     */
+    private ResponseEntity<?> createErrorResponse(String error, String message, String field, int status) {
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("error", error);
+        errorResponse.put("message", message);
+        if (field != null) {
+            errorResponse.put("field", field);
+        }
+        return ResponseEntity.status(status).body(errorResponse);
     }
 }

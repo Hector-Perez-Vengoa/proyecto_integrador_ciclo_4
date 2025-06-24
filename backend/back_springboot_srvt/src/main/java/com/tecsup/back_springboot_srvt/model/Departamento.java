@@ -1,6 +1,7 @@
 package com.tecsup.back_springboot_srvt.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -25,7 +26,8 @@ public class Departamento {
     private LocalDateTime fecha_creacion;
     
     @OneToMany(mappedBy = "departamento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Carrera> carreras;    // Constructors
+    @JsonManagedReference
+    private List<Carrera> carreras;// Constructors
     public Departamento() {}
 
     public Departamento(String nombre, String descripcion, String jefe) {

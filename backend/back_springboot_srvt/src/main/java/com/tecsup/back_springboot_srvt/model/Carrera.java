@@ -1,6 +1,8 @@
 package com.tecsup.back_springboot_srvt.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,9 +25,11 @@ public class Carrera {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "departamento_id")
+    @JsonBackReference
     private Departamento departamento;
     
     @OneToMany(mappedBy = "carrera", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private List<Curso> cursos;
     
     @ManyToMany(mappedBy = "carreras", fetch = FetchType.LAZY)

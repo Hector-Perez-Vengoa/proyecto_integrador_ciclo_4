@@ -1,0 +1,323 @@
+/* src/css/calendar.css */
+
+/* Estilos personalizados para FullCalendar */
+.calendar-container .fc {
+  font-family: inherit;
+}
+
+.calendar-container .fc-toolbar {
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.calendar-container .fc-toolbar-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.calendar-container .fc-button {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.calendar-container .fc-button:hover {
+  background-color: #2563eb;
+  border-color: #2563eb;
+}
+
+.calendar-container .fc-button:disabled {
+  background-color: #9ca3af;
+  border-color: #9ca3af;
+  opacity: 0.6;
+}
+
+.calendar-container .fc-button-active {
+  background-color: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
+}
+
+.calendar-container .fc-event {
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.25rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.calendar-container .fc-event:hover {
+  opacity: 0.8;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-container .fc-timegrid-slot {
+  height: 2.5rem;
+}
+
+.calendar-container .fc-timegrid-slot-label {
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.calendar-container .fc-col-header-cell {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+  padding: 0.75rem 0.5rem;
+}
+
+.calendar-container .fc-daygrid-day-number {
+  color: #374151;
+  font-weight: 500;
+}
+
+.calendar-container .fc-day-today {
+  background-color: #fef3c7 !important;
+}
+
+.calendar-container .fc-timegrid-now-indicator-line {
+  border-color: #ef4444;
+  border-width: 2px;
+}
+
+.calendar-container .fc-timegrid-now-indicator-arrow {
+  border-top-color: #ef4444;
+  border-bottom-color: #ef4444;
+}
+
+.calendar-container .fc-more-link {
+  color: #3b82f6;
+  font-weight: 500;
+}
+
+.calendar-container .fc-more-link:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.calendar-container .fc-event-time {
+  font-weight: 600;
+}
+
+.calendar-container .custom-event-content {
+  padding: 2px 4px;
+}
+
+.calendar-container .event-time {
+  font-size: 10px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.calendar-container .event-title {
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.2;
+  margin-top: 1px;
+}
+
+.calendar-container .fc-list-event-title {
+  color: #374151;
+}
+
+.calendar-container .fc-list-event-time {
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.calendar-container .fc-daygrid-day.blocked-day {
+  background-color: #fef2f2;
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 5px,
+    rgba(239, 68, 68, 0.1) 5px,
+    rgba(239, 68, 68, 0.1) 10px
+  );
+}
+
+.calendar-container .fc-scrollgrid {
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para días deshabilitados */
+.calendar-container .fc-day-sun,
+.calendar-container .fc-day-disabled {
+  background-color: #f9fafb !important;
+  opacity: 0.6;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.calendar-container .fc-day-sun .fc-daygrid-day-number,
+.calendar-container .fc-day-sun .fc-col-header-cell-cushion,
+.calendar-container .fc-day-disabled .fc-daygrid-day-number,
+.calendar-container .fc-day-disabled .fc-col-header-cell-cushion {
+  color: #9ca3af !important;
+  text-decoration: line-through;
+}
+
+/* Estilo para horas pasadas del día actual */
+.calendar-container .fc-timegrid-slot.fc-timegrid-slot-past {
+  background-color: #f9fafb !important;
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.calendar-container .fc-timegrid-slot.fc-timegrid-slot-past .fc-timegrid-slot-label {
+  color: #9ca3af !important;
+  text-decoration: line-through;
+}
+
+/* Patrón diagonal para indicar áreas no disponibles */
+.calendar-container .fc-day-sun:before,
+.calendar-container .fc-day-disabled:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent 0px,
+    transparent 8px,
+    rgba(156, 163, 175, 0.15) 8px,
+    rgba(156, 163, 175, 0.15) 12px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Patrón más sutil para vista de mes */
+.calendar-container .fc-dayGridMonth-view .fc-day-sun:before,
+.calendar-container .fc-dayGridMonth-view .fc-day-disabled:before {
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent 0px,
+    transparent 12px,
+    rgba(156, 163, 175, 0.08) 12px,
+    rgba(156, 163, 175, 0.08) 16px
+  );
+}
+
+/* Patrón para horas pasadas (solo en vistas de tiempo) */
+.calendar-container .fc-timegrid-slot.fc-timegrid-slot-past:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent 0px,
+    transparent 3px,
+    rgba(156, 163, 175, 0.3) 3px,
+    rgba(156, 163, 175, 0.3) 6px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Evitar selección en áreas deshabilitadas */
+.calendar-container .fc-day-sun,
+.calendar-container .fc-timegrid-slot.fc-timegrid-slot-past {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .calendar-container .fc-toolbar {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .calendar-container .fc-toolbar-chunk {
+    margin: 0.25rem 0;
+  }
+  
+  .calendar-container .fc-button-group {
+    flex-wrap: wrap;
+  }
+  
+  .calendar-container .fc-button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
+  
+  .calendar-container .fc-col-header-cell {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.75rem;
+  }
+  
+  .calendar-container .fc-timegrid-slot {
+    height: 2rem;
+  }
+  
+  .calendar-container .fc-event {
+    font-size: 0.75rem;
+    padding: 0.125rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendar-container .fc-toolbar-title {
+    font-size: 1.125rem;
+  }
+  
+  .calendar-container .fc-button {
+    padding: 0.25rem;
+    min-width: unset;
+  }
+  
+  .calendar-container .fc-button .fc-icon {
+    font-size: 0.75rem;
+  }
+}
+
+/* Estilos específicos para vista de mes */
+.calendar-container .fc-dayGridMonth-view .fc-day-sun {
+  background-color: #f8fafc !important;
+  opacity: 0.7;
+}
+
+.calendar-container .fc-dayGridMonth-view .fc-day-sun .fc-daygrid-day-number {
+  color: #94a3b8 !important;
+  font-weight: 400;
+}
+
+/* Reducir opacidad del patrón rayado en vista de mes */
+.calendar-container .fc-dayGridMonth-view .fc-day-disabled {
+  opacity: 0.8;
+}
+
+/* Mejorar contraste del texto en vista de mes */
+.calendar-container .fc-dayGridMonth-view .fc-daygrid-day-number {
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+/* Estilos para días de hoy en vista de mes */
+.calendar-container .fc-dayGridMonth-view .fc-day-today {
+  background-color: #dbeafe !important;
+  border: 2px solid #3b82f6;
+}
+
+.calendar-container .fc-dayGridMonth-view .fc-day-today .fc-daygrid-day-number {
+  color: #1d4ed8 !important;
+  font-weight: 700;
+}

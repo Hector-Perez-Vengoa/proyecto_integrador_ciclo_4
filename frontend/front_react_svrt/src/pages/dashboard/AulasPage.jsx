@@ -3,7 +3,7 @@ import { AulasDisponibles } from '../../components/aulas';
 
 const AulasPage = () => {
   return (
-    <div className="flex-1">
+    <div className="flex-1 page-transition-elegant">
       <AulasDisponibles />
     </div>
   );

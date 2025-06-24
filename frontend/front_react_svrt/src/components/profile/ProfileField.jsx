@@ -1,12 +1,27 @@
-// src/components/profile/ProfileField.jsx
 import React from 'react';
 import * as Icons from 'lucide-react';
+import ProfileSelectField from './ProfileSelectField';
+import { ProfileIcon } from '../../constants/profileIcons.jsx';
 
-const ProfileField = ({ field, value, editing, onChange, formatValue }) => {
-  const IconComponent = field.icon ? Icons[field.icon] : null;
-    const renderInput = () => {
-    const baseClasses = "w-full px-4 py-3.5 border-2 border-tecsup-gray-medium/20 rounded-xl focus:outline-none focus:ring-4 focus:ring-tecsup-primary/20 focus:border-tecsup-primary transition-all duration-400 text-tecsup-gray-dark placeholder-tecsup-gray-medium bg-white hover:border-tecsup-primary/40";
-    const readOnlyClasses = "bg-gradient-to-r from-tecsup-gray-light to-gray-100 cursor-not-allowed border-tecsup-gray-medium/20";
+const ProfileField = ({ field, value, editing, onChange, formatValue, options = [] }) => {
+
+  // Si es un campo de selección, usar el componente especializado
+  if (field.type === 'select' || field.type === 'multiselect') {
+    return (
+      <ProfileSelectField
+        field={field}
+        value={value}
+        editing={editing}
+        onChange={onChange}
+        formatValue={formatValue}
+        options={options}
+      />
+    );
+  }
+
+  const renderInput = () => {
+    const baseClasses = "w-full px-4 py-3.5 border-2 border-tecsup-gray-300/40 rounded-xl focus:outline-none focus:ring-4 focus:ring-tecsup-primary/20 focus:border-tecsup-primary transition-all duration-400 text-tecsup-gray-700 placeholder-tecsup-gray-400 bg-white hover:border-tecsup-primary/40";
+    const readOnlyClasses = "bg-gradient-to-r from-tecsup-gray-100 to-tecsup-gray-50 cursor-not-allowed border-tecsup-gray-300/40";
     
     switch (field.type) {
       case 'textarea':
@@ -50,7 +65,8 @@ const ProfileField = ({ field, value, editing, onChange, formatValue }) => {
     const displayValue = formatValue ? formatValue(value) : (value || 'No especificado');
     const minHeight = field.type === 'textarea' ? 'min-h-[120px]' : '';
     const isEmpty = !value || value === 'No especificado';
-      if (field.type === 'url' && value) {
+    
+    if (field.type === 'url' && value) {
       return (
         <div className={`group px-4 py-3.5 bg-gradient-to-r from-tecsup-blue-50/50 to-tecsup-cyan-50/30 rounded-xl border border-tecsup-primary/20 hover:from-tecsup-blue-50 hover:to-tecsup-cyan-50 hover:border-tecsup-primary/40 transition-all duration-400 ${minHeight} hover-scale-gentle`}>
           <a 
@@ -67,24 +83,22 @@ const ProfileField = ({ field, value, editing, onChange, formatValue }) => {
     }
 
     return (
-      <div className={`px-4 py-3.5 bg-gradient-to-r from-tecsup-gray-light/80 to-tecsup-blue-50/20 rounded-xl border border-tecsup-gray-light/50 hover:from-tecsup-gray-light hover:to-tecsup-blue-50/40 hover:border-tecsup-gray-medium/30 transition-all duration-400 ${minHeight} hover-scale-gentle`}>
-        <p className={`${isEmpty ? 'text-tecsup-gray-medium italic' : 'text-tecsup-gray-dark font-medium'} leading-relaxed`}>
+      <div className={`px-4 py-3.5 bg-gradient-to-r from-tecsup-gray-100/80 to-tecsup-blue-50/20 rounded-xl border border-tecsup-gray-200/50 hover:from-tecsup-gray-100 hover:to-tecsup-blue-50/40 hover:border-tecsup-gray-300/30 transition-all duration-400 ${minHeight} hover-scale-gentle`}>
+        <p className={`${isEmpty ? 'text-tecsup-gray-400 italic' : 'text-tecsup-gray-700 font-medium'} leading-relaxed`}>
           {displayValue}
         </p>
       </div>
     );
   };
-
   return (
     <div className="space-y-3">
-      <label className="flex items-center gap-2 text-sm font-semibold text-tecsup-gray-dark group cursor-pointer">
-        {IconComponent && (
-          <div className="w-5 h-5 rounded-lg bg-tecsup-primary flex items-center justify-center group-hover:scale-105 transition-transform duration-400">
-            <IconComponent className="w-3 h-3 text-white" />
-          </div>
-        )}
+      <label className="flex items-center gap-2 text-sm font-semibold text-tecsup-gray-700 group cursor-pointer">
+        <div className="w-5 h-5 rounded-lg bg-tecsup-primary flex items-center justify-center group-hover:scale-105 transition-transform duration-400">
+          <ProfileIcon iconName={field.icon} className="w-3 h-3 text-white" />
+        </div>
         <span className="group-hover:text-tecsup-primary transition-colors duration-400">
           {field.label}
+          {field.required && <span className="text-red-500 ml-1">*</span>}
         </span>
       </label>
       {editing ? renderInput() : renderValue()}

@@ -1,49 +1,46 @@
 // src/utils/profileUtils.js
-import { PROFILE_FIELDS, COMPLETENESS_THRESHOLDS } from '../constants/profile';
-
-export const calculateCompleteness = (profile) => {
-  if (!profile) return 0;
-  
-  const completed = PROFILE_FIELDS.ALL.filter(field => 
-    profile[field] && profile[field].toString().trim() !== ''
-  ).length;
-  
-  return Math.round((completed / PROFILE_FIELDS.ALL.length) * 100);
-};
-
-export const isProfileIncomplete = (profile) => {
-  return profile && PROFILE_FIELDS.REQUIRED.some(field => 
-    !profile[field] || profile[field].toString().trim() === ''
-  );
-};
-
-export const getCompletenessColor = (completeness) => {
-  if (completeness < COMPLETENESS_THRESHOLDS.LOW) return 'bg-red-500';
-  if (completeness < COMPLETENESS_THRESHOLDS.MEDIUM) return 'bg-yellow-500';
-  return 'bg-green-500';
-};
 
 export const getImageUrl = (profile, imagePreview) => {
+  // En modo edición, mostrar preview si existe
   if (imagePreview) return imagePreview;
+  
+  // Usar la imagen de perfil desde Google o avatar generado
   if (profile?.imagenPerfil) {
-    let imagePath = profile.imagenPerfil;
-    
-    if (imagePath.startsWith('/uploads/')) {
-      // Caso: "/uploads/user_24/profile/filename.jpg" -> "user_24/profile/filename.jpg"
-      imagePath = imagePath.substring('/uploads/'.length);
-    } else if (imagePath.startsWith('/')) {
-      // Caso: "/user_24/profile/filename.jpg" -> "user_24/profile/filename.jpg"  
-      imagePath = imagePath.substring(1);
+    // Si la imagen ya es una URL completa (Google o avatar), usarla directamente
+    if (profile.imagenPerfil.startsWith('http')) {
+      return profile.imagenPerfil;
     }
     
+    // Para compatibilidad con imágenes locales antiguas (si las hay)
+    // Aunque ya no deberían existir después de la migración
+    let imagePath = profile.imagenPerfil;
+    if (imagePath.startsWith('/uploads/')) {
+      imagePath = imagePath.substring('/uploads/'.length);
+    } else if (imagePath.startsWith('/')) {
+      imagePath = imagePath.substring(1);
+    }
     return `http://localhost:8080/api/perfil/uploads/${imagePath}`;
   }
+  
   return null;
 };
 
 export const formatDate = (dateString) => {
   if (!dateString) return 'No especificado';
   return new Date(dateString).toLocaleDateString('es-ES');
+};
+
+export const formatAcademicInfo = (profile) => {
+  const academic = {
+    departamento: profile?.departamento?.nombre || 'No especificado',
+    carreras: profile?.carreras?.length > 0 
+      ? profile.carreras.map(c => c.nombre).join(', ')
+      : 'No especificado',
+    cursos: profile?.cursos?.length > 0 
+      ? profile.cursos.map(c => c.nombre).join(', ')
+      : 'No especificado'
+  };
+  return academic;
 };
 
 export const getInitials = (profile) => {

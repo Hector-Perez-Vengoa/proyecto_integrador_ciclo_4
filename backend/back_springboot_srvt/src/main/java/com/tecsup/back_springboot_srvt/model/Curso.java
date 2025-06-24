@@ -1,6 +1,7 @@
 package com.tecsup.back_springboot_srvt.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -20,6 +21,7 @@ public class Curso {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "carrera_id")
+    @JsonBackReference
     private Carrera carrera;
     
     @Column(name = "duracion") // en horas

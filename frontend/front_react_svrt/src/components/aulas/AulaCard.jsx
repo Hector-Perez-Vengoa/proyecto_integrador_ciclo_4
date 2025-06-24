@@ -32,11 +32,10 @@ const AulaCard = ({ aula, onSelect, isSelected = false }) => {
     }
   };
 
-  return (
-    <div 
+  return (    <div 
       className={`
-        relative bg-white rounded-xl shadow-lg border transition-all duration-300 cursor-pointer
-        hover:shadow-xl hover:scale-[1.02] hover:border-tecsup-primary/30
+        relative bg-white rounded-xl shadow-lg border hover-lift-smooth ultra-smooth
+        hover:shadow-xl hover-scale-elegant hover:border-tecsup-primary/30
         ${isSelected 
           ? 'border-tecsup-primary shadow-tecsup-primary/20 ring-2 ring-tecsup-primary/20' 
           : 'border-gray-200'

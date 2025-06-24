@@ -3,7 +3,7 @@ import { ProfileView } from '../../components/profile';
 
 const ProfilePage = () => {
   return (
-    <div className="flex-1">
+    <div className="flex-1 page-transition-elegant">
       <ProfileView autoEdit={false} />
     </div>
   );

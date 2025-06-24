@@ -10,9 +10,18 @@ export const useProfile = () => {
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
-  // Función helper para sincronizar formData con el perfil
+  
+  // Estados para datos académicos
+  const [departamentos, setDepartamentos] = useState([]);
+  const [carreras, setCarreras] = useState([]);
+  const [cursos, setCursos] = useState([]);
+  const [loadingOptions, setLoadingOptions] = useState(false);
+  
+  // Estados adicionales para filtrado cascada
+  const [allCarreras, setAllCarreras] = useState([]); // Todas las carreras disponibles
+  const [allCursos, setAllCursos] = useState([]); // Todos los cursos disponibles
+  const [filteredCarreras, setFilteredCarreras] = useState([]); // Carreras filtradas por departamento
+  const [filteredCursos, setFilteredCursos] = useState([]); // Cursos filtrados por carreras// Función helper para sincronizar formData con el perfil
   const syncFormDataWithProfile = (profileData) => {
     if (profileData) {
       setFormData({
@@ -22,19 +31,171 @@ export const useProfile = () => {
         telefono: profileData.telefono || '',
         biografia: profileData.biografia || '',
         fechaNacimiento: profileData.fechaNacimiento || '',
+        // Campos académicos
+        departamentoId: profileData.departamento?.id || '',
+        carreraIds: profileData.carreras?.map(c => c.id) || [],
+        cursoIds: profileData.cursos?.map(c => c.id) || [],
+        // Campos adicionales
         ubicacion: profileData.ubicacion || '',
         sitioWeb: profileData.sitioWeb || '',
         linkedin: profileData.linkedin || '',
         twitter: profileData.twitter || ''
       });
     }
+  };  // Función para cargar opciones académicas del perfil existente
+  const loadProfileAcademicData = async (profileData) => {
+    if (!profileData) return;
+
+    try {
+      // Si hay departamento, cargar sus carreras
+      if (profileData.departamento?.id) {
+        const carrerasResponse = await profileService.getCarrerasByDepartamento(profileData.departamento.id);
+        if (carrerasResponse.success) {
+          setFilteredCarreras(carrerasResponse.data);
+        }
+      }
+
+      // Si hay carreras, cargar sus cursos
+      if (profileData.carreras && profileData.carreras.length > 0) {
+        const carreraIds = profileData.carreras.map(c => c.id);
+        const cursosResponse = await profileService.getCursosByCarreras(carreraIds);
+        if (cursosResponse.success) {
+          setFilteredCursos(cursosResponse.data);
+        }
+      }
+    } catch (error) {
+      showToast('Error al cargar datos académicos', 'error');
+    }
+  };// Cargar opciones académicas
+  const loadAcademicOptions = async () => {
+    try {
+      setLoadingOptions(true);
+      // Solo cargar departamentos al inicio
+      const deptResponse = await profileService.getDepartamentos();
+
+      if (deptResponse.success) {
+        setDepartamentos(deptResponse.data);
+      }
+      
+      // NO cargar carreras y cursos al inicio
+      // Esto se hará después de seleccionar departamento/carreras
+      setFilteredCarreras([]);
+      setFilteredCursos([]);
+    } catch (error) {
+      showToast('Error al cargar opciones académicas', 'error');
+    } finally {
+      setLoadingOptions(false);
+    }
+  };  // Función para manejar cambio de departamento
+  const handleDepartamentoChange = async (departamentoId) => {
+    try {
+      // Actualizar formData
+      setFormData(prev => ({ 
+        ...prev, 
+        departamentoId, 
+        carreraIds: [], // Limpiar carreras seleccionadas
+        cursoIds: [] // Limpiar cursos seleccionados
+      }));
+
+      if (departamentoId) {
+        // Cargar carreras del departamento seleccionado
+        setLoadingOptions(true);
+        const response = await profileService.getCarrerasByDepartamento(departamentoId);
+        if (response.success) {
+          setFilteredCarreras(response.data);
+          setFilteredCursos([]); // Limpiar cursos hasta que se seleccionen carreras
+        } else {
+          setFilteredCarreras([]);
+          setFilteredCursos([]);
+        }
+      } else {
+        // Si no hay departamento seleccionado, NO mostrar carreras ni cursos
+        setFilteredCarreras([]);
+        setFilteredCursos([]);
+      }    } catch (error) {
+      showToast('Error al cargar carreras del departamento', 'error');
+    } finally {
+      setLoadingOptions(false);
+    }
+  };  // Función para manejar cambio de carreras
+  const handleCarrerasChange = async (carreraIds) => {
+    try {
+      // Actualizar formData
+      setFormData(prev => ({ 
+        ...prev, 
+        carreraIds,
+        cursoIds: [] // Limpiar cursos seleccionados
+      }));
+
+      if (carreraIds && carreraIds.length > 0) {
+        // Cargar cursos de las carreras seleccionadas
+        setLoadingOptions(true);
+        
+        // Hacer la petición
+        const response = await profileService.getCursosByCarreras(carreraIds);
+          if (response && response.success && response.data) {
+          setFilteredCursos(response.data);
+        } else {
+          setFilteredCursos([]);
+          showToast(response?.message || 'No se encontraron cursos para las carreras seleccionadas', 'warning');
+        }
+      } else {
+        // Si no hay carreras seleccionadas, limpiar cursos
+        setFilteredCursos([]);
+      }    } catch (error) {
+      showToast('Error al cargar cursos de las carreras', 'error');
+    } finally {
+      setLoadingOptions(false);
+    }
+  };
+  // Función para manejar cambio de cursos
+  const handleCursosChange = (cursoIds) => {
+    setFormData(prev => ({ ...prev, cursoIds }));
   };
 
+  // Funciones helper para manejar selects múltiples
+  const handleMultiSelectChange = (name, selectedOptions) => {
+    const selectedValues = Array.from(selectedOptions, option => option.value);
+    
+    if (name === 'carreraIds') {
+      handleCarrerasChange(selectedValues);
+    } else if (name === 'cursoIds') {
+      handleCursosChange(selectedValues);
+    }
+  };  // Función mejorada para handleInputChange que maneja mejor los selects múltiples
+  const handleFieldChange = (name, value, selectedOptions = null) => {
+    if (name === 'departamentoId') {
+      handleDepartamentoChange(value);
+    } else if (name === 'carreraIds') {
+      // Si recibimos un array directamente (nuevo patrón), usarlo
+      if (Array.isArray(value)) {
+        handleCarrerasChange(value);
+      } else if (selectedOptions) {
+        // Si recibimos selectedOptions (patrón antiguo), convertir
+        handleMultiSelectChange(name, selectedOptions);
+      }
+    } else if (name === 'cursoIds') {
+      // Si recibimos un array directamente (nuevo patrón), usarlo
+      if (Array.isArray(value)) {
+        handleCursosChange(value);
+      } else if (selectedOptions) {
+        // Si recibimos selectedOptions (patrón antiguo), convertir
+        handleMultiSelectChange(name, selectedOptions);
+      }
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
+    
+    // Limpiar error específico
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: null }));
+    }
+  };
   // Cargar perfil al inicializar
   useEffect(() => {
     loadProfile();
+    loadAcademicOptions();
   }, []);
-
   const loadProfile = async () => {
     try {
       setLoading(true);
@@ -42,99 +203,36 @@ export const useProfile = () => {
         if (response.success && response.data) {
         setProfile(response.data);
         syncFormDataWithProfile(response.data);
-      }
-    } catch (error) {
-      console.error('Error loading profile:', error);
+        // Cargar datos académicos específicos del perfil
+        await loadProfileAcademicData(response.data);
+      }    } catch (error) {
       showToast('Error al cargar el perfil', 'error');
     } finally {
       setLoading(false);
     }
   };
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Manejar cambios especiales para campos académicos
+    if (name === 'departamentoId') {
+      handleDepartamentoChange(value);
+    } else if (name === 'carreraIds') {
+      // Para selects múltiples, value será un array
+      const selectedValues = Array.from(e.target.selectedOptions, option => option.value);
+      handleCarrerasChange(selectedValues);
+    } else if (name === 'cursoIds') {
+      // Para selects múltiples, value será un array
+      const selectedValues = Array.from(e.target.selectedOptions, option => option.value);
+      handleCursosChange(selectedValues);
+    } else {
+      // Cambio normal para otros campos
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
     
     // Limpiar error específico
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: null }));
-    }
-  };
-  // Función para comprimir imagen
-  const compressImage = (file, maxWidth = 800, quality = 0.8) => {
-    return new Promise((resolve) => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const img = new Image();
-      
-      img.onload = () => {
-        // Calcular nuevas dimensiones manteniendo aspecto
-        let { width, height } = img;
-        if (width > height) {
-          if (width > maxWidth) {
-            height = (height * maxWidth) / width;
-            width = maxWidth;
-          }
-        } else {
-          if (height > maxWidth) {
-            width = (width * maxWidth) / height;
-            height = maxWidth;
-          }
-        }
-        
-        canvas.width = width;
-        canvas.height = height;
-        
-        // Dibujar imagen redimensionada
-        ctx.drawImage(img, 0, 0, width, height);
-        
-        // Convertir a blob
-        canvas.toBlob(resolve, 'image/jpeg', quality);
-      };
-      
-      img.src = URL.createObjectURL(file);
-    });
-  };
-
-  const handleImageChange = async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      // Validar tipo de archivo
-      if (!file.type.startsWith('image/')) {
-        showToast('Por favor selecciona un archivo de imagen válido', 'error');
-        return;
-      }
-
-      // Validar tamaño inicial (máximo 10MB antes de comprimir)
-      if (file.size > 10 * 1024 * 1024) {
-        showToast('La imagen es demasiado grande. Por favor selecciona una imagen menor a 10MB', 'error');
-        return;
-      }
-
-      try {
-        // Comprimir imagen
-        const compressedFile = await compressImage(file);
-        
-        // Crear un nuevo archivo con el blob comprimido
-        const compressedImageFile = new File([compressedFile], file.name, {
-          type: 'image/jpeg',
-          lastModified: Date.now()
-        });
-
-        setImageFile(compressedImageFile);
-        
-        // Crear preview
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setImagePreview(reader.result);
-        };
-        reader.readAsDataURL(compressedImageFile);
-        
-        showToast('Imagen procesada correctamente', 'success');
-      } catch (error) {
-        console.error('Error compressing image:', error);
-        showToast('Error al procesar la imagen', 'error');
-      }
     }
   };const startEditing = () => {
     setEditing(true);
@@ -142,18 +240,13 @@ export const useProfile = () => {
     
     // Actualizar formData con los valores actuales del perfil
     syncFormDataWithProfile(profile);
-  };
-  const cancelEditing = () => {
+  };  const cancelEditing = () => {
     setEditing(false);
     setErrors({});
-    setImageFile(null);
-    setImagePreview(null);
     
     // Restaurar datos originales
     syncFormDataWithProfile(profile);
-  };
-
-  const saveProfile = async () => {
+  };  const saveProfile = async () => {
     try {
       setLoading(true);
 
@@ -164,29 +257,25 @@ export const useProfile = () => {
         return;
       }
 
-      // Subir imagen si hay una nueva
-      if (imageFile) {
-        try {
-          await profileService.uploadProfileImage(imageFile);
-          showToast('Imagen de perfil actualizada', 'success');
-        } catch (error) {
-          console.error('Error uploading image:', error);
-          showToast('Error al subir la imagen, pero se guardaron los otros datos', 'error');
-        }
-      }
+      // Preparar datos para envío
+      const dataToSend = {
+        ...formData,
+        // Asegurar que sean arrays
+        carreraIds: Array.isArray(formData.carreraIds) ? formData.carreraIds : [],
+        cursoIds: Array.isArray(formData.cursoIds) ? formData.cursoIds : []
+      };
 
       // Actualizar perfil
-      const response = await profileService.updateProfile(formData);
+      const response = await profileService.updateProfile(dataToSend);
         if (response.success) {
         setProfile(response.data);
         syncFormDataWithProfile(response.data);
         setEditing(false);
-        setImageFile(null);
-        setImagePreview(null);
         showToast('Perfil actualizado correctamente', 'success');
+      } else {
+        showToast(response.message || 'Error al guardar el perfil', 'error');
       }
     } catch (error) {
-      console.error('Error saving profile:', error);
       showToast('Error al guardar el perfil', 'error');
     } finally {
       setLoading(false);
@@ -196,26 +285,57 @@ export const useProfile = () => {
   const checkProfileStatus = async () => {
     try {
       const response = await profileService.getProfileStatus();
-      return response.data;
-    } catch (error) {
-      console.error('Error checking profile status:', error);
+      return response.data;    } catch (error) {
       return null;
     }
-  };
-
-  return {
+  };  const syncProfileImage = async () => {
+    try {
+      setLoading(true);
+      
+      // Verificar si hay token
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        showToast('Sesión expirada. Por favor inicia sesión nuevamente.', 'error');
+        return;
+      }
+      
+      const response = await profileService.syncProfileImage();
+      if (response.success) {
+        // Recargar el perfil para obtener la nueva imagen
+        await loadProfile();
+        showToast('Imagen de perfil sincronizada desde Google', 'success');
+      } else {
+        showToast(response.message || 'Error al sincronizar imagen', 'error');
+      }
+    } catch (error) {
+      showToast('Error al sincronizar la imagen de perfil', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };return {
     profile,
     loading,
     editing,
     formData,
     errors,
-    imageFile,
-    imagePreview,
+    // Opciones académicas
+    departamentos,
+    carreras,
+    cursos,
+    loadingOptions,
+    // Opciones filtradas para el cascading
+    filteredCarreras,
+    filteredCursos,
+    // Funciones
     handleInputChange,
-    handleImageChange,
+    handleFieldChange, // Nueva función mejorada para manejar campos
+    handleDepartamentoChange,
+    handleCarrerasChange,
+    handleCursosChange,
     startEditing,
     cancelEditing,
     saveProfile,
+    syncProfileImage, // Nueva función para sincronizar imagen de perfil
     loadProfile,
     checkProfileStatus
   };

@@ -13,23 +13,22 @@ const UserProfile = ({ user, onLogout }) => {
   
   return (
     <div className="flex flex-col gap-2 px-6 mb-2 w-full group relative transition-all duration-500"> 
-      <div className="flex items-center gap-3">
-        {imageUrl ? (
+      <div className="flex items-center gap-3">        {imageUrl ? (
           <img
             src={imageUrl}
             alt="Perfil"
-            className="w-12 h-12 rounded-full object-cover border-2 border-gray-200 cursor-pointer hover:border-blue-400 transition-all duration-200"
+            className="w-12 h-12 rounded-full object-cover border-2 border-tecsup-gray-200 cursor-pointer hover:border-tecsup-primary transition-all duration-200"
           />
         ) : (
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg cursor-pointer hover:from-blue-600 hover:to-indigo-700 transition-all duration-200">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-tecsup-primary to-tecsup-secondary flex items-center justify-center text-white font-bold text-lg cursor-pointer hover:from-tecsup-primary/90 hover:to-tecsup-secondary/90 transition-all duration-200">
             {initials}
           </div>
         )}
         <div className="flex flex-col">
-          <span className="font-semibold text-gray-800 leading-tight group-hover:text-blue-700 transition-colors">
+          <span className="font-semibold text-tecsup-primary leading-tight group-hover:text-tecsup-primary/80 transition-colors">
             {getUserFullName(user)}
           </span>
-          <span className="text-xs text-gray-500 leading-tight group-hover:text-blue-500 transition-colors">
+          <span className="text-xs text-tecsup-primary/70 leading-tight group-hover:text-tecsup-primary transition-colors">
             {user?.email}
           </span>
         </div>

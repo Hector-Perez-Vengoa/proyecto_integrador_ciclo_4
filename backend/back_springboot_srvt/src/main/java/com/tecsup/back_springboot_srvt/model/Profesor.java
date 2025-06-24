@@ -12,13 +12,19 @@ public class Profesor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "nombre", nullable = false)
-    private String nombre;
+    @Column(name = "user_id", nullable = false)
+    private Integer userId; // Para almacenar el ID del User asociado
 
-    @Column(name = "apellidos", nullable = false)
+    @Column(name = "perfil_id", nullable = true) // Asumiendo que un profesor podría existir teóricamente sin perfil directo, o se crea después
+    private Long perfilId; // Para almacenar el ID del Perfil asociado
+
+    @Column(name = "nombres", nullable = true)
+    private String nombres;
+
+    @Column(name = "apellidos", nullable = true)
     private String apellidos;
 
-    @Column(name = "codigo", unique = true, nullable = false)
+    @Column(name = "codigo", unique = true, nullable = true) // Se permite nulo inicialmente para generarlo después
     private String codigo;
 
     @Column(name = "correo", unique = true, nullable = false)
@@ -26,34 +32,35 @@ public class Profesor {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "departamento_id")
-    private Departamento departamento;
-
-    @ManyToMany(fetch = FetchType.LAZY)
+    private Departamento departamento;    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
-            name = "profesor_carrera",
-            joinColumns = @JoinColumn(name = "profesor_id"),
-            inverseJoinColumns = @JoinColumn(name = "carrera_id")
+            name = "profesordb_carreras",
+            joinColumns = @JoinColumn(name = "profesordb_id"),
+            inverseJoinColumns = @JoinColumn(name = "carreradb_id")
     )
     private List<Carrera> carreras;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "profesordb_cursos",
-            joinColumns = @JoinColumn(name = "profesor_id"),
-            inverseJoinColumns = @JoinColumn(name = "curso_id")
+            joinColumns = @JoinColumn(name = "profesordb_id"),
+            inverseJoinColumns = @JoinColumn(name = "cursodb_id")
     )
     private List<Curso> cursos;
 
     @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;
 
+    public Profesor() {
+        this.fechaCreacion = LocalDateTime.now();
+    }
 
-    public Profesor() {}
-
-    public Profesor(String nombre, String apellidos, String codigo, String correo, Departamento departamento) {
-        this.nombre = nombre;
+    // Constructor actualizado para incluir userId y perfilId (opcionalmente)
+    public Profesor(Integer userId, Long perfilId, String nombres, String apellidos, String correo, Departamento departamento) {
+        this.userId = userId;
+        this.perfilId = perfilId;
+        this.nombres = nombres;
         this.apellidos = apellidos;
-        this.codigo = codigo;
         this.correo = correo;
         this.departamento = departamento;
         this.fechaCreacion = LocalDateTime.now();
@@ -68,12 +75,28 @@ public class Profesor {
         this.id = id;
     }
 
-    public String getNombre() {
-        return nombre;
+    public Integer getUserId() {
+        return userId;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public Long getPerfilId() {
+        return perfilId;
+    }
+
+    public void setPerfilId(Long perfilId) {
+        this.perfilId = perfilId;
+    }
+
+    public String getNombres() {
+        return nombres;
+    }
+
+    public void setNombres(String nombres) {
+        this.nombres = nombres;
     }
 
     public String getApellidos() {
