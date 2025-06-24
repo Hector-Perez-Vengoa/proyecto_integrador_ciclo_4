@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_inicio"
+        android:icon="@drawable/ic_home"
+        android:title="Inicio" />
+
+    <item
+        android:id="@+id/nav_anuncios"
+        android:icon="@drawable/ic_announcement"
+        android:title="Anuncios" />
+
+    <item
+        android:id="@+id/nav_asistencia"
+        android:icon="@drawable/ic_check_circle"
+        android:title="Asistencia" />
+
+    <item
+        android:id="@+id/nav_avance"
+        android:icon="@drawable/ic_school"
+        android:title="Avance de carrera" />
+
+    <item
+        android:id="@+id/nav_menu"
+        android:icon="@drawable/ic_menu"
+        android:title="Menú" />
+
+</menu>
