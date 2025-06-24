@@ -16,26 +16,32 @@ const ProfileSection = ({
 }) => {
   const getFieldValue = (fieldName) => {
     return editing ? formData[fieldName] : profile[fieldName];
-  };
-
-  const getFormatValue = (field) => {
+  };  const getFormatValue = (field, fieldValue) => {
     if (field.type === 'date') {
-      return (value) => formatDate(value);
+      return formatDate(fieldValue);
     }
     if (field.type === 'select' || field.type === 'multiselect') {
-      return (value, options) => {
-        if (field.name === 'departamentoId') {
-          return profile?.departamento?.nombre || 'No especificado';
-        } else if (field.name === 'carreraIds') {
-          return profile?.carreras?.map(c => c.nombre).join(', ') || 'No especificado';
-        } else if (field.name === 'cursoIds') {
-          return profile?.cursos?.map(c => c.nombre).join(', ') || 'No especificado';
-        }
-        return 'No especificado';
-      };
+      if (field.name === 'departamentoId') {
+        return profile?.departamento?.nombre || 'No especificado';
+      } else if (field.name === 'carreraIds') {
+        return profile?.carreras?.map(c => c.nombre).join(', ') || 'No especificado';
+      } else if (field.name === 'cursoIds') {
+        return profile?.cursos?.map(c => c.nombre).join(', ') || 'No especificado';
+      }
+      return 'No especificado';
     }
-    return (value) => value || 'No especificado';
-  };  const getFieldOptions = (fieldName) => {
+    
+    // Manejar campos que pueden llegar como objetos desde el backend
+    if (typeof fieldValue === 'object' && fieldValue !== null) {
+      if (field.name === 'departamento' && fieldValue.nombre) {
+        return fieldValue.nombre;
+      }
+      // Si es un objeto pero no sabemos cómo manejarlo, convertir a string seguro
+      return JSON.stringify(fieldValue);
+    }
+    
+    return fieldValue || 'No especificado';
+  };const getFieldOptions = (fieldName) => {
     switch (fieldName) {
       case 'departamentoId':
         return academicOptions.departamentos || [];
@@ -103,10 +109,9 @@ const ProfileSection = ({
       </div>
       
       {/* Contenido */}
-      <div className={`p-6 space-y-6 ${editing ? 'field-edit-highlight' : ''}`}>
-        {section.fields.map((field, index) => {
+      <div className={`p-6 space-y-6 ${editing ? 'field-edit-highlight' : ''}`}>        {section.fields.map((field, index) => {
           const fieldValue = getFieldValue(field.name);
-          const formatFunction = getFormatValue(field);
+          const formattedValue = getFormatValue(field, fieldValue);
 
           return (
             <div key={field.name} className="space-y-2">              
@@ -184,13 +189,12 @@ const ProfileSection = ({
                     }`}
                   />
                 )
-              ) : (
-                // Modo vista
+              ) : (                // Modo vista
                 <div className="px-3 py-2.5 bg-tecsup-gray-50/50 rounded-lg border-0 ultra-smooth">
                   <p className={`text-sm ultra-smooth ${
                     fieldValue ? 'text-tecsup-gray-700 font-medium' : 'text-tecsup-gray-400 italic'
                   }`}>
-                    {formatFunction(fieldValue) || 'No especificado'}
+                    {formattedValue}
                   </p>
                 </div>
               )}

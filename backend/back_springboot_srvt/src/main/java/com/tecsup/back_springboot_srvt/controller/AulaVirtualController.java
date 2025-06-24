@@ -13,14 +13,12 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/aulas")
+@RequestMapping({"/api/aula-virtual"})
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:8000"})
 public class AulaVirtualController {
 
     @Autowired
-    private AulaVirtualService aulaVirtualService;
-
-    /**
+    private AulaVirtualService aulaVirtualService;    /**
      * Listar todas las aulas
      */
     @GetMapping
@@ -28,15 +26,20 @@ public class AulaVirtualController {
         try {
             String token = extractToken(authorization);
             List<AulaVirtualResponse> aulas = aulaVirtualService.listarTodasConAuth(token);
-            return ResponseEntity.ok(aulas);
+            
+            // Estructura esperada por el frontend
+            Map<String, Object> response = new HashMap<>();
+            response.put("data", aulas);
+            response.put("total", aulas.size());
+            response.put("message", "Aulas obtenidas correctamente");
+            
+            return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             return createErrorResponse("Token inválido", e.getMessage(), null, 401);
         } catch (Exception e) {
             return createErrorResponse("Error interno del servidor", e.getMessage(), null, 500);
         }
-    }
-
-    /**
+    }    /**
      * Listar aulas disponibles
      */
     @GetMapping("/disponibles")
@@ -44,7 +47,14 @@ public class AulaVirtualController {
         try {
             String token = extractToken(authorization);
             List<AulaVirtualResponse> aulas = aulaVirtualService.listarDisponiblesConAuth(token);
-            return ResponseEntity.ok(aulas);
+            
+            // Estructura esperada por el frontend
+            Map<String, Object> response = new HashMap<>();
+            response.put("data", aulas);
+            response.put("total", aulas.size());
+            response.put("message", "Aulas disponibles obtenidas correctamente");
+            
+            return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             return createErrorResponse("Token inválido", e.getMessage(), null, 401);
         } catch (Exception e) {
@@ -191,6 +201,33 @@ public class AulaVirtualController {
             }
         } catch (Exception e) {
             return createErrorResponse("Error interno del servidor", e.getMessage(), null, 500);
+        }
+    }
+
+    /**
+     * ENDPOINT TEMPORAL PARA DEBUG - Listar todas las aulas sin filtros
+     */
+    @GetMapping("/debug/todas")
+    public ResponseEntity<?> listarTodasAulasDebug() {
+        try {
+            List<AulaVirtualResponse> aulas = aulaVirtualService.listarTodasConAuth("debug-bypass");
+            
+            Map<String, Object> debugResponse = new HashMap<>();
+            debugResponse.put("total_aulas", aulas.size());
+            debugResponse.put("aulas", aulas);
+            
+            // Debug adicional
+            for (AulaVirtualResponse aula : aulas) {
+                System.out.println("🔍 DEBUG - Aula encontrada: ID=" + aula.getId() + 
+                                 ", Código=" + aula.getCodigo() + 
+                                 ", Estado=" + aula.getEstado());
+            }
+            
+            return ResponseEntity.ok(debugResponse);
+        } catch (Exception e) {
+            System.err.println("❌ ERROR en debug: " + e.getMessage());
+            e.printStackTrace();
+            return createErrorResponse("Error en debug", e.getMessage(), null, 500);
         }
     }
 

@@ -29,13 +29,13 @@ export const PROFILE_SECTIONS = {
         icon: 'Mail',
         required: true,
         readOnly: true
-      },
-      {
+      },      {
         name: 'departamento',
         label: 'Departamento',
-        type: 'tel',
-        icon: 'Department',
-        required: true
+        type: 'text',
+        icon: 'Building',
+        required: true,
+        readOnly: true
       },
       {
         name: 'fechaNacimiento',

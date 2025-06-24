@@ -18,12 +18,11 @@ public interface AulaVirtualRepository extends JpaRepository<AulaVirtual, Long> 
      * Busca aulas por estado
      */
     List<AulaVirtual> findByEstado(String estado);
-    
-    /**
-     * Busca aulas disponibles
+      /**
+     * Busca aulas disponibles (case-insensitive y múltiples estados válidos)
      */
-    @Query("SELECT a FROM AulaVirtual a WHERE a.estado = 'disponible' ORDER BY a.codigo")
-    List<AulaVirtual> findAulasDisponibles();    
+    @Query("SELECT a FROM AulaVirtual a WHERE LOWER(a.estado) IN ('disponible', 'activa', 'active') ORDER BY a.codigo")
+    List<AulaVirtual> findAulasDisponibles();
     
     /**
      * Busca aula por código
@@ -34,11 +33,10 @@ public interface AulaVirtualRepository extends JpaRepository<AulaVirtual, Long> 
      * Verifica si existe un aula con el código especificado
      */
     boolean existsByCodigo(String codigo);
-    
-    /**
-     * Busca aulas disponibles con filtros básicos
+      /**
+     * Busca aulas disponibles con filtros básicos (case-insensitive)
      */
-    @Query("SELECT a FROM AulaVirtual a WHERE a.estado = 'disponible' AND " +
+    @Query("SELECT a FROM AulaVirtual a WHERE LOWER(a.estado) IN ('disponible', 'activa', 'active') AND " +
            "(:codigo IS NULL OR LOWER(a.codigo) LIKE LOWER(CONCAT('%', :codigo, '%'))) AND " +
            "(:descripcion IS NULL OR LOWER(a.descripcion) LIKE LOWER(CONCAT('%', :descripcion, '%'))) " +
            "ORDER BY a.codigo")
@@ -46,14 +44,13 @@ public interface AulaVirtualRepository extends JpaRepository<AulaVirtual, Long> 
         @Param("codigo") String codigo, 
         @Param("descripcion") String descripcion
     );
-    
-    /**
+      /**
      * Buscar aulas disponibles con filtros avanzados por fecha, hora y curso
      * Esta consulta busca aulas que:
-     * 1. Estén en estado 'disponible' 
+     * 1. Estén en estado 'disponible', 'activa' o 'active' (case-insensitive)
      * 2. No tengan reservas conflictivas en la fecha y horario especificado
      */
-    @Query("SELECT DISTINCT a FROM AulaVirtual a WHERE a.estado = 'disponible' AND " +
+    @Query("SELECT DISTINCT a FROM AulaVirtual a WHERE LOWER(a.estado) IN ('disponible', 'activa', 'active') AND " +
            "(:fecha IS NULL OR :horaInicio IS NULL OR :horaFin IS NULL OR " +
            "NOT EXISTS (SELECT r FROM Reserva r WHERE r.aulaVirtual.id = a.id AND " +
            "r.fechaReserva = :fecha AND r.estado NOT IN ('CANCELADA') AND " +
