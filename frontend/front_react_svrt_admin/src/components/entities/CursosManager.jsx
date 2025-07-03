@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import DataTable from '../DataTable';
+import CursoCard from './CursoCard';
 import { useCursos, useCarreras } from '../../hooks/useEntities';
 
 const CursosManager = () => {
@@ -24,23 +24,39 @@ const CursosManager = () => {
     carrera: ''
   });
 
-  const columns = [
-    { header: 'Nombre', accessor: 'nombre' },
-    { header: 'Descripción', accessor: 'descripcion' },
-    { header: 'Duración (hrs)', accessor: 'duracion' },
-    { header: 'Fecha', accessor: 'fecha' },
-    { 
-      header: 'Carrera', 
-      render: (item) => {
-        const carrera = carreras.find(c => c.id === item.carrera);
-        return carrera ? carrera.nombre : 'Sin carrera';
-      }
-    },
-    { 
-      header: 'Fecha Creación', 
-      render: (item) => item.fecha_creacion ? new Date(item.fecha_creacion).toLocaleDateString() : 'N/A'
-    }
-  ];
+  // Estados para filtros de búsqueda
+  const [searchFilters, setSearchFilters] = useState({
+    nombre: '',
+    carrera: ''
+  });
+
+  // Función para filtrar cursos
+  const filteredCursos = cursos.filter(curso => {
+    const matchesNombre = !searchFilters.nombre || 
+      curso.nombre?.toLowerCase().includes(searchFilters.nombre.toLowerCase());
+    
+    const matchesCarrera = !searchFilters.carrera || 
+      curso.carrera?.toString() === searchFilters.carrera;
+
+    return matchesNombre && matchesCarrera;
+  });
+
+  // Función para manejar cambios en filtros
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setSearchFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Función para limpiar filtros
+  const clearFilters = () => {
+    setSearchFilters({
+      nombre: '',
+      carrera: ''
+    });
+  };
 
   const handleAdd = () => {
     setEditingCurso(null);
@@ -102,19 +118,140 @@ const CursosManager = () => {
 
   return (
     <div className="p-6">
-      <DataTable
-        data={cursos}
-        columns={columns}
-        loading={loading}
-        error={error}
-        onAdd={handleAdd}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        title="Gestión de Cursos"
-      />
+      {/* Header con título y botón agregar */}
+      <div className="mb-6 flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-800">Gestión de Cursos</h2>
+        <button
+          onClick={handleAdd}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors duration-200"
+        >
+          Agregar Nuevo Curso
+        </button>
+      </div>
 
+      {/* Filtros de búsqueda */}
+      <div className="mb-6 p-4 bg-gray-100 rounded-md">
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Filtros de Búsqueda</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="nombre" className="block text-sm font-medium text-gray-700">Nombre del Curso</label>
+            <input
+              type="text"
+              id="nombre"
+              name="nombre"
+              value={searchFilters.nombre}
+              onChange={handleFilterChange}
+              placeholder="Buscar por nombre..."
+              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="carrera" className="block text-sm font-medium text-gray-700">Carrera</label>
+            <select
+              id="carrera"
+              name="carrera"
+              value={searchFilters.carrera}
+              onChange={handleFilterChange}
+              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+            >
+              <option value="">Todas las carreras</option>
+              {carreras.map(carrera => (
+                <option key={carrera.id} value={carrera.id}>
+                  {carrera.nombre}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="mt-4 flex justify-between items-center">
+          <div className="text-sm text-gray-600">
+            {(searchFilters.nombre || searchFilters.carrera) && (
+              <span>Filtros activos: </span>
+            )}
+            {searchFilters.nombre && (
+              <span className="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs mr-2">
+                Nombre: "{searchFilters.nombre}"
+              </span>
+            )}
+            {searchFilters.carrera && (
+              <span className="inline-block bg-green-100 text-green-800 px-2 py-1 rounded-md text-xs mr-2">
+                Carrera: {carreras.find(c => c.id.toString() === searchFilters.carrera)?.nombre}
+              </span>
+            )}
+          </div>
+          
+          <button
+            onClick={clearFilters}
+            className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded transition-colors duration-200"
+          >
+            Limpiar Filtros
+          </button>
+        </div>
+      </div>
+
+      {/* Estados de carga y error */}
+      {loading && (
+        <div className="flex justify-center items-center p-8">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
+        </div>
+      )}
+
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+          <strong className="font-bold">Error: </strong>
+          <span className="block sm:inline">{error}</span>
+        </div>
+      )}
+
+      {/* Grid de cartas de cursos */}
+      {!loading && !error && (
+        <>
+          {/* Indicador de resultados */}
+          <div className="mb-4 text-sm text-gray-600">
+            {filteredCursos.length === cursos.length ? (
+              `Mostrando todos los cursos (${cursos.length})`
+            ) : (
+              `Mostrando ${filteredCursos.length} de ${cursos.length} cursos`
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredCursos.length === 0 ? (
+              <div className="col-span-full text-center py-12">
+                {cursos.length === 0 ? (
+                  <p className="text-gray-500 text-lg">No hay cursos registrados</p>
+                ) : (
+                  <div>
+                    <p className="text-gray-500 text-lg mb-2">No se encontraron cursos con los filtros aplicados</p>
+                    <button
+                      onClick={clearFilters}
+                      className="text-blue-600 hover:text-blue-800 underline"
+                    >
+                      Limpiar filtros para ver todos
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              filteredCursos.map((curso) => (
+                <CursoCard
+                  key={curso.id}
+                  curso={curso}
+                  carreras={carreras}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              ))
+            )}
+          </div>
+        </>
+      )}
+
+      {/* Modal para agregar/editar curso */}
       {showModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
           <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
             <div className="mt-3">
               <h3 className="text-lg font-medium text-gray-900 mb-4">
@@ -122,10 +259,10 @@ const CursosManager = () => {
               </h3>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label htmlFor="nombre" className="block text-sm font-medium text-gray-700">Nombre</label>
+                  <label htmlFor="form-nombre" className="block text-sm font-medium text-gray-700">Nombre</label>
                   <input
                     type="text"
-                    id="nombre"
+                    id="form-nombre"
                     name="nombre"
                     value={formData.nombre}
                     onChange={handleInputChange}
@@ -135,9 +272,9 @@ const CursosManager = () => {
                 </div>
                 
                 <div>
-                  <label htmlFor="descripcion" className="block text-sm font-medium text-gray-700">Descripción</label>
+                  <label htmlFor="form-descripcion" className="block text-sm font-medium text-gray-700">Descripción</label>
                   <textarea
-                    id="descripcion"
+                    id="form-descripcion"
                     name="descripcion"
                     value={formData.descripcion}
                     onChange={handleInputChange}
@@ -147,23 +284,22 @@ const CursosManager = () => {
                 </div>
                 
                 <div>
-                  <label htmlFor="duracion" className="block text-sm font-medium text-gray-700">Duración (horas)</label>
+                  <label htmlFor="form-duracion" className="block text-sm font-medium text-gray-700">Duración (horas)</label>
                   <input
                     type="number"
-                    id="duracion"
+                    id="form-duracion"
                     name="duracion"
                     value={formData.duracion}
                     onChange={handleInputChange}
                     className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                    min="1"
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="fecha" className="block text-sm font-medium text-gray-700">Fecha</label>
+                  <label htmlFor="form-fecha" className="block text-sm font-medium text-gray-700">Fecha</label>
                   <input
                     type="date"
-                    id="fecha"
+                    id="form-fecha"
                     name="fecha"
                     value={formData.fecha}
                     onChange={handleInputChange}
@@ -172,15 +308,15 @@ const CursosManager = () => {
                 </div>
                 
                 <div>
-                  <label htmlFor="carrera" className="block text-sm font-medium text-gray-700">Carrera</label>
+                  <label htmlFor="form-carrera" className="block text-sm font-medium text-gray-700">Carrera</label>
                   <select
-                    id="carrera"
+                    id="form-carrera"
                     name="carrera"
                     value={formData.carrera}
                     onChange={handleInputChange}
                     className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
                   >
-                    <option value="">Seleccionar carrera</option>
+                    <option value="">Selecciona una carrera</option>
                     {carreras.map(carrera => (
                       <option key={carrera.id} value={carrera.id}>
                         {carrera.nombre}

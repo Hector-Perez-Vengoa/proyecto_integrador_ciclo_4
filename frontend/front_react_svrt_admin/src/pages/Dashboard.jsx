@@ -4,6 +4,9 @@ import DashboardCard from '../components/DashboardCard';
 import Sidebar from '../components/Sidebar';
 import ProfesoresManager from '../components/entities/ProfesoresManager';
 import AulasVirtualesManager from '../components/entities/AulasVirtualesManager';
+import DepartamentosManager from '../components/entities/DepartamentosManager';
+import CarrerasManager from '../components/entities/CarrerasManager';
+import CursosManager from '../components/entities/CursosManager';
 import ReservasManager from '../components/entities/ReservasManager';
 import EstadisticasReservas from '../components/EstadisticasReservas';
 import EstadisticasAulas from '../components/EstadisticasAulas';
@@ -207,41 +210,11 @@ const Dashboard = () => {
       case 3:
         return <ReservasManager />;
       case 4:
-        return (
-          <div className="animate-fadeIn">
-            <div className="bg-white rounded-2xl shadow-custom p-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Gestión de Departamentos</h2>
-              <p className="text-gray-600 mb-6">Módulo para administrar departamentos académicos</p>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p className="text-blue-800">Este módulo está siendo actualizado para usar el nuevo diseño de tarjetas.</p>
-              </div>
-            </div>
-          </div>
-        );
+        return <DepartamentosManager />;
       case 5:
-        return (
-          <div className="animate-fadeIn">
-            <div className="bg-white rounded-2xl shadow-custom p-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Gestión de Carreras</h2>
-              <p className="text-gray-600 mb-6">Módulo para administrar carreras profesionales</p>
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <p className="text-green-800">Este módulo está siendo actualizado para usar el nuevo diseño de tarjetas.</p>
-              </div>
-            </div>
-          </div>
-        );
+        return <CarrerasManager />;
       case 6:
-        return (
-          <div className="animate-fadeIn">
-            <div className="bg-white rounded-2xl shadow-custom p-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Gestión de Cursos</h2>
-              <p className="text-gray-600 mb-6">Módulo para administrar cursos académicos</p>
-              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                <p className="text-purple-800">Este módulo está siendo actualizado para usar el nuevo diseño de tarjetas.</p>
-              </div>
-            </div>
-          </div>
-        );
+        return <CursosManager />;
       default:
         return (
           <div className="animate-fadeIn">
