@@ -13,8 +13,6 @@ import EstadisticasAulas from '../components/EstadisticasAulas';
 import { 
   useProfesores, 
   useAulasVirtuales, 
-  useDepartamentos, 
-  useCarreras, 
   useCursos, 
   useReservas 
 } from '../hooks/useEntities';
@@ -44,12 +42,28 @@ const colors = [
 
 const Dashboard = () => {
   const [activeMenu, setActiveMenu] = useState(0);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Detectar si es móvil
+  useEffect(() => {
+    const checkIsMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        setSidebarOpen(false); // Cerrar sidebar por defecto en móvil
+      }
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
   
   // Usar los hooks personalizados para obtener datos de las APIs
   const { data: profesores } = useProfesores();
   const { data: aulasVirtuales } = useAulasVirtuales();
-  const { data: departamentos } = useDepartamentos();
-  const { data: carreras } = useCarreras();
   const { data: cursos } = useCursos();
   const { data: reservas } = useReservas();
   
@@ -221,10 +235,31 @@ const Dashboard = () => {
     }
   };
 
+  // Calcular clases del contenido principal
+  const getMainMarginClass = () => {
+    if (isMobile) return 'ml-0';
+    return sidebarOpen ? 'ml-64' : 'ml-20';
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar active={activeMenu} onMenuClick={setActiveMenu} />
-      <main className="flex-1 p-6 lg:p-8 overflow-auto">
+      <Sidebar 
+        active={activeMenu} 
+        onMenuClick={setActiveMenu} 
+        onSidebarToggle={setSidebarOpen}
+      />
+      <main className={`flex-1 overflow-auto transition-all duration-300 ${getMainMarginClass()} p-6 lg:p-8`}>
+        {/* Botón de menú para móvil */}
+        {isMobile && (
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="mb-4 p-2 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow md:hidden"
+          >
+            <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        )}
         {renderContent()}
       </main>
     </div>

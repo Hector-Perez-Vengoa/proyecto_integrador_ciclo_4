@@ -4,17 +4,12 @@ import DashboardCard from '../components/DashboardCard';
 import Sidebar from '../components/Sidebar';
 import ProfesoresManager from '../components/entities/ProfesoresManager';
 import AulasVirtualesManager from '../components/entities/AulasVirtualesManager';
-import DepartamentosManager from '../components/entities/DepartamentosManager';
-import CarrerasManager from '../components/entities/CarrerasManager';
-import CursosManager from '../components/entities/CursosManager';
 import ReservasManager from '../components/entities/ReservasManager';
 import EstadisticasReservas from '../components/EstadisticasReservas';
 import EstadisticasAulas from '../components/EstadisticasAulas';
 import { 
   useProfesores, 
   useAulasVirtuales, 
-  useDepartamentos, 
-  useCarreras, 
   useCursos, 
   useReservas 
 } from '../hooks/useEntities';
@@ -44,12 +39,28 @@ const colors = [
 
 const Dashboard = () => {
   const [activeMenu, setActiveMenu] = useState(0);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Detectar si es móvil
+  useEffect(() => {
+    const checkIsMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        setSidebarOpen(false); // Cerrar sidebar por defecto en móvil
+      }
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
   
   // Usar los hooks personalizados para obtener datos de las APIs
   const { data: profesores } = useProfesores();
   const { data: aulasVirtuales } = useAulasVirtuales();
-  const { data: departamentos } = useDepartamentos();
-  const { data: carreras } = useCarreras();
   const { data: cursos } = useCursos();
   const { data: reservas } = useReservas();
   
@@ -196,11 +207,41 @@ const Dashboard = () => {
       case 3:
         return <ReservasManager />;
       case 4:
-        return <DepartamentosManager />;
+        return (
+          <div className="animate-fadeIn">
+            <div className="bg-white rounded-2xl shadow-custom p-8">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">Gestión de Departamentos</h2>
+              <p className="text-gray-600 mb-6">Módulo para administrar departamentos académicos</p>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p className="text-blue-800">Este módulo está siendo actualizado para usar el nuevo diseño de tarjetas.</p>
+              </div>
+            </div>
+          </div>
+        );
       case 5:
-        return <CarrerasManager />;
+        return (
+          <div className="animate-fadeIn">
+            <div className="bg-white rounded-2xl shadow-custom p-8">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">Gestión de Carreras</h2>
+              <p className="text-gray-600 mb-6">Módulo para administrar carreras profesionales</p>
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <p className="text-green-800">Este módulo está siendo actualizado para usar el nuevo diseño de tarjetas.</p>
+              </div>
+            </div>
+          </div>
+        );
       case 6:
-        return <CursosManager />;
+        return (
+          <div className="animate-fadeIn">
+            <div className="bg-white rounded-2xl shadow-custom p-8">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">Gestión de Cursos</h2>
+              <p className="text-gray-600 mb-6">Módulo para administrar cursos académicos</p>
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                <p className="text-purple-800">Este módulo está siendo actualizado para usar el nuevo diseño de tarjetas.</p>
+              </div>
+            </div>
+          </div>
+        );
       default:
         return (
           <div className="animate-fadeIn">
@@ -221,10 +262,31 @@ const Dashboard = () => {
     }
   };
 
+  // Calcular clases del contenido principal
+  const getMainMarginClass = () => {
+    if (isMobile) return 'ml-0';
+    return sidebarOpen ? 'ml-64' : 'ml-20';
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar active={activeMenu} onMenuClick={setActiveMenu} />
-      <main className="flex-1 p-6 lg:p-8 overflow-auto">
+      <Sidebar 
+        active={activeMenu} 
+        onMenuClick={setActiveMenu} 
+        onSidebarToggle={setSidebarOpen}
+      />
+      <main className={`flex-1 overflow-auto transition-all duration-300 ${getMainMarginClass()} p-6 lg:p-8`}>
+        {/* Botón de menú para móvil */}
+        {isMobile && (
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="mb-4 p-2 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow md:hidden"
+          >
+            <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        )}
         {renderContent()}
       </main>
     </div>
