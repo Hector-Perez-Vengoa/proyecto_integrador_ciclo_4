@@ -65,7 +65,7 @@ const Modal = ({
       {/* Modal con animaciones fluidas */}
       <div className="flex min-h-full items-center justify-center p-4">
         <div 
-          className={`relative bg-white rounded-2xl shadow-2xl border border-gray-100 w-full ${maxWidth} 
+          className={`relative bg-white rounded-2xl shadow-2xl w-full ${maxWidth} 
             transform transition-all duration-300 ease-out ${
               isVisible 
                 ? 'opacity-100 scale-100 translate-y-0' 

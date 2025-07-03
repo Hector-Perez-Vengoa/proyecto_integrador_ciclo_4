@@ -48,7 +48,7 @@ const AulasVirtualesPage = () => {
                   <Home className="w-4 h-4 text-white" />
                 </div>
                 <div className="hidden lg:block">
-                  <h1 className="text-xl font-bold bg-gradient-to-r from-tecsup-blue-700 to-tecsup-blue-900 bg-clip-text text-transparent">
+                  <h1 className="text-xl font-bold text-tecsup-blue-700">
                     Aulas Virtuales
                   </h1>
                   <p className="text-sm text-tecsup-gray-dark">Sistema de Reservas TECSUP</p>

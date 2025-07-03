@@ -1,8 +1,12 @@
 package com.tecsup.back_springboot_srvt.service;
 
 import com.tecsup.back_springboot_srvt.model.AulaVirtual;
+import com.tecsup.back_springboot_srvt.model.AulaVirtualComponente;
+import com.tecsup.back_springboot_srvt.model.AulaVirtualImagen;
 import com.tecsup.back_springboot_srvt.dto.*;
 import com.tecsup.back_springboot_srvt.repository.AulaVirtualRepository;
+import com.tecsup.back_springboot_srvt.repository.AulaVirtualComponenteRepository;
+import com.tecsup.back_springboot_srvt.repository.AulaVirtualImagenRepository;
 import com.tecsup.back_springboot_srvt.security.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,13 +21,19 @@ import java.util.stream.Collectors;
 public class AulaVirtualServiceImpl implements AulaVirtualService {
 
     private final AulaVirtualRepository aulaVirtualRepository;
+    private final AulaVirtualComponenteRepository componenteRepository;
+    private final AulaVirtualImagenRepository imagenRepository;
 
     @Autowired
     private JwtUtils jwtUtils;
 
     @Autowired
-    public AulaVirtualServiceImpl(AulaVirtualRepository aulaVirtualRepository) {
+    public AulaVirtualServiceImpl(AulaVirtualRepository aulaVirtualRepository,
+                                  AulaVirtualComponenteRepository componenteRepository,
+                                  AulaVirtualImagenRepository imagenRepository) {
         this.aulaVirtualRepository = aulaVirtualRepository;
+        this.componenteRepository = componenteRepository;
+        this.imagenRepository = imagenRepository;
     }
 
     @Override
@@ -286,12 +296,26 @@ public class AulaVirtualServiceImpl implements AulaVirtualService {
     public AulaVirtualResponse convertirAResponse(AulaVirtual aula) {
         if (aula == null) return null;
         
+        // Obtener componentes del aula
+        List<AulaVirtualComponente> componentesEntity = componenteRepository.findByAulaVirtualId(aula.getId());
+        List<ComponenteResponse> componentes = componentesEntity.stream()
+                .map(comp -> new ComponenteResponse(comp.getId(), comp.getNombre(), comp.getDescripcion()))
+                .collect(Collectors.toList());
+        
+        // Obtener imágenes del aula
+        List<AulaVirtualImagen> imagenesEntity = imagenRepository.findByAulaVirtualAndActivoTrueOrderByOrdenVisualizacion(aula);
+        List<ImagenResponse> imagenes = imagenesEntity.stream()
+                .map(img -> new ImagenResponse(img.getId(), img.getUrlImagen(), img.getNombreArchivo()))
+                .collect(Collectors.toList());
+        
         return new AulaVirtualResponse(
                 aula.getId(),
                 aula.getCodigo(),
                 aula.getEstado(),
                 aula.getDescripcion(),
-                aula.getFechaCreacion()
+                aula.getFechaCreacion(),
+                componentes,
+                imagenes
         );
     }
 

@@ -1,0 +1,73 @@
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  
+  <!-- Aula Virtual - Vista Principal -->
+  <!-- Proyector -->
+  <rect x="50" y="100" width="200" height="120" rx="10" fill="#ffffff" opacity="0.9"/>
+  <rect x="70" y="120" width="160" height="80" rx="5" fill="#1f2937"/>
+  <text x="150" y="165" font-family="Arial" font-size="12" fill="#ffffff" text-anchor="middle">PROYECTOR</text>
+  
+  <!-- Pizarra -->
+  <rect x="300" y="80" width="300" height="160" rx="5" fill="#ffffff"/>
+  <rect x="310" y="90" width="280" height="140" rx="3" fill="#f8fafc"/>
+  <text x="450" y="165" font-family="Arial" font-size="14" fill="#334155" text-anchor="middle">PIZARRA DIGITAL</text>
+  
+  <!-- Escritorios -->
+  <g>
+    <!-- Fila 1 -->
+    <rect x="100" y="300" width="80" height="50" rx="5" fill="#8b5cf6"/>
+    <circle cx="140" cy="280" r="15" fill="#6b7280"/>
+    
+    <rect x="220" y="300" width="80" height="50" rx="5" fill="#8b5cf6"/>
+    <circle cx="260" cy="280" r="15" fill="#6b7280"/>
+    
+    <rect x="340" y="300" width="80" height="50" rx="5" fill="#8b5cf6"/>
+    <circle cx="380" cy="280" r="15" fill="#6b7280"/>
+    
+    <rect x="460" y="300" width="80" height="50" rx="5" fill="#8b5cf6"/>
+    <circle cx="500" cy="280" r="15" fill="#6b7280"/>
+    
+    <!-- Fila 2 -->
+    <rect x="100" y="400" width="80" height="50" rx="5" fill="#8b5cf6"/>
+    <circle cx="140" cy="380" r="15" fill="#6b7280"/>
+    
+    <rect x="220" y="400" width="80" height="50" rx="5" fill="#8b5cf6"/>
+    <circle cx="260" cy="380" r="15" fill="#6b7280"/>
+    
+    <rect x="340" y="400" width="80" height="50" rx="5" fill="#8b5cf6"/>
+    <circle cx="380" cy="380" r="15" fill="#6b7280"/>
+    
+    <rect x="460" y="400" width="80" height="50" rx="5" fill="#8b5cf6"/>
+    <circle cx="500" cy="380" r="15" fill="#6b7280"/>
+  </g>
+  
+  <!-- Monitor de aire acondicionado -->
+  <rect x="650" y="50" width="100" height="60" rx="8" fill="#ffffff"/>
+  <rect x="660" y="60" width="80" height="40" rx="4" fill="#10b981"/>
+  <text x="700" y="82" font-family="Arial" font-size="10" fill="#ffffff" text-anchor="middle">A/C</text>
+  
+  <!-- Cables ethernet en pared -->
+  <rect x="650" y="150" width="120" height="80" rx="5" fill="#374151"/>
+  <circle cx="680" cy="170" r="8" fill="#10b981"/>
+  <circle cx="710" cy="170" r="8" fill="#10b981"/>
+  <circle cx="740" cy="170" r="8" fill="#10b981"/>
+  <circle cx="680" cy="200" r="8" fill="#10b981"/>
+  <circle cx="710" cy="200" r="8" fill="#10b981"/>
+  <circle cx="740" cy="200" r="8" fill="#10b981"/>
+  <text x="710" y="220" font-family="Arial" font-size="8" fill="#ffffff" text-anchor="middle">ETHERNET</text>
+  
+  <!-- Título -->
+  <text x="400" y="50" font-family="Arial" font-size="24" fill="#ffffff" text-anchor="middle" font-weight="bold">AULA VIRTUAL - VISTA PRINCIPAL</text>
+  
+  <!-- Monitor HDMI -->
+  <rect x="50" y="250" width="120" height="80" rx="5" fill="#1f2937"/>
+  <rect x="60" y="260" width="100" height="60" rx="3" fill="#000000"/>
+  <text x="110" y="295" font-family="Arial" font-size="10" fill="#10b981" text-anchor="middle">MONITOR</text>
+  <text x="110" y="307" font-family="Arial" font-size="8" fill="#10b981" text-anchor="middle">HDMI</text>
+</svg>

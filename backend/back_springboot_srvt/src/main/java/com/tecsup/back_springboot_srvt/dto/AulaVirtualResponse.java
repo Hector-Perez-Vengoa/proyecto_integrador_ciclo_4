@@ -1,6 +1,7 @@
 package com.tecsup.back_springboot_srvt.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class AulaVirtualResponse {
     
@@ -9,6 +10,8 @@ public class AulaVirtualResponse {
     private String estado;
     private String descripcion;
     private LocalDateTime fechaCreacion;
+    private List<ComponenteResponse> componentes;
+    private List<ImagenResponse> imagenes;
 
     // Constructors
     public AulaVirtualResponse() {}
@@ -19,6 +22,17 @@ public class AulaVirtualResponse {
         this.estado = estado;
         this.descripcion = descripcion;
         this.fechaCreacion = fechaCreacion;
+    }
+
+    public AulaVirtualResponse(Long id, String codigo, String estado, String descripcion, LocalDateTime fechaCreacion, 
+                              List<ComponenteResponse> componentes, List<ImagenResponse> imagenes) {
+        this.id = id;
+        this.codigo = codigo;
+        this.estado = estado;
+        this.descripcion = descripcion;
+        this.fechaCreacion = fechaCreacion;
+        this.componentes = componentes;
+        this.imagenes = imagenes;
     }
 
     // Getters and Setters
@@ -60,5 +74,21 @@ public class AulaVirtualResponse {
 
     public void setFechaCreacion(LocalDateTime fechaCreacion) {
         this.fechaCreacion = fechaCreacion;
+    }
+
+    public List<ComponenteResponse> getComponentes() {
+        return componentes;
+    }
+
+    public void setComponentes(List<ComponenteResponse> componentes) {
+        this.componentes = componentes;
+    }
+
+    public List<ImagenResponse> getImagenes() {
+        return imagenes;
+    }
+
+    public void setImagenes(List<ImagenResponse> imagenes) {
+        this.imagenes = imagenes;
     }
 }

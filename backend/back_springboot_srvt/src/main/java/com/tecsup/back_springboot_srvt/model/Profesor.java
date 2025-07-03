@@ -13,10 +13,10 @@ public class Profesor {
     private Long id;
 
     @Column(name = "user_id", nullable = false)
-    private Integer userId; // Para almacenar el ID del User asociado
+    private Integer userId; 
 
-    @Column(name = "perfil_id", nullable = true) // Asumiendo que un profesor podría existir teóricamente sin perfil directo, o se crea después
-    private Long perfilId; // Para almacenar el ID del Perfil asociado
+    @Column(name = "perfil_id", nullable = true) 
+    private Long perfilId; 
 
     @Column(name = "nombres", nullable = true)
     private String nombres;
@@ -24,7 +24,7 @@ public class Profesor {
     @Column(name = "apellidos", nullable = true)
     private String apellidos;
 
-    @Column(name = "codigo", unique = true, nullable = true) // Se permite nulo inicialmente para generarlo después
+    @Column(name = "codigo", unique = true, nullable = true) 
     private String codigo;
 
     @Column(name = "correo", unique = true, nullable = false)

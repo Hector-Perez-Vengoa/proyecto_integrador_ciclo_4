@@ -5,6 +5,7 @@ import Button from '../ui/Button';
 import Input from '../ui/Input';
 import Select from '../ui/Select';
 import { useReservaForm } from '../../hooks/useReservaForm';
+import { useHorasDisponibles } from '../../hooks/useHorasDisponibles';
 import { MOTIVOS_RESERVA } from '../../constants/reservas';
 
 const ReservaModal = ({ 
@@ -28,6 +29,49 @@ const ReservaModal = ({
     cargarCursos
   } = useReservaForm(aula?.id, onSuccess, onError);
 
+  // Hook para manejar horas disponibles
+  const {
+    opcionesHoraInicio,
+    obtenerOpcionesHoraFin,
+    loading: loadingHoras
+  } = useHorasDisponibles(aula?.id, formData.fecha);
+
+  // Efecto para añadir estilos CSS personalizados para los selectores
+  useEffect(() => {
+    const styleId = 'hora-selector-styles';
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement('style');
+      style.id = styleId;
+      style.textContent = `
+        .hora-select option:disabled {
+          color: #9ca3af !important;
+          background-color: #f3f4f6 !important;
+          font-style: italic;
+          opacity: 0.6;
+        }
+        .hora-select option.ocupada:disabled {
+          color: #dc2626 !important;
+          background-color: #fef2f2 !important;
+          font-weight: 500;
+        }
+        .hora-select option:hover:not(:disabled) {
+          background-color: #e0f2fe !important;
+        }
+        .hora-select {
+          background-color: white;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+    
+    return () => {
+      const existingStyle = document.getElementById(styleId);
+      if (existingStyle && !isOpen) {
+        existingStyle.remove();
+      }
+    };
+  }, [isOpen]);
+
   // Combinar errores del hook con errores locales
   const allErrors = { ...errors, ...localErrors };
 
@@ -47,18 +91,8 @@ const ReservaModal = ({
     }
   }, [isOpen, cargarCursos, resetForm]);
 
-  // Generar opciones de horarios (bloques de 15 minutos)
-  const generarOpcionesHorario = () => {
-    const opciones = [];
-    for (let hora = 7; hora <= 22; hora++) {
-      for (let minuto = 0; minuto < 60; minuto += 15) {
-        const horaStr = `${hora.toString().padStart(2, '0')}:${minuto.toString().padStart(2, '0')}`;
-        const etiqueta = `${horaStr}`;
-        opciones.push({ value: horaStr, label: etiqueta });
-      }
-    }
-    return opciones;
-  };
+  // Generar opciones de horarios (bloques de 15 minutos) - ELIMINADO
+  // Ahora usamos el hook useHorasDisponibles que ya maneja las horas ocupadas
 
   // Obtener fecha mínima (hoy)
   const getFechaMinima = () => {
@@ -165,30 +199,113 @@ const ReservaModal = ({
 
           {/* Hora de inicio */}
           <div>
-            <Select
-              label="Hora de inicio"
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Hora de inicio
+            </label>
+            <select
               name="horaInicio"
               value={formData.horaInicio}
               onChange={(e) => updateField('horaInicio', e.target.value)}
-              options={generarOpcionesHorario()}
-              placeholder="Seleccionar hora..."
-              error={allErrors.horaInicio}
+              className={`hora-select w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                allErrors.horaInicio ? 'border-red-300' : 'border-gray-300'
+              }`}
               required
-            />
+              disabled={!aula?.id || !formData.fecha || loadingHoras}
+            >
+              <option value="">Selecciona hora de inicio</option>
+              {opcionesHoraInicio.map(opcion => (
+                <option 
+                  key={opcion.value} 
+                  value={opcion.value}
+                  disabled={opcion.disabled}
+                  className={opcion.ocupada ? 'ocupada' : ''}
+                  title={opcion.ocupada ? 'Hora ocupada - No disponible' : 'Hora disponible'}
+                >
+                  {opcion.label}{opcion.ocupada ? ' 🚫' : ''}
+                </option>
+              ))}
+            </select>
+            {loadingHoras && (
+              <div className="mt-1 text-xs text-blue-600 flex items-center gap-1">
+                <div className="w-3 h-3 border border-blue-600 border-t-transparent rounded-full animate-spin" />
+                Cargando horas disponibles...
+              </div>
+            )}
+            {allErrors.horaInicio && (
+              <p className="mt-1 text-xs text-red-600">{allErrors.horaInicio}</p>
+            )}
           </div>
 
           {/* Hora de fin */}
           <div>
-            <Select
-              label="Hora de fin"
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Hora de fin
+            </label>
+            <select
               name="horaFin"
               value={formData.horaFin}
               onChange={(e) => updateField('horaFin', e.target.value)}
-              options={generarOpcionesHorario()}
-              placeholder="Seleccionar hora..."
-              error={errors.horaFin}
+              className={`hora-select w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                errors.horaFin ? 'border-red-300' : 'border-gray-300'
+              }`}
               required
-            />
+              disabled={!formData.horaInicio || loadingHoras}
+            >
+              <option value="">Selecciona hora de fin</option>
+              {formData.horaInicio && obtenerOpcionesHoraFin(formData.horaInicio).map(opcion => (
+                <option 
+                  key={opcion.value} 
+                  value={opcion.value}
+                  disabled={opcion.disabled}
+                  className={opcion.ocupada ? 'ocupada' : ''}
+                  title={
+                    opcion.disabled 
+                      ? opcion.razonDeshabilitada || 'No disponible'
+                      : `Duración: ${Math.round(opcion.duracion)} minutos`
+                  }
+                >
+                  {opcion.label}
+                  {opcion.disabled && opcion.ocupada && ' 🚫'}
+                  {opcion.disabled && !opcion.ocupada && ' ⚠️'}
+                </option>
+              ))}
+            </select>
+            {errors.horaFin && (
+              <p className="mt-1 text-xs text-red-600">{errors.horaFin}</p>
+            )}
+          </div>
+
+          {/* Información de disponibilidad horaria */}
+          {aula?.id && formData.fecha && opcionesHoraInicio.length > 0 && (
+            <div className="md:col-span-2">
+              <div className="bg-blue-50 rounded-lg p-4">
+                <h5 className="font-medium text-blue-900 mb-2">🕒 Guía de disponibilidad horaria</h5>
+                <div className="text-sm text-blue-800 space-y-1">
+                  <p>✅ <strong>Horas disponibles:</strong> Aparecen normales y se pueden seleccionar</p>
+                  <p>🚫 <strong>Horas ocupadas:</strong> Aparecen marcadas como "(OCUPADA)" y están deshabilitadas</p>
+                  <p>⚠️ <strong>Duraciones no válidas:</strong> Aparecen con indicadores de duración incorrecta</p>
+                  <div className="mt-2 pt-2 border-t border-blue-300">
+                    <div className="font-medium">
+                      📊 Estado actual: {opcionesHoraInicio.filter(o => !o.disabled).length} horas disponibles de {opcionesHoraInicio.length} mostradas
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Información de duraciones permitidas */}
+          <div className="md:col-span-2">
+            <div className="bg-amber-50 rounded-lg p-4">
+              <h5 className="font-medium text-amber-900 mb-2">⏰ Restricciones de horario</h5>
+              <div className="text-sm text-amber-800 space-y-1">
+                <p>• <strong>Duración mínima:</strong> 30 minutos</p>
+                <p>• <strong>Duración máxima:</strong> 4 horas</p>
+                <p>• <strong>Horario institucional:</strong> 08:00 - 22:00</p>
+                <p>• <strong>Días permitidos:</strong> Lunes a Sábado</p>
+                <p>• <strong>Horas ocupadas:</strong> Se muestran como no disponibles</p>
+              </div>
+            </div>
           </div>
 
           {/* Curso */}
@@ -245,11 +362,13 @@ const ReservaModal = ({
         </div>
 
         {/* Información adicional */}
-        <div className="bg-blue-50 rounded-lg p-4">
-          <h5 className="font-medium text-blue-900 mb-2">📋 Información importante</h5>
-          <ul className="text-sm text-blue-800 space-y-1">
-            <li>• La duración mínima de una reserva es de 45 minutos</li>
+        <div className="bg-green-50 rounded-lg p-4">
+          <h5 className="font-medium text-green-900 mb-2">📋 Información importante</h5>
+          <ul className="text-sm text-green-800 space-y-1">
+            <li>• La duración mínima de una reserva es de 30 minutos</li>
+            <li>• La duración máxima de una reserva es de 4 horas</li>
             <li>• No se pueden hacer reservas los domingos</li>
+            <li>• Las horas ocupadas aparecen deshabilitadas automáticamente</li>
             <li>• Las reservas se confirman automáticamente</li>
             <li>• Recibirás una notificación por correo electrónico</li>
           </ul>

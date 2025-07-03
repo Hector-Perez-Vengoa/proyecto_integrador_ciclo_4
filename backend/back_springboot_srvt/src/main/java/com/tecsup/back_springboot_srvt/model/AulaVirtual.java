@@ -3,6 +3,8 @@ package com.tecsup.back_springboot_srvt.model;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "aula_virtualdb")
@@ -23,6 +25,13 @@ public class AulaVirtual {
 
     @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;
+
+    // Relaciones con las nuevas entidades
+    @OneToMany(mappedBy = "aulaVirtual", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<AulaVirtualImagen> imagenes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "aulaVirtual", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<AulaVirtualComponente> componentes = new ArrayList<>();
 
     // Constructores
     public AulaVirtual() {}
@@ -73,6 +82,23 @@ public class AulaVirtual {
 
     public void setFechaCreacion(LocalDateTime fechaCreacion) {
         this.fechaCreacion = fechaCreacion;
+    }
+
+    public List<AulaVirtualImagen> getImagenes() {
+        return imagenes;
+    }
+
+    public void setImagenes(List<AulaVirtualImagen> imagenes) {
+        this.imagenes = imagenes;
+    }
+
+    // Métodos relacionados con componentes
+    public List<AulaVirtualComponente> getComponentes() {
+        return componentes;
+    }
+
+    public void setComponentes(List<AulaVirtualComponente> componentes) {
+        this.componentes = componentes;
     }
 }
 

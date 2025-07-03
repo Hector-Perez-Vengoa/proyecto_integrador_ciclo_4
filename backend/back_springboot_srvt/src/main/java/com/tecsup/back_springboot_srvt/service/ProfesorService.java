@@ -162,4 +162,18 @@ public class ProfesorService {
             ))
             .collect(Collectors.toList());
     }
+
+    /**
+     * Obtener ID del profesor por su email/username
+     * @param username Email/username del profesor
+     * @return ID del profesor o null si no se encuentra
+     */
+    public Long obtenerIdPorUsername(String username) {
+        if (username == null || username.isEmpty()) {
+            return null;
+        }
+        
+        Optional<Profesor> profesorOpt = profesorRepository.findByCorreo(username);
+        return profesorOpt.map(Profesor::getId).orElse(null);
+    }
 }

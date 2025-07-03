@@ -6,11 +6,14 @@ import com.tecsup.back_springboot_srvt.service.BloqueHorarioService;
 import com.tecsup.back_springboot_srvt.service.NotificacionService;
 import com.tecsup.back_springboot_srvt.service.CancelacionService;
 import com.tecsup.back_springboot_srvt.service.ProfesorService;
+import com.tecsup.back_springboot_srvt.security.JwtUtils;
 
 import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import com.tecsup.back_springboot_srvt.dto.StandardApiResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,13 +39,41 @@ public class ReservaController {
     @Autowired
     private ProfesorService profesorService;
     
+    @Autowired
+    private JwtUtils jwtUtils;
+    
     /**
      * Crear una nueva reserva
      */
     @PostMapping
     public ResponseEntity<StandardApiResponse<ReservaResponseDTO>> crearReserva(
-            @Valid @RequestBody ReservaRequestDTO requestDTO) {
+            @Valid @RequestBody ReservaRequestDTO requestDTO,
+            HttpServletRequest request) {
         try {
+            // Extraer el token del header Authorization y obtener el profesorId
+            String token = request.getHeader("Authorization");
+            if (token != null && token.startsWith("Bearer ")) {
+                token = token.substring(7); // Remover "Bearer "
+                
+                try {
+                    // Extraer el username del token
+                    String username = jwtUtils.getUserNameFromJwtToken(token);
+                    
+                    // Buscar el profesor por username/email
+                    Long profesorId = profesorService.obtenerIdPorUsername(username);
+                    
+                    if (profesorId != null) {
+                        // Asignar el profesorId si no está presente
+                        if (requestDTO.getProfesorId() == null) {
+                            requestDTO.setProfesorId(profesorId);
+                        }
+                    }
+                } catch (Exception e) {
+                    // Si hay error al extraer el token, continuar sin asignar profesorId
+                    System.err.println("Error al extraer información del token: " + e.getMessage());
+                }
+            }
+            
             ReservaResponseDTO reserva = reservaService.crearReserva(requestDTO);
             return ResponseEntity.status(HttpStatus.CREATED)
                 .body(StandardApiResponse.success("Reserva creada exitosamente", reserva));
