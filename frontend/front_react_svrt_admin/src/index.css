@@ -48,6 +48,11 @@
   }
 }
 
+/* Animación para los detalles del profesor */
+.animation-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
 @keyframes pulse {
   0%, 100% {
     opacity: 1;
