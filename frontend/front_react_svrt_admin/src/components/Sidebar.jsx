@@ -79,12 +79,62 @@ const menuItems = [
 ];
 
 // eslint-disable-next-line react/prop-types
-const Sidebar = ({ onMenuClick, active }) => {
+const Sidebar = ({ onMenuClick, active, onSidebarToggle }) => {
   const [open, setOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Detectar si es móvil
+  React.useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
+  
+  const handleToggle = () => {
+    const newState = !open;
+    setOpen(newState);
+    if (onSidebarToggle) {
+      onSidebarToggle(newState);
+    }
+  };
+  
+  const handleOverlayClick = () => {
+    if (isMobile && open) {
+      handleToggle();
+    }
+  };
+
+  // Calcular clases CSS del sidebar
+  const getSidebarClasses = () => {
+    if (isMobile) {
+      const mobileClasses = open ? 'open' : '';
+      return `sidebar-mobile ${mobileClasses} w-64`;
+    }
+    return open ? 'w-64' : 'w-20';
+  };
+
+  const sidebarClasses = getSidebarClasses();
   
   return (
-    <aside className={`h-screen bg-white border-r border-gray-200 shadow-custom flex flex-col transition-all duration-300 ${open ? 'w-64' : 'w-20'} z-30`}>
-      {/* Header */}
+    <>
+      {/* Overlay para móvil */}
+      {isMobile && (
+        <button
+          className={`sidebar-overlay ${open ? 'active' : ''}`}
+          onClick={handleOverlayClick}
+          onKeyDown={(e) => e.key === 'Escape' && handleOverlayClick()}
+          aria-label="Cerrar menú"
+          style={{ background: 'none', border: 'none', padding: 0 }}
+        />
+      )}
+      
+      <aside className={`sidebar-fixed bg-white border-r border-gray-200 shadow-custom flex flex-col transition-all duration-300 ${sidebarClasses}`}>
+        {/* Header */}
       <div className="flex items-center justify-between p-6 border-b border-gray-100">
         <div className={`flex items-center transition-all duration-300 ${open ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>
           <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center mr-3">
@@ -98,7 +148,7 @@ const Sidebar = ({ onMenuClick, active }) => {
         </div>
         
         <button 
-          onClick={() => setOpen(o => !o)} 
+          onClick={handleToggle} 
           className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
         >
           <svg 
@@ -173,6 +223,7 @@ const Sidebar = ({ onMenuClick, active }) => {
         </div>
       </div>
     </aside>
+    </>
   );
 };
 
