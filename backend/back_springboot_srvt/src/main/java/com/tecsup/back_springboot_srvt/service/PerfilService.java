@@ -18,6 +18,12 @@ public interface PerfilService {
     List<CursoDTO> listarCursosPorCarrera(Long carreraId);
     List<CursoDTO> listarCursosPorCarreras(List<Long> carreraIds);
     
+    // Método para obtener cursos específicos del usuario
+    List<CursoDTO> obtenerCursosDelUsuario(String token);
+    
     // Métodos de utilidad
     String validarToken(String token);
+    
+    // Nuevo método para obtener perfil por userId
+    PerfilResponse obtenerPerfilPorUserId(Integer userId);
 }

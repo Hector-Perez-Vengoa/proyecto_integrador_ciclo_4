@@ -4,9 +4,13 @@ import com.tecsup.back_springboot_srvt.dto.*;
 import com.tecsup.back_springboot_srvt.service.PerfilService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/perfil")
@@ -125,6 +129,46 @@ public class PerfilController {
             return ResponseEntity.ok(StandardApiResponse.success("Cursos obtenidos por carreras", cursos));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(StandardApiResponse.error("Error al obtener cursos por carreras: " + e.getMessage()));
+        }
+    }
+    
+    /**
+     * Obtener perfil de usuario por ID - nuevo endpoint para compatibilidad con frontend
+     */
+    @GetMapping("/usuario/{userId}")
+    public ResponseEntity<StandardApiResponse<Map<String, Object>>> obtenerPerfilUsuario(
+            @PathVariable Integer userId) {
+        try {
+            PerfilResponse perfil = perfilService.obtenerPerfilPorUserId(userId);
+            
+            Map<String, Object> perfilData = new HashMap<>();
+            perfilData.put("userId", userId);
+            perfilData.put("nombre", perfil.getFirstName());
+            perfilData.put("apellidos", perfil.getLastName());
+            perfilData.put("email", perfil.getEmail());
+            perfilData.put("telefono", perfil.getTelefono());
+            perfilData.put("fechaNacimiento", perfil.getFechaNacimiento());
+            
+            return ResponseEntity.ok(StandardApiResponse.success("Perfil obtenido exitosamente", perfilData));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(StandardApiResponse.error("Perfil no encontrado: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/mis-cursos")
+    public ResponseEntity<StandardApiResponse<List<CursoDTO>>> obtenerMisCursos(
+            @RequestHeader("Authorization") String token) {
+        try {
+            List<CursoDTO> cursos = perfilService.obtenerCursosDelUsuario(token);
+            return ResponseEntity.ok(StandardApiResponse.success("Cursos del usuario obtenidos", cursos));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(401).body(StandardApiResponse.error(e.getMessage()));
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("no encontrado")) {
+                return ResponseEntity.status(404).body(StandardApiResponse.error(e.getMessage()));
+            }
+            return ResponseEntity.status(500).body(StandardApiResponse.error("Error interno: " + e.getMessage()));
         }
     }
 }

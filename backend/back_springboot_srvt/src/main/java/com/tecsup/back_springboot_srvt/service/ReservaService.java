@@ -23,7 +23,10 @@ public class ReservaService {
     private ReservaRepository reservaRepository;
     
     @Autowired
-    private ProfesorRepository profesorRepository;
+    private UserRepository userRepository;
+    
+    @Autowired
+    private PerfilRepository perfilRepository;
     
     @Autowired
     private AulaVirtualRepository aulaVirtualRepository;
@@ -68,12 +71,28 @@ public class ReservaService {
             throw new IllegalArgumentException("No se permiten reservas los domingos");
         }
         
-        // 5. Verificar existencia del profesor
-        Optional<Profesor> profesorOpt = profesorRepository.findById(requestDTO.getProfesorId());
-        if (profesorOpt.isEmpty()) {
-            throw new IllegalArgumentException("El profesor con ID " + requestDTO.getProfesorId() + " no existe");
+        // 5. Verificar existencia del usuario
+        Optional<User> userOpt = userRepository.findById(requestDTO.getUserId());
+        if (userOpt.isEmpty()) {
+            throw new IllegalArgumentException("El usuario con ID " + requestDTO.getUserId() + " no existe");
         }
-        Profesor profesor = profesorOpt.get();
+        User user = userOpt.get();
+        
+        // 5.1. Verificar perfil del usuario (para validar cursos asignados)
+        Optional<Perfil> perfilOpt = perfilRepository.findByUserId(user.getId());
+        Perfil perfil;
+        
+        if (perfilOpt.isEmpty()) {
+            // Si no existe perfil, crear uno automáticamente
+            perfil = new Perfil();
+            perfil.setUser(user);
+            perfil.setFechaActualizacion(java.time.LocalDateTime.now());
+            perfil = perfilRepository.save(perfil);
+            
+            System.out.println("✅ Perfil creado automáticamente para usuario ID: " + user.getId());
+        } else {
+            perfil = perfilOpt.get();
+        }
         
         // 6. Verificar existencia del aula virtual
         Optional<AulaVirtual> aulaVirtualOpt = aulaVirtualRepository.findById(requestDTO.getAulaVirtualId());
@@ -113,23 +132,25 @@ public class ReservaService {
         
         if (!reservasConflictivas.isEmpty()) {
             Reserva reservaConflictiva = reservasConflictivas.get(0);
-            String profesorConflicto = reservaConflictiva.getProfesor().getNombres() + " " + 
-                                     reservaConflictiva.getProfesor().getApellidos();
+            String usuarioConflicto = obtenerNombreCompleto(reservaConflictiva.getUser());
             
             throw new IllegalArgumentException(String.format(
                 "El aula '%s' ya está reservada en ese horario (%s - %s) por %s para el curso '%s'",
                 aulaVirtual.getCodigo(),
                 reservaConflictiva.getHoraInicio(),
                 reservaConflictiva.getHoraFin(),
-                profesorConflicto,
+                usuarioConflicto,
                 reservaConflictiva.getCurso().getNombre()
             ));
         }
         
-        // 10. Validar que el profesor tenga asignado el curso
-        if (!profesorRepository.profesorTieneCursoAsignado(requestDTO.getProfesorId(), requestDTO.getCursoId())) {
-            throw new IllegalArgumentException("El profesor no tiene asignado este curso. " +
-                "Solo puede reservar aulas para cursos que tenga asignados.");
+        // 10. Validar que el usuario tenga asignado el curso en su perfil
+        boolean tieneCursoAsignado = perfil.getCursos() != null && 
+            perfil.getCursos().stream().anyMatch(c -> c.getId().equals(requestDTO.getCursoId()));
+        
+        if (!tieneCursoAsignado) {
+            throw new IllegalArgumentException("El usuario no tiene asignado este curso. " +
+                "Solo puede reservar aulas para cursos que tenga asignados en su perfil.");
         }
         
         // 11. Validar que el estado sea válido
@@ -140,7 +161,7 @@ public class ReservaService {
         
         // 12. Crear la nueva reserva
         Reserva nuevaReserva = new Reserva(
-            profesor,
+            user,
             aulaVirtual,
             curso,
             requestDTO.getHoraInicio(),
@@ -163,10 +184,20 @@ public class ReservaService {
     
     
     /**
-     * Obtiene todas las reservas de un profesor
+     * Obtiene todas las reservas de un usuario
      */
-    public List<ReservaResponseDTO> obtenerReservasPorProfesor(Long profesorId) {
-        List<Reserva> reservas = reservaRepository.findByProfesorId(profesorId);
+    public List<ReservaResponseDTO> obtenerReservasPorUsuario(Integer userId) {
+        List<Reserva> reservas = reservaRepository.findByUserId(userId);
+        return reservas.stream()
+                .map(this::convertirAResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene todas las reservas del sistema
+     */
+    public List<ReservaResponseDTO> obtenerTodasLasReservas() {
+        List<Reserva> reservas = reservaRepository.findAll();
         return reservas.stream()
                 .map(this::convertirAResponseDTO)
                 .collect(Collectors.toList());
@@ -200,7 +231,7 @@ public class ReservaService {
      */
     private ReservaResponseDTO convertirAResponseDTO(Reserva reserva) {        return new ReservaResponseDTO(
             reserva.getId(),
-            obtenerNombreCompleto(reserva.getProfesor()),
+            obtenerNombreCompleto(reserva.getUser()),
             reserva.getAulaVirtual().getCodigo(),
             reserva.getCurso().getNombre(),
             reserva.getFechaReserva(),
@@ -211,14 +242,14 @@ public class ReservaService {
             reserva.getFechaCreacion()
         );
     }    /**
-     * Obtiene el nombre completo del profesor
+     * Obtiene el nombre completo del usuario
      */
-    private String obtenerNombreCompleto(Profesor profesor) {
+    private String obtenerNombreCompleto(User user) {
         String nombreCompleto = "";
-        if (profesor.getNombres() != null && profesor.getApellidos() != null) {
-            nombreCompleto = profesor.getNombres() + " " + profesor.getApellidos();
+        if (user.getFirstName() != null && user.getLastName() != null) {
+            nombreCompleto = user.getFirstName() + " " + user.getLastName();
         } else {
-            nombreCompleto = "Profesor ID: " + profesor.getId();
+            nombreCompleto = "Usuario ID: " + user.getId();
         }        return nombreCompleto.trim();
     }
     
@@ -265,8 +296,8 @@ public class ReservaService {
      */
     private NotificacionReservaDTO crearNotificacionDTO(Reserva reserva) {
         return new NotificacionReservaDTO(
-            obtenerNombreCompleto(reserva.getProfesor()),
-            reserva.getProfesor().getCorreo(),
+            obtenerNombreCompleto(reserva.getUser()),
+            reserva.getUser().getEmail(),
             reserva.getAulaVirtual().getCodigo(),
             reserva.getAulaVirtual().getDescripcion() != null ? reserva.getAulaVirtual().getDescripcion() : reserva.getAulaVirtual().getCodigo(),
             reserva.getCurso().getNombre(),

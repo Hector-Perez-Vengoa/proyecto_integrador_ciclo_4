@@ -14,8 +14,8 @@ public class Reserva {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "profesor_id", nullable = false)
-    private Profesor profesor;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "aula_virtual_id", nullable = false)
@@ -57,10 +57,10 @@ public class Reserva {
     // Constructors
     public Reserva() {}
 
-    public Reserva(Profesor profesor, AulaVirtual aulaVirtual, Curso curso,
+    public Reserva(User user, AulaVirtual aulaVirtual, Curso curso,
                    LocalTime horaInicio, LocalTime horaFin, LocalDate fechaReserva, 
                    String motivo, String estado) {
-        this.profesor = profesor;
+        this.user = user;
         this.aulaVirtual = aulaVirtual;
         this.curso = curso;
         this.horaInicio = horaInicio;
@@ -80,12 +80,12 @@ public class Reserva {
         this.id = id;
     }
 
-    public Profesor getProfesor() {
-        return profesor;
+    public User getUser() {
+        return user;
     }
 
-    public void setProfesor(Profesor profesor) {
-        this.profesor = profesor;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public AulaVirtual getAulaVirtual() {

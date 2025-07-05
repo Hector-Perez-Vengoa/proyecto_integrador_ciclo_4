@@ -83,7 +83,7 @@ export const aulaVirtualService = {
     } catch (error) {
       return {
         success: false,
-        data: { aulas: [], total: 0, profesor: '', filtros: {} },
+        data: { aulas: [], total: 0, usuario: '', filtros: {} },
         message: error.response?.data?.message || 'Error al obtener las aulas disponibles'
       };
     }

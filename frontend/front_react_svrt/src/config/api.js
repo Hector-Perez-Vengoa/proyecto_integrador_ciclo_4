@@ -4,7 +4,7 @@
  * Configuración de endpoints y URLs de la API
  */
 
-// URL base del backend Spring Boot (para profesores)
+// URL base del backend Spring Boot (para usuarios)
 export const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 // URL del backend Django (para administración) 
@@ -17,13 +17,14 @@ export const API_ENDPOINTS = {
   LOGOUT: '/api/auth/logout',
   REFRESH_TOKEN: '/api/auth/refresh',
   
-  // Profesores
-  PROFESORES: '/api/profesores',
-  PROFESOR_BY_ID: (id) => `/api/profesores/${id}`,
+  // Usuarios y perfiles
+  USUARIOS: '/api/usuarios',
+  USUARIO_BY_ID: (id) => `/api/usuarios/${id}`,
+  PERFIL_USUARIO: (id) => `/api/usuarios/${id}/perfil`,
   
   // Reservas
   RESERVAS: '/api/reservas',
-  RESERVAS_BY_PROFESOR: (profesorId) => `/api/reservas/profesor/${profesorId}`,
+  RESERVAS_BY_USER: (userId) => `/api/reservas/usuario/${userId}`,
   CREAR_RESERVA: '/api/reservas',
   CANCELAR_RESERVA: (id) => `/api/reservas/${id}/cancelar`,
   VALIDAR_DISPONIBILIDAD: '/api/reservas/validar-disponibilidad',
@@ -34,7 +35,7 @@ export const API_ENDPOINTS = {
   
   // Cursos
   CURSOS: '/api/cursos',
-  CURSOS_BY_PROFESOR: (profesorId) => `/api/cursos/profesor/${profesorId}`,
+  CURSOS_BY_USER: (userId) => `/api/cursos/usuario/${userId}`,
   
   // Calendario
   FECHAS_BLOQUEADAS: '/api/calendario/fechas-bloqueadas',

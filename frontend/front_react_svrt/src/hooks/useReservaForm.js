@@ -19,11 +19,11 @@ export const useReservaForm = (aulaId, onSuccess, onError) => {
   const [cursos, setCursos] = useState([]);
   const [loadingCursos, setLoadingCursos] = useState(false);
 
-  // Cargar cursos del profesor
+  // Cargar cursos del usuario
   const cargarCursos = useCallback(async () => {
     setLoadingCursos(true);
     try {
-      const response = await reservaService.obtenerCursosProfesor();
+      const response = await reservaService.obtenerCursosUsuario();
       if (response.success) {
         setCursos(response.data);
       } else {
@@ -168,7 +168,7 @@ export const useReservaForm = (aulaId, onSuccess, onError) => {
         ? formData.motivoPersonalizado 
         : formData.motivo;      const reservaData = {
         aulaVirtualId: aulaId,
-        profesorId: null, // Se obtiene del token en el backend
+        userId: null, // Se obtiene del token en el backend
         cursoId: parseInt(formData.cursoId),
         fechaReserva: formData.fecha,
         horaInicio: formData.horaInicio,

@@ -47,9 +47,6 @@ public class AuthService {
     private GoogleAuthService googleAuthService;
 
     @Autowired
-    private ProfesorService profesorService;
-
-    @Autowired
     private GoogleProfileImageService googleProfileImageService;
 
     /**
@@ -81,11 +78,8 @@ public class AuthService {
             userRepository.save(user);
         }
 
-        // Obtener profesor ID
-        Long profesorId = obtenerProfesorId(userDetails.getId());
-
         // Crear respuesta
-        Map<String, Object> userInfo = createUserInfo(userDetails.getId(), profesorId, 
+        Map<String, Object> userInfo = createUserInfo(userDetails.getId(), 
                 userDetails.getUsername(), userDetails.getEmail(), 
                 user != null ? user.getFirstName() : "", 
                 user != null ? user.getLastName() : "");
@@ -126,10 +120,7 @@ public class AuthService {
         Perfil perfil = new Perfil();
         perfil.setUser(savedUser);
         perfil.setFechaActualizacion(LocalDateTime.now());
-        Perfil savedPerfil = perfilRepository.save(perfil);
-
-        // Asegurar profesor
-        profesorService.asegurarProfesorParaUsuario(savedUser, savedPerfil);
+        perfilRepository.save(perfil);
 
         // Autenticar y generar token
         Authentication authentication = authenticationManager.authenticate(
@@ -141,11 +132,8 @@ public class AuthService {
         String jwt = jwtUtils.generateJwtToken(authentication);
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        // Obtener profesor ID
-        Long profesorId = obtenerProfesorId(savedUser.getId());
-
         // Crear respuesta
-        Map<String, Object> userInfo = createUserInfo(userDetails.getId(), profesorId,
+        Map<String, Object> userInfo = createUserInfo(userDetails.getId(),
                 userDetails.getUsername(), userDetails.getEmail(),
                 savedUser.getFirstName(), savedUser.getLastName());
 
@@ -191,9 +179,6 @@ public class AuthService {
                 return perfilRepository.save(newPerfil);
             });
 
-            // Asegurar profesor
-            profesorService.asegurarProfesorParaUsuario(userEntity, userPerfil);
-
             // Actualizar imagen de perfil
             if (googlePictureUrl != null && !googlePictureUrl.trim().isEmpty()) {
                 userPerfil.actualizarImagenGoogle(googlePictureUrl);
@@ -204,11 +189,8 @@ public class AuthService {
             // Generar token
             String jwt = jwtUtils.generateTokenFromUsername(userEntity.getUsername());
 
-            // Obtener profesor ID
-            Long profesorId = obtenerProfesorId(userEntity.getId());
-
             // Crear respuesta
-            Map<String, Object> userInfoMap = createUserInfo(userEntity.getId(), profesorId,
+            Map<String, Object> userInfoMap = createUserInfo(userEntity.getId(),
                     userEntity.getUsername(), userEntity.getEmail(),
                     userEntity.getFirstName(), userEntity.getLastName());            AuthResponse response = new AuthResponse(jwt, "Bearer", userInfoMap);
             
@@ -269,25 +251,12 @@ public class AuthService {
     }
 
     /**
-     * Obtener profesor ID de manera segura
-     */
-    private Long obtenerProfesorId(Integer userId) {
-        try {
-            return profesorService.obtenerProfesorIdPorUsuario(userId);
-        } catch (Exception e) {
-            // No es crítico si no se puede obtener profesorId
-            return null;
-        }
-    }
-
-    /**
      * Crear información del usuario para la respuesta
      */
-    private Map<String, Object> createUserInfo(Integer id, Long profesorId, String username, 
+    private Map<String, Object> createUserInfo(Integer id, String username, 
                                              String email, String firstName, String lastName) {
         return Map.of(
                 "id", id,
-                "profesorId", profesorId != null ? profesorId : id,
                 "username", username,
                 "email", email,
                 "firstName", firstName != null ? firstName : "",

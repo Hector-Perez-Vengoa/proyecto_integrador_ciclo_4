@@ -178,7 +178,7 @@ const CalendarioPage = () => {
         const aulas = await calendarService.getAulasDisponibles();
         setAvailableAulas(aulas);
         
-        // Cargar cursos del profesor autenticado
+        // Cargar cursos del usuario autenticado
         const cursos = await calendarService.getCursosProfesor();
         setAvailableCursos(cursos);
       } catch (error) {

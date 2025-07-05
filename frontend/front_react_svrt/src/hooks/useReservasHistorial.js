@@ -14,7 +14,7 @@ export const useReservasHistorial = () => {
       setLoading(true);
       setError(null);
       
-      const response = await reservaService.obtenerReservasProfesor();
+      const response = await reservaService.obtenerReservasUsuario();
       
       if (response.success) {
         setReservas(response.data);

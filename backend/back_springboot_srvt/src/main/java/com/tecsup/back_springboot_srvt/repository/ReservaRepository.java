@@ -29,9 +29,9 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     );
     
     /**
-     * Busca reservas por profesor en una fecha específica
+     * Busca reservas por usuario en una fecha específica
      */
-    List<Reserva> findByProfesorIdAndFechaReserva(Long profesorId, LocalDate fechaReserva);
+    List<Reserva> findByUserIdAndFechaReserva(Integer userId, LocalDate fechaReserva);
     
     /**
      * Busca reservas por aula virtual en una fecha específica
@@ -39,11 +39,11 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     List<Reserva> findByAulaVirtualIdAndFechaReserva(Long aulaVirtualId, LocalDate fechaReserva);
     
     /**
-     * Busca todas las reservas de un profesor
+     * Busca todas las reservas de un usuario
      */
-    @Query("SELECT r FROM Reserva r WHERE r.profesor.id = :profesorId " +
+    @Query("SELECT r FROM Reserva r WHERE r.user.id = :userId " +
            "ORDER BY r.fechaReserva DESC, r.horaInicio DESC")
-    List<Reserva> findByProfesorId(Long profesorId);
+    List<Reserva> findByUserId(Integer userId);
     
     /**
      * Busca reservas por estado
@@ -51,42 +51,42 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     List<Reserva> findByEstado(String estado);
     
     /**
-     * Busca reservas por profesor que puedan ser canceladas (antes de la fecha/hora)
+     * Busca reservas por usuario que puedan ser canceladas (antes de la fecha/hora)
      */
-    @Query("SELECT r FROM Reserva r WHERE r.profesor.id = :profesorId " +
+    @Query("SELECT r FROM Reserva r WHERE r.user.id = :userId " +
            "AND r.estado IN ('CONFIRMADA', 'ACTIVA', 'PENDIENTE') " +
            "AND (r.fechaReserva > :fechaActual OR " +
            "(r.fechaReserva = :fechaActual AND r.horaInicio > :horaActual)) " +
            "ORDER BY r.fechaReserva ASC, r.horaInicio ASC")
-    List<Reserva> findReservasCancelablesPorProfesor(
-        @Param("profesorId") Long profesorId,
+    List<Reserva> findReservasCancelablesPorUsuario(
+        @Param("userId") Integer userId,
         @Param("fechaActual") LocalDate fechaActual,
         @Param("horaActual") LocalTime horaActual
     );
     
     /**
-     * Busca reservas futuras por profesor
+     * Busca reservas futuras por usuario
      */
-    @Query("SELECT r FROM Reserva r WHERE r.profesor.id = :profesorId " +
+    @Query("SELECT r FROM Reserva r WHERE r.user.id = :userId " +
            "AND r.estado NOT IN ('CANCELADA') " +
            "AND (r.fechaReserva > :fechaActual OR " +
            "(r.fechaReserva = :fechaActual AND r.horaInicio > :horaActual)) " +
            "ORDER BY r.fechaReserva ASC, r.horaInicio ASC")
-    List<Reserva> findReservasFuturasPorProfesor(
-        @Param("profesorId") Long profesorId,
+    List<Reserva> findReservasFuturasPorUsuario(
+        @Param("userId") Integer userId,
         @Param("fechaActual") LocalDate fechaActual,
         @Param("horaActual") LocalTime horaActual
     );
     
     /**
-     * Busca reservas pasadas por profesor
+     * Busca reservas pasadas por usuario
      */
-    @Query("SELECT r FROM Reserva r WHERE r.profesor.id = :profesorId " +
+    @Query("SELECT r FROM Reserva r WHERE r.user.id = :userId " +
            "AND (r.fechaReserva < :fechaActual OR " +
            "(r.fechaReserva = :fechaActual AND r.horaFin <= :horaActual)) " +
            "ORDER BY r.fechaReserva DESC, r.horaInicio DESC")
-    List<Reserva> findReservasPasadasPorProfesor(
-        @Param("profesorId") Long profesorId,
+    List<Reserva> findReservasPasadasPorUsuario(
+        @Param("userId") Integer userId,
         @Param("fechaActual") LocalDate fechaActual,
         @Param("horaActual") LocalTime horaActual
     );

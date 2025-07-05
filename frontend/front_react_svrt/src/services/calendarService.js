@@ -3,6 +3,7 @@ import { BASE_URL } from '../config/api';
 import { validarFechaReserva } from '../utils/dateUtils';
 import { AUTH_CONFIG } from '../constants/auth';
 import { storage } from '../utils/authUtils';
+import { perfilService } from './api/perfilService';
 
 /**
  * Servicio para manejar las operaciones del calendario de reservas
@@ -22,14 +23,14 @@ class CalendarService {
       'Content-Type': 'application/json',
       'Authorization': token ? `Bearer ${token}` : ''
     };
-  }/**
-   * Obtiene todas las reservas de un profesor
-   * @param {number} profesorId - ID del profesor
+  }  /**
+   * Obtiene todas las reservas de un usuario
+   * @param {number} userId - ID del usuario
    * @returns {Promise<Array>} Lista de reservas
    */
-  async getReservasByProfesor(profesorId) {
+  async getReservasByUser(userId) {
     try {
-      const response = await fetch(`${this.baseURL}/api/reservas/profesor/${profesorId}`, {
+      const response = await fetch(`${this.baseURL}/api/reservas/usuario/${userId}`, {
         method: 'GET',
         headers: this.getAuthHeaders()
       });
@@ -47,6 +48,15 @@ class CalendarService {
       console.error('❌ Error fetching reservas:', error);
       throw new Error('No se pudieron cargar las reservas');
     }
+  }
+
+  /**
+   * Obtiene todas las reservas de un usuario (alias para compatibilidad)
+   * @param {number} userId - ID del usuario
+   * @returns {Promise<Array>} Lista de reservas
+   */
+  async getReservasByProfesor(userId) {
+    return this.getReservasByUser(userId);
   }
 
   /**
@@ -99,13 +109,13 @@ class CalendarService {
   }
 
   /**
-   * Obtiene los cursos asignados al profesor
-   * @param {number} profesorId - ID del profesor
+   * Obtiene los cursos asignados al usuario
+   * @param {number} userId - ID del usuario
    * @returns {Promise<Array>} Lista de cursos
    */
-  async getCursosByProfesor(profesorId) {
+  async getCursosByUser(userId) {
     try {
-      const response = await fetch(`${this.baseURL}/api/cursos/profesor/${profesorId}`, {
+      const response = await fetch(`${this.baseURL}/api/cursos/usuario/${userId}`, {
         method: 'GET',
         headers: this.getAuthHeaders()
       });
@@ -120,6 +130,15 @@ class CalendarService {
       console.error('Error fetching cursos:', error);
       throw new Error('No se pudieron cargar los cursos');
     }
+  }
+
+  /**
+   * Obtiene los cursos asignados al usuario (alias para compatibilidad)
+   * @param {number} userId - ID del usuario
+   * @returns {Promise<Array>} Lista de cursos
+   */
+  async getCursosByProfesor(userId) {
+    return this.getCursosByUser(userId);
   }
 
   /**
@@ -371,33 +390,19 @@ class CalendarService {
     }
   }
   /**
-   * Obtiene los cursos del profesor autenticado
+   * Obtiene los cursos del usuario autenticado
    * @returns {Promise<Array} Lista de cursos
    */
   async getCursosProfesor() {
     try {
-      // Primero obtener el perfil del profesor
-      const perfilResponse = await this.obtenerPerfilProfesor();
-      if (!perfilResponse.success) {
-        throw new Error(perfilResponse.error);
-      }
+      // Usar el servicio de perfil para obtener cursos específicos del usuario
+      const response = await perfilService.obtenerMisCursos();
       
-      const profesorId = perfilResponse.data.profesorId;
-      if (!profesorId) {
-        throw new Error('No se pudo obtener el ID del profesor');
+      if (response.success) {
+        return response.data || [];
+      } else {
+        throw new Error(response.error || 'Error al obtener cursos');
       }
-
-      const response = await fetch(`${this.baseURL}/api/reservas/cursos-profesor/${profesorId}`, {
-        method: 'GET',
-        headers: this.getAuthHeaders()
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return data.data || data || [];
     } catch (error) {
       console.error('Error fetching cursos:', error);
       throw error;
@@ -454,7 +459,8 @@ class CalendarService {
       });
 
       if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
+        console.log('No se pudo obtener horas ocupadas, devolviendo array vacío');
+        return [];
       }
 
       const data = await response.json();
@@ -611,22 +617,20 @@ class CalendarService {
     }
   }
   /**
-   * Obtiene el perfil del profesor del usuario autenticado
-   * @returns {Promise<Object>} Datos del profesor
-   */  async obtenerPerfilProfesor() {
+   * Obtiene el perfil del usuario autenticado
+   * @returns {Promise<Object>} Perfil del usuario
+   */
+  async obtenerPerfilUsuario() {
     try {
-      // Obtener el usuario del localStorage usando el método estándar
       const authData = storage.getAuthData();
       if (!authData?.user?.id) {
-        throw new Error('Usuario no autenticado o sin ID');
+        throw new Error('Usuario no autenticado');
       }
 
-      // Lista de endpoints a intentar
       const endpoints = [
-        `${this.baseURL}/api/reservas/mi-perfil-profesor?userId=${authData.user.id}`,
-        `${this.baseURL}/api/perfil/profesor/${authData.user.id}`,
-        `${this.baseURL}/api/usuarios/${authData.user.id}/perfil-profesor`,
-        `${this.baseURL}/api/profesores/perfil?userId=${authData.user.id}`
+        `${this.baseURL}/api/usuarios/${authData.user.id}/perfil`,
+        `${this.baseURL}/api/perfil/usuario/${authData.user.id}`,
+        `${this.baseURL}/api/usuarios/perfil?userId=${authData.user.id}`
       ];
 
       for (const endpoint of endpoints) {
@@ -654,11 +658,10 @@ class CalendarService {
       }
 
       // Si todos los endpoints fallan, retornar datos por defecto
-      console.warn('No se pudo obtener el perfil del profesor, usando datos del usuario');
+      console.warn('No se pudo obtener el perfil del usuario, usando datos del usuario');
       return {
         success: true,
         data: {
-          profesorId: authData.user.id,
           userId: authData.user.id,
           nombre: authData.user.nombre || authData.user.username,
           email: authData.user.email
@@ -667,13 +670,21 @@ class CalendarService {
       };
 
     } catch (error) {
-      console.error('Error obteniendo perfil profesor:', error);
+      console.error('Error obteniendo perfil usuario:', error);
       return {
         success: false,
-        error: error.message || 'Error al obtener perfil del profesor',
+        error: error.message || 'Error al obtener perfil del usuario',
         data: null
       };
     }
+  }
+
+  /**
+   * Obtiene el perfil del usuario autenticado (alias para compatibilidad)
+   * @returns {Promise<Object>} Perfil del usuario
+   */
+  async obtenerPerfilProfesor() {
+    return this.obtenerPerfilUsuario();
   }
   /**
    * Crea una nueva reserva
@@ -682,21 +693,21 @@ class CalendarService {
    */
   async crearReserva(reservaData) {
     try {
-      // Obtener el profesorId del usuario actual
-      const perfilResponse = await this.obtenerPerfilProfesor();
+      // Obtener el userId del usuario actual
+      const perfilResponse = await this.obtenerPerfilUsuario();
       if (!perfilResponse.success) {
-        throw new Error('No se pudo obtener el perfil del profesor: ' + perfilResponse.error);
+        throw new Error('No se pudo obtener el perfil del usuario: ' + perfilResponse.error);
       }
       
-      const profesorId = perfilResponse.data.profesorId;
-      if (!profesorId) {
-        throw new Error('No se pudo obtener el ID del profesor');
+      const userId = perfilResponse.data.userId;
+      if (!userId) {
+        throw new Error('No se pudo obtener el ID del usuario');
       }
 
-      // Agregar el profesorId a los datos de la reserva
+      // Agregar el userId a los datos de la reserva
       const reservaCompleta = {
         ...reservaData,
-        profesorId: profesorId
+        userId: userId
       };
 
       console.log('Enviando reserva con datos completos:', reservaCompleta);

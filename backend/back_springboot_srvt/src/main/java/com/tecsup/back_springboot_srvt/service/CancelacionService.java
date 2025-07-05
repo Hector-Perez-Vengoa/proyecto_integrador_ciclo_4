@@ -30,20 +30,20 @@ public class CancelacionService {
     private int horasMinimasCancelacion;
 
     /**
-     * Cancela una reserva por parte del profesor
+     * Cancela una reserva por parte del usuario
      */
     @Transactional
-    public void cancelarReservaPorProfesor(Long reservaId, Long profesorId, CancelacionReservaDTO cancelacionDTO) 
+    public void cancelarReservaPorUsuario(Long reservaId, Integer userId, CancelacionReservaDTO cancelacionDTO) 
             throws Exception {
         
-        // 1. Verificar que la reserva existe y pertenece al profesor
+        // 1. Verificar que la reserva existe y pertenece al usuario
         Optional<Reserva> reservaOpt = reservaRepository.findById(reservaId);
         if (reservaOpt.isEmpty()) {
             throw new IllegalArgumentException("Reserva no encontrada");
         }
         
         Reserva reserva = reservaOpt.get();
-        if (!reserva.getProfesor().getId().equals(profesorId)) {
+        if (!reserva.getUser().getId().equals(userId)) {
             throw new IllegalArgumentException("No tiene permisos para cancelar esta reserva");
         }
         
@@ -64,7 +64,7 @@ public class CancelacionService {
         reserva.setEstado(EstadoReserva.CANCELADA.getValor());
         reserva.setFechaCancelacion(LocalDateTime.now());
         reserva.setMotivoCancelacion(cancelacionDTO.getMotivoCancelacion());
-        reserva.setCanceladoPor("PROFESOR");
+        reserva.setCanceladoPor("USUARIO");
         reserva.setObservacionesCancelacion(cancelacionDTO.getObservaciones());
         
         reservaRepository.save(reserva);
@@ -106,13 +106,13 @@ public class CancelacionService {
     }
     
     /**
-     * Obtiene reservas que pueden ser canceladas por un profesor
+     * Obtiene reservas que pueden ser canceladas por un usuario
      */
-    public List<Reserva> obtenerReservasCancelables(Long profesorId) {
+    public List<Reserva> obtenerReservasCancelables(Integer userId) {
         LocalDate fechaActual = LocalDate.now();
         LocalTime horaActual = LocalTime.now();
         
-        return reservaRepository.findReservasCancelablesPorProfesor(profesorId, fechaActual, horaActual);
+        return reservaRepository.findReservasCancelablesPorUsuario(userId, fechaActual, horaActual);
     }
     
     /**

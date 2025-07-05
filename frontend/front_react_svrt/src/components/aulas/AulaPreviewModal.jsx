@@ -376,21 +376,21 @@ const AulaPreviewModal = ({ isOpen, onClose, aula }) => {
                   </motion.div>
                 )}
 
-                {/* Información del profesor y curso */}
+                {/* Información del usuario y curso */}
                 <motion.div
                   className="grid grid-cols-1 sm:grid-cols-2 gap-4"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.7, duration: 0.4 }}
                 >
-                  {aula.profesor && (
+                  {aula.usuario && (
                     <div className="flex items-center space-x-3 bg-tecsup-cyan-50 rounded-xl p-4">
                       <div className="w-12 h-12 bg-tecsup-cyan-500 rounded-full flex items-center justify-center">
                         <MdSchool className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <p className="font-medium text-tecsup-gray-dark">Profesor</p>
-                        <p className="text-tecsup-cyan-700 font-semibold">ID: {aula.profesor}</p>
+                        <p className="font-medium text-tecsup-gray-dark">Usuario</p>
+                        <p className="text-tecsup-cyan-700 font-semibold">ID: {aula.usuario}</p>
                       </div>
                     </div>
                   )}

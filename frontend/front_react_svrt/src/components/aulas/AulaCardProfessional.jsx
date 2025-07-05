@@ -370,16 +370,16 @@ const AulaCardProfessional = ({ aula, onSelect, isSelected = false, onOpenModal 
           )}
         </div>
 
-        {/* Información del profesor y curso */}
+        {/* Información del usuario y curso */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm mb-4">
-          {aula.profesor && (
+          {aula.usuario && (
             <div className="flex items-center space-x-2 bg-tecsup-cyan-50 rounded-lg p-3">
               <div className="w-8 h-8 bg-tecsup-cyan-500 rounded-full flex items-center justify-center">
                 <MdSchool className="w-4 h-4 text-white" />
               </div>
               <div>
-                <p className="font-medium text-tecsup-gray-dark">Profesor</p>
-                <p className="text-tecsup-cyan-700 font-semibold">ID: {aula.profesor}</p>
+                <p className="font-medium text-tecsup-gray-dark">Usuario</p>
+                <p className="text-tecsup-cyan-700 font-semibold">ID: {aula.usuario}</p>
               </div>
             </div>
           )}

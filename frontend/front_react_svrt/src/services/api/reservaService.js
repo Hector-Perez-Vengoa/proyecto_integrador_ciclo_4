@@ -2,6 +2,7 @@
 import axios from 'axios';
 import { AUTH_CONFIG } from '../../constants/auth';
 import { storage } from '../../utils/authUtils';
+import { perfilService } from './perfilService';
 
 // Configurar axios instance
 const api = axios.create({
@@ -44,19 +45,19 @@ export const reservaService = {  // Crear nueva reserva
     try {
       console.log('🚀 ReservaService: Iniciando creación de reserva con datos:', reservaData);
       
-      // Primero obtener el perfil del profesor
-      const perfilResponse = await this.obtenerPerfilProfesor();
+      // Primero obtener el perfil del usuario
+      const perfilResponse = await this.obtenerPerfilUsuario();
       if (!perfilResponse.success) {
-        console.error('❌ ReservaService: Error obteniendo perfil profesor:', perfilResponse.error);
+        console.error('❌ ReservaService: Error obteniendo perfil usuario:', perfilResponse.error);
         throw new Error(perfilResponse.error);
       }
       
-      console.log('✅ ReservaService: Perfil profesor obtenido:', perfilResponse.data);
+      console.log('✅ ReservaService: Perfil usuario obtenido:', perfilResponse.data);
       
-      // Agregar el profesorId del usuario autenticado
+      // Agregar el userId del usuario autenticado
       const reservaCompleta = {
         ...reservaData,
-        profesorId: perfilResponse.data.profesorId
+        userId: perfilResponse.data.userId
       };
       
       console.log('📤 ReservaService: Enviando reserva completa:', reservaCompleta);
@@ -194,83 +195,84 @@ export const reservaService = {  // Crear nueva reserva
         error: error.response?.data?.message || 'Error al verificar disponibilidad'
       };
     }
-  },  // Obtener perfil del profesor por userId
-  async obtenerPerfilProfesor() {
+  },  // Obtener perfil del usuario por userId
+  async obtenerPerfilUsuario() {
     try {
-      // Obtener el usuario del localStorage
-      const authData = storage.getAuthData();
-      if (!authData?.user?.id) {
-        throw new Error('Usuario no autenticado o sin ID');
-      }
-
-      const endpoints = [
-        `/reservas/mi-perfil-profesor?userId=${authData.user.id}`,
-        `/perfil/profesor/${authData.user.id}`,
-        `/usuarios/${authData.user.id}/perfil-profesor`,
-        `/profesores/perfil?userId=${authData.user.id}`
-      ];
-
-      for (const endpoint of endpoints) {
-        try {
-          const response = await api.get(endpoint);
+      // Usar el servicio de perfil que ya maneja la autenticación
+      const response = await perfilService.obtenerPerfil();
+      
+      if (response.success) {
+        return {
+          success: true,
+          data: {
+            userId: response.data.id,
+            nombre: response.data.firstName,
+            apellidos: response.data.lastName,
+            email: response.data.email
+          },
+          message: response.message
+        };
+      } else {
+        // Fallback: usar datos básicos del usuario
+        const authData = storage.getAuthData();
+        if (authData?.user?.id) {
           return {
             success: true,
-            data: response.data.data || response.data,
-            message: response.data.message || 'Perfil obtenido exitosamente'
+            data: {
+              userId: authData.user.id,
+              nombre: authData.user.firstName || authData.user.name,
+              apellidos: authData.user.lastName || '',
+              email: authData.user.email
+            },
+            message: 'Usando datos básicos del usuario'
           };
-        } catch (endpointError) {
-          // Continuar con el siguiente endpoint
-          console.warn(`Error con endpoint ${endpoint}:`, endpointError.response?.status);
-          continue;
         }
+        
+        return response;
       }
-
-      // Si todos los endpoints fallan, retornar datos por defecto
-      console.warn('No se pudo obtener el perfil del profesor, usando datos del usuario');
-      return {
-        success: true,
-        data: {
-          profesorId: authData.user.id,
-          userId: authData.user.id,
-          nombre: authData.user.nombre || authData.user.username,
-          email: authData.user.email
-        },
-        message: 'Usando datos básicos del usuario'
-      };
-
     } catch (error) {
-      console.error('Error obteniendo perfil profesor:', error);
+      console.error('Error obteniendo perfil usuario:', error);
+      
+      // Fallback: usar datos básicos del usuario
+      const authData = storage.getAuthData();
+      if (authData?.user?.id) {
+        return {
+          success: true,
+          data: {
+            userId: authData.user.id,
+            nombre: authData.user.firstName || authData.user.name,
+            apellidos: authData.user.lastName || '',
+            email: authData.user.email
+          },
+          message: 'Usando datos básicos del usuario'
+        };
+      }
+      
       return {
         success: false,
-        error: error.response?.data?.message || error.message || 'Error al obtener perfil del profesor',
+        error: error.message || 'Error al obtener perfil del usuario',
         data: null
       };
     }
   },
-  // Obtener cursos del profesor
-  async obtenerCursosProfesor() {
+  // Obtener cursos del usuario
+  async obtenerCursosUsuario() {
     try {
-      // Primero obtener el perfil del profesor
-      const perfilResponse = await this.obtenerPerfilProfesor();
-      if (!perfilResponse.success) {
-        throw new Error(perfilResponse.error);
-      }
-      
-      const profesorId = perfilResponse.data.profesorId;
-      const response = await api.get(`/reservas/cursos-profesor/${profesorId}`);
-      
-      return {
-        success: true,
-        data: response.data.data || [],
-        message: response.data.message
-      };
+      // Usar el servicio de perfil para obtener cursos específicos del usuario
+      const response = await perfilService.obtenerMisCursos();
+      return response;
     } catch (error) {
       return {
         success: false,
-        error: error.response?.data?.message || error.message || 'Error al cargar los cursos',
+        error: error.message || 'Error al cargar los cursos',
         data: []
       };
     }
+  },
+
+  // Alias para compatibilidad con código existente
+  async obtenerCursosProfesor() {
+    return this.obtenerCursosUsuario();
   },  // Cancelar reserva (simplificado - solo usa un endpoint)
   async cancelarReserva(reservaId, motivo = '') {
     try {
@@ -308,17 +310,17 @@ export const reservaService = {  // Crear nueva reserva
     }
   },
 
-  // Obtener reservas del profesor actual
-  async obtenerReservasProfesor() {
+  // Obtener reservas del usuario actual
+  async obtenerReservasUsuario() {
     try {
-      // Primero obtener el perfil del profesor
-      const perfilResponse = await this.obtenerPerfilProfesor();
+      // Primero obtener el perfil del usuario
+      const perfilResponse = await this.obtenerPerfilUsuario();
       if (!perfilResponse.success) {
         throw new Error(perfilResponse.error);
       }
       
-      const profesorId = perfilResponse.data.profesorId;
-      const response = await api.get(`/reservas/profesor/${profesorId}`);
+      const userId = perfilResponse.data.userId;
+      const response = await api.get(`/reservas/usuario/${userId}`);
       
       return {
         success: true,

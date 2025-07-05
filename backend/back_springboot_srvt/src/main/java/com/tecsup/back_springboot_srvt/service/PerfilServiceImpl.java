@@ -35,17 +35,11 @@ public class PerfilServiceImpl implements PerfilService {
     @Autowired
     private CursoRepository cursoRepository;
     
-    @Autowired
-    private ProfesorRepository profesorRepository;
-    
     @PersistenceContext
     private EntityManager entityManager;
     
     @Autowired
     private JwtUtils jwtUtils;
-    
-    @Autowired
-    private ProfesorService profesorService;
 
     @Override
     public PerfilResponse obtenerPerfilConAuth(String token) {
@@ -65,10 +59,8 @@ public class PerfilServiceImpl implements PerfilService {
             perfil.setUser(user);
             perfil.setFechaActualizacion(LocalDateTime.now());
             perfil = perfilRepository.save(perfil);
-            profesorService.asegurarProfesorParaUsuario(user, perfil);
         } else {
             perfil = perfilOpt.get();
-            profesorService.asegurarProfesorParaUsuario(user, perfil);
         }
         
         return convertirAPerfilResponse(perfil);
@@ -127,9 +119,6 @@ public class PerfilServiceImpl implements PerfilService {
         
         perfil.setFechaActualizacion(LocalDateTime.now());
         perfilRepository.save(perfil);
-        
-        // Actualizar entidad Profesor
-        actualizarProfesor(user, perfil);
         
         return convertirAPerfilResponse(perfil);
     }
@@ -295,70 +284,59 @@ public class PerfilServiceImpl implements PerfilService {
         
         return response;
     }
-
-    private void actualizarProfesor(User user, Perfil perfil) {
-        try {
-            Optional<Profesor> profesorOpt = profesorRepository.findByUserId(user.getId());
-            Profesor profesor;
-            
-            if (profesorOpt.isPresent()) {
-                profesor = profesorOpt.get();
-            } else {
-                profesor = new Profesor();
-                profesor.setUserId(user.getId());
-                profesor.setPerfilId(perfil.getId());
-            }
-            
-            profesor.setNombres(user.getFirstName());
-            profesor.setApellidos(user.getLastName());
-            profesor.setCorreo(user.getEmail());
-            profesor.setPerfilId(perfil.getId());
-            
-            if (perfil.getDepartamento() != null) {
-                profesor.setDepartamento(perfil.getDepartamento());
-            }
-            
-            profesor = profesorRepository.save(profesor);
-            
-            // Actualizar relaciones many-to-many
-            actualizarRelacionesProfesor(profesor, perfil);
-            
-        } catch (Exception e) {
-            throw new RuntimeException("Error actualizando profesor: " + e.getMessage(), e);
+    
+    @Override
+    public PerfilResponse obtenerPerfilPorUserId(Integer userId) {
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (!userOpt.isPresent()) {
+            throw new RuntimeException("Usuario no encontrado");
         }
+        User user = userOpt.get();
+
+        // Buscar el perfil
+        Optional<Perfil> perfilOpt = perfilRepository.findByUserId(userId);
+        Perfil perfil;
+        
+        if (!perfilOpt.isPresent()) {
+            // Si no existe perfil, crear uno nuevo
+            perfil = new Perfil();
+            perfil.setUser(user);
+            perfil.setFechaActualizacion(LocalDateTime.now());
+            perfil = perfilRepository.save(perfil);
+        } else {
+            perfil = perfilOpt.get();
+        }
+        
+        return convertirAPerfilResponse(perfil);
     }
 
-    private void actualizarRelacionesProfesor(Profesor profesor, Perfil perfil) {
-        try {
-            // Actualizar carreras
-            entityManager.createNativeQuery("DELETE FROM profesordb_carreras WHERE profesordb_id = ?")
-                .setParameter(1, profesor.getId())
-                .executeUpdate();
-            
-            if (perfil.getCarreras() != null && !perfil.getCarreras().isEmpty()) {
-                for (Carrera carrera : perfil.getCarreras()) {
-                    entityManager.createNativeQuery("INSERT INTO profesordb_carreras (profesordb_id, carreradb_id) VALUES (?, ?)")
-                        .setParameter(1, profesor.getId())
-                        .setParameter(2, carrera.getId())
-                        .executeUpdate();
-                }
-            }
-            
-            // Actualizar cursos
-            entityManager.createNativeQuery("DELETE FROM profesordb_cursos WHERE profesordb_id = ?")
-                .setParameter(1, profesor.getId())
-                .executeUpdate();
-            
-            if (perfil.getCursos() != null && !perfil.getCursos().isEmpty()) {
-                for (Curso curso : perfil.getCursos()) {
-                    entityManager.createNativeQuery("INSERT INTO profesordb_cursos (profesordb_id, cursodb_id) VALUES (?, ?)")
-                        .setParameter(1, profesor.getId())
-                        .setParameter(2, curso.getId())
-                        .executeUpdate();
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Error actualizando relaciones del profesor: " + e.getMessage(), e);
+    @Override
+    public List<CursoDTO> obtenerCursosDelUsuario(String token) {
+        String username = validarToken(token);
+        
+        Optional<User> userOpt = userRepository.findByUsername(username);
+        if (!userOpt.isPresent()) {
+            throw new RuntimeException("Usuario no encontrado");
         }
+        User user = userOpt.get();
+
+        // Buscar el perfil del usuario
+        Optional<Perfil> perfilOpt = perfilRepository.findByUserId(user.getId());
+        if (!perfilOpt.isPresent()) {
+            throw new RuntimeException("Perfil no encontrado para el usuario");
+        }
+        Perfil perfil = perfilOpt.get();
+
+        // Si el perfil tiene carreras asociadas, obtener cursos de esas carreras
+        if (perfil.getCarreras() != null && !perfil.getCarreras().isEmpty()) {
+            List<Long> carreraIds = perfil.getCarreras().stream()
+                .map(Carrera::getId)
+                .collect(Collectors.toList());
+            
+            return listarCursosPorCarreras(carreraIds);
+        }
+        
+        // Si no tiene carreras específicas, devolver todos los cursos
+        return listarCursos();
     }
 }

@@ -8,8 +8,8 @@ import java.time.LocalTime;
 
 public class ReservaRequestDTO {
     
-    @NotNull(message = "El ID del profesor es obligatorio")
-    private Long profesorId;
+    @NotNull(message = "El ID del usuario es obligatorio")
+    private Integer userId;
     
     @NotNull(message = "El ID del aula virtual es obligatorio")
     private Long aulaVirtualId;
@@ -38,10 +38,10 @@ public class ReservaRequestDTO {
     // Constructors
     public ReservaRequestDTO() {}
     
-    public ReservaRequestDTO(Long profesorId, Long aulaVirtualId, Long cursoId, 
+    public ReservaRequestDTO(Integer userId, Long aulaVirtualId, Long cursoId, 
                            LocalDate fechaReserva, LocalTime horaInicio, LocalTime horaFin, 
                            String motivo, String estado) {
-        this.profesorId = profesorId;
+        this.userId = userId;
         this.aulaVirtualId = aulaVirtualId;
         this.cursoId = cursoId;
         this.fechaReserva = fechaReserva;
@@ -52,12 +52,12 @@ public class ReservaRequestDTO {
     }
     
     // Getters and Setters
-    public Long getProfesorId() {
-        return profesorId;
+    public Integer getUserId() {
+        return userId;
     }
     
-    public void setProfesorId(Long profesorId) {
-        this.profesorId = profesorId;
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
     
     public Long getAulaVirtualId() {

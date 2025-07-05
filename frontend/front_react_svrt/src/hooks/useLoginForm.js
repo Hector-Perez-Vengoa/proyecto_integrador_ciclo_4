@@ -128,8 +128,7 @@ export const useLoginForm = (onSuccess) => {
         email: response.user?.email || decoded.email,
         firstName: response.user?.firstName || decoded.given_name || '',
         lastName: response.user?.lastName || decoded.family_name || '',
-        id: response.user?.id || decoded.sub,
-        profesorId: response.user?.profesorId // Añadir profesorId
+        id: response.user?.id || decoded.sub
       };
       
       console.log('Google Final userData object:', userData);// Verificar si el usuario necesita crear contraseña
@@ -217,7 +216,6 @@ export const useLoginForm = (onSuccess) => {
         firstName: response.user?.firstName || formData.name.split(' ')[0],
         lastName: response.user?.lastName || formData.name.split(' ').slice(1).join(' '),
         id: response.user?.id,
-        profesorId: response.user?.profesorId, // Añadir profesorId
         username: response.user?.username || response.user?.email
       };
       

@@ -5,7 +5,8 @@ import com.tecsup.back_springboot_srvt.service.ReservaService;
 import com.tecsup.back_springboot_srvt.service.BloqueHorarioService;
 import com.tecsup.back_springboot_srvt.service.NotificacionService;
 import com.tecsup.back_springboot_srvt.service.CancelacionService;
-import com.tecsup.back_springboot_srvt.service.ProfesorService;
+import com.tecsup.back_springboot_srvt.repository.UserRepository;
+import com.tecsup.back_springboot_srvt.model.User;
 import com.tecsup.back_springboot_srvt.security.JwtUtils;
 
 import jakarta.validation.Valid;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/reservas")
@@ -37,7 +39,7 @@ public class ReservaController {
     private CancelacionService cancelacionService;
     
     @Autowired
-    private ProfesorService profesorService;
+    private UserRepository userRepository;
     
     @Autowired
     private JwtUtils jwtUtils;
@@ -50,7 +52,7 @@ public class ReservaController {
             @Valid @RequestBody ReservaRequestDTO requestDTO,
             HttpServletRequest request) {
         try {
-            // Extraer el token del header Authorization y obtener el profesorId
+            // Extraer información del usuario desde el token JWT
             String token = request.getHeader("Authorization");
             if (token != null && token.startsWith("Bearer ")) {
                 token = token.substring(7); // Remover "Bearer "
@@ -59,17 +61,18 @@ public class ReservaController {
                     // Extraer el username del token
                     String username = jwtUtils.getUserNameFromJwtToken(token);
                     
-                    // Buscar el profesor por username/email
-                    Long profesorId = profesorService.obtenerIdPorUsername(username);
+                    // Buscar el usuario por username/email
+                    Optional<User> userOpt = userRepository.findByUsername(username);
                     
-                    if (profesorId != null) {
-                        // Asignar el profesorId si no está presente
-                        if (requestDTO.getProfesorId() == null) {
-                            requestDTO.setProfesorId(profesorId);
+                    if (userOpt.isPresent()) {
+                        User user = userOpt.get();
+                        // Asignar el userId si no está presente
+                        if (requestDTO.getUserId() == null) {
+                            requestDTO.setUserId(user.getId());
                         }
                     }
                 } catch (Exception e) {
-                    // Si hay error al extraer el token, continuar sin asignar profesorId
+                    // Si hay error al extraer el token, continuar sin asignar userId
                     System.err.println("Error al extraer información del token: " + e.getMessage());
                 }
             }
@@ -87,13 +90,13 @@ public class ReservaController {
     }
     
     /**
-     * Obtener reservas por profesor
+     * Obtener reservas por usuario
      */
-    @GetMapping("/profesor/{profesorId}")
-    public ResponseEntity<StandardApiResponse<List<ReservaResponseDTO>>> obtenerReservasPorProfesor(
-            @PathVariable Long profesorId) {
+    @GetMapping("/usuario/{userId}")
+    public ResponseEntity<StandardApiResponse<List<ReservaResponseDTO>>> obtenerReservasPorUsuario(
+            @PathVariable Integer userId) {
         try {
-            List<ReservaResponseDTO> reservas = reservaService.obtenerReservasPorProfesor(profesorId);
+            List<ReservaResponseDTO> reservas = reservaService.obtenerReservasPorUsuario(userId);
             return ResponseEntity.ok(StandardApiResponse.success("Reservas obtenidas exitosamente", reservas));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -102,14 +105,12 @@ public class ReservaController {
     }
     
     /**
-     * Obtener reservas por aula y fecha
+     * Obtener todas las reservas
      */
-    @GetMapping("/aula/{aulaVirtualId}/fecha/{fecha}")
-    public ResponseEntity<StandardApiResponse<List<ReservaResponseDTO>>> obtenerReservasPorAulaYFecha(
-            @PathVariable Long aulaVirtualId,
-            @PathVariable String fecha) {
+    @GetMapping
+    public ResponseEntity<StandardApiResponse<List<ReservaResponseDTO>>> obtenerTodasLasReservas() {
         try {
-            List<ReservaResponseDTO> reservas = reservaService.obtenerReservasPorAulaYFecha(aulaVirtualId, fecha);
+            List<ReservaResponseDTO> reservas = reservaService.obtenerTodasLasReservas();
             return ResponseEntity.ok(StandardApiResponse.success("Reservas obtenidas exitosamente", reservas));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -128,95 +129,35 @@ public class ReservaController {
             return ResponseEntity.ok(StandardApiResponse.success("Reservas obtenidas exitosamente", reservas));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(StandardApiResponse.error("Error al obtener reservas: " + e.getMessage()));
-        }
-    }
-    
-    /**
-     * Obtener bloques horarios disponibles
-     */
-    @GetMapping("/bloques")
-    public ResponseEntity<StandardApiResponse<List<BloqueHorarioDTO>>> obtenerBloquesHorarios() {
-        try {
-            List<BloqueHorarioDTO> bloques = bloqueHorarioService.obtenerTodosLosBloquesDTO();
-            return ResponseEntity.ok(StandardApiResponse.success("Bloques horarios obtenidos exitosamente", bloques));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(StandardApiResponse.error("Error al obtener bloques horarios: " + e.getMessage()));
-        }
-    }
-    
-    /**
-     * Verificar disponibilidad de aula
-     */
-    @GetMapping("/verificar-disponibilidad")
-    public ResponseEntity<StandardApiResponse<Map<String, Object>>> verificarDisponibilidad(
-            @RequestParam Long aulaVirtualId,
-            @RequestParam String fecha,
-            @RequestParam(required = false) String horaInicio,
-            @RequestParam(required = false) String horaFin) {
-        try {
-            Map<String, Object> disponibilidad = reservaService.verificarDisponibilidad(
-                aulaVirtualId, fecha, horaInicio, horaFin);
-            return ResponseEntity.ok(StandardApiResponse.success("Disponibilidad verificada", disponibilidad));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(StandardApiResponse.error("Error al verificar disponibilidad: " + e.getMessage()));
-        }
-    }
-    
-    /**
-     * Verificar conflictos de horario
-     */
-    @GetMapping("/verificar-conflicto")
-    public ResponseEntity<StandardApiResponse<Map<String, Object>>> verificarConflictoHorario(
-            @RequestParam Long aulaVirtualId,
-            @RequestParam String fecha,
-            @RequestParam String horaInicio,
-            @RequestParam String horaFin) {
-        try {
-            Map<String, Object> resultado = reservaService.verificarConflictoHorario(
-                aulaVirtualId, fecha, horaInicio, horaFin);
-            return ResponseEntity.ok(StandardApiResponse.success("Verificación completada", resultado));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(StandardApiResponse.error("Error al verificar conflicto: " + e.getMessage()));
+                .body(StandardApiResponse.error("Error al obtener reservas por estado: " + e.getMessage()));
         }
     }
     
     /**
      * Cancelar una reserva
      */
-    @PostMapping("/{reservaId}/cancelar")
+    @PutMapping("/{reservaId}/cancelar")
     public ResponseEntity<StandardApiResponse<String>> cancelarReserva(
             @PathVariable Long reservaId,
-            @RequestBody Map<String, String> body) {
+            @RequestBody CancelacionReservaDTO cancelacionDTO) {
         try {
-            String motivoCancelacion = body.getOrDefault("motivoCancelacion", 
-                body.getOrDefault("motivo", "Sin motivo especificado"));
-            String observaciones = body.getOrDefault("observaciones", "");
-            
-            CancelacionReservaDTO cancelacionDTO = new CancelacionReservaDTO();
-            cancelacionDTO.setMotivoCancelacion(motivoCancelacion);
-            cancelacionDTO.setObservaciones(observaciones);
-            
             cancelacionService.cancelarReserva(reservaId, cancelacionDTO);
-            return ResponseEntity.ok(StandardApiResponse.success("Reserva cancelada exitosamente", null));
+            return ResponseEntity.ok(StandardApiResponse.success("Reserva cancelada exitosamente", "Reserva cancelada"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(StandardApiResponse.error("Error al cancelar: " + e.getMessage()));
+                .body(StandardApiResponse.error("Error de validación: " + e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(StandardApiResponse.error("Error interno: " + e.getMessage()));
+                .body(StandardApiResponse.error("Error al cancelar reserva: " + e.getMessage()));
         }
     }
     
     /**
-     * Obtener horas ocupadas para una fecha y aula
+     * Obtener horas ocupadas para una fecha y aula específica
      */
     @GetMapping("/horas-ocupadas/{aulaId}/{fecha}")
     public ResponseEntity<StandardApiResponse<List<Map<String, Object>>>> obtenerHorasOcupadas(
-            @PathVariable Long aulaId, 
+            @PathVariable Long aulaId,
             @PathVariable String fecha) {
         try {
             List<Map<String, Object>> horasOcupadas = reservaService.obtenerHorasOcupadas(aulaId, fecha);
@@ -228,78 +169,22 @@ public class ReservaController {
     }
     
     /**
-     * Obtener perfil del profesor por userId
+     * Verificar disponibilidad de aula
      */
-    @GetMapping("/mi-perfil-profesor")
-    public ResponseEntity<StandardApiResponse<Map<String, Object>>> obtenerMiPerfilProfesor(
-            @RequestParam Integer userId) {
+    @GetMapping("/verificar-disponibilidad")
+    public ResponseEntity<StandardApiResponse<Map<String, Object>>> verificarDisponibilidad(
+            @RequestParam Long aulaVirtualId,
+            @RequestParam String fecha,
+            @RequestParam String horaInicio,
+            @RequestParam String horaFin) {
         try {
-            Map<String, Object> perfilProfesor = profesorService.obtenerPerfilProfesorPorUserId(userId);
-            if (perfilProfesor == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(StandardApiResponse.error("No se encontró profesor para el usuario: " + userId));
-            }
-            return ResponseEntity.ok(StandardApiResponse.success("Perfil obtenido exitosamente", perfilProfesor));
+            Map<String, Object> disponibilidad = reservaService.verificarDisponibilidad(aulaVirtualId, fecha, horaInicio, horaFin);
+            return ResponseEntity.ok(StandardApiResponse.success("Disponibilidad verificada", disponibilidad));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(StandardApiResponse.error("Error al obtener perfil: " + e.getMessage()));
+                .body(StandardApiResponse.error("Error al verificar disponibilidad: " + e.getMessage()));
         }
     }
     
-    /**
-     * Obtener cursos asignados a un profesor
-     */
-    @GetMapping("/cursos-profesor/{profesorId}")
-    public ResponseEntity<StandardApiResponse<List<CursoDTO>>> obtenerCursosDelProfesor(
-            @PathVariable Long profesorId) {
-        try {
-            List<CursoDTO> cursos = profesorService.obtenerCursosDelProfesor(profesorId);
-            return ResponseEntity.ok(StandardApiResponse.success("Cursos obtenidos exitosamente", cursos));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(StandardApiResponse.error("Error al obtener cursos: " + e.getMessage()));
-        }
-    }
-    
-    /**
-     * Obtener motivos de reserva predefinidos
-     */
-    @GetMapping("/motivos-reserva")
-    public ResponseEntity<StandardApiResponse<List<String>>> obtenerMotivosReserva() {
-        try {
-            List<String> motivos = reservaService.obtenerMotivosReserva();
-            return ResponseEntity.ok(StandardApiResponse.success("Motivos obtenidos exitosamente", motivos));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(StandardApiResponse.error("Error al obtener motivos: " + e.getMessage()));
-        }
-    }
-    
-    /**
-     * Obtener políticas de cancelación
-     */
-    @GetMapping("/politicas-cancelacion")
-    public ResponseEntity<StandardApiResponse<String>> obtenerPoliticasCancelacion() {
-        try {
-            String politicas = cancelacionService.obtenerPoliticasCancelacion();
-            return ResponseEntity.ok(StandardApiResponse.success("Políticas obtenidas exitosamente", politicas));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(StandardApiResponse.error("Error al obtener políticas: " + e.getMessage()));
-        }
-    }
-    
-    /**
-     * Obtener estado de notificaciones
-     */
-    @GetMapping("/notificaciones/estado")
-    public ResponseEntity<StandardApiResponse<Map<String, Object>>> obtenerEstadoNotificaciones() {
-        try {
-            Map<String, Object> estado = notificacionService.obtenerEstadoNotificaciones();
-            return ResponseEntity.ok(StandardApiResponse.success("Estado obtenido exitosamente", estado));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(StandardApiResponse.error("Error al obtener estado: " + e.getMessage()));
-        }
-    }
+
 }

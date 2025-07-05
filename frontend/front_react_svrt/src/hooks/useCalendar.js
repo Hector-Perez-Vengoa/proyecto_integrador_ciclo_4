@@ -18,11 +18,11 @@ export const useCalendar = (onShowAlert = null) => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [blockedDates, setBlockedDates] = useState([]);
   const [calendarView, setCalendarView] = useState('timeGridWeek');  /**
-   * Carga las reservas del profesor desde el backend
+   * Carga las reservas del usuario desde el backend
    */
   const loadReservas = useCallback(async () => {
-    const profesorId = user?.profesorId || user?.id;
-    if (!profesorId) {
+    const userId = user?.id;
+    if (!userId) {
       return;
     }
     
@@ -31,7 +31,7 @@ export const useCalendar = (onShowAlert = null) => {
     
     try {
       // Cargar reservas reales del backend
-      const reservas = await calendarService.getReservasByProfesor(profesorId);
+      const reservas = await calendarService.getReservasByUser(userId);
       
       const calendarEvents = transformReservasToEvents(reservas);
       
@@ -43,7 +43,7 @@ export const useCalendar = (onShowAlert = null) => {
     } finally {
       setLoading(false);
     }
-  }, [user?.profesorId, user?.id]);
+  }, [user?.id]);
 
   /**
    * Carga los días bloqueados (feriados, mantenimiento, etc.)
@@ -65,7 +65,7 @@ export const useCalendar = (onShowAlert = null) => {
       const curso = reserva.cursoNombre || 'Curso no especificado';
       const estado = reserva.estado || 'PENDIENTE';
       const motivo = reserva.motivo || '';
-      const profesorNombre = reserva.profesorNombre || 'Profesor no especificado';
+      const usuarioNombre = reserva.usuarioNombre || 'Usuario no especificado';
       
       const event = {
         id: reserva.id.toString(),
@@ -80,7 +80,7 @@ export const useCalendar = (onShowAlert = null) => {
           curso: curso,
           estado: estado,
           motivo: motivo,
-          profesorNombre: profesorNombre,
+          usuarioNombre: usuarioNombre,
           reservaData: {
             ...reserva,
             // Propiedades adicionales para el modal
@@ -88,7 +88,7 @@ export const useCalendar = (onShowAlert = null) => {
             cursoNombre: curso,
             estadoReserva: estado,
             motivoReserva: motivo,
-            profesorCompleto: profesorNombre,
+            usuarioCompleto: usuarioNombre,
             fechaCreacion: reserva.fechaCreacion,
             observaciones: reserva.observaciones
           }
@@ -286,13 +286,13 @@ export const useCalendar = (onShowAlert = null) => {
       } catch (calendarError) {
         console.warn('⚠️ useCalendar: Error con calendarService:', calendarError.message);
         
-        // Si es un error 403, de perfil del profesor, o de autorización, intentar con reservaService
+        // Si es un error 403, de perfil del usuario, o de autorización, intentar con reservaService
         const shouldTryFallback = 
           calendarError.message.includes('403') || 
           calendarError.message.includes('Error 403') ||
           calendarError.message.includes('Forbidden') ||
-          calendarError.message.includes('No se encontró el perfil del profesor') ||
-          calendarError.message.includes('perfil del profesor');
+          calendarError.message.includes('No se encontró el perfil del usuario') ||
+          calendarError.message.includes('perfil del usuario');
         
         if (shouldTryFallback) {
           console.log('🔄 useCalendar: Detectado error de permisos, intentando con reservaService...');

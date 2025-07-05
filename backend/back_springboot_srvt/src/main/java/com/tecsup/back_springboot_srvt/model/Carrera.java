@@ -32,9 +32,6 @@ public class Carrera {
     @JsonManagedReference
     private List<Curso> cursos;
     
-    @ManyToMany(mappedBy = "carreras", fetch = FetchType.LAZY)
-    private List<Profesor> profesores;
-    
     @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;
     
@@ -96,14 +93,6 @@ public class Carrera {
     
     public void setCursos(List<Curso> cursos) {
         this.cursos = cursos;
-    }
-    
-    public List<Profesor> getProfesores() {
-        return profesores;
-    }
-    
-    public void setProfesores(List<Profesor> profesores) {
-        this.profesores = profesores;
     }
     
     public LocalDateTime getFechaCreacion() {
