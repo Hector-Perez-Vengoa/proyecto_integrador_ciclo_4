@@ -142,7 +142,7 @@ const AulaPreviewModal = ({ isOpen, onClose, aula }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} maxWidth="max-w-6xl" showCloseButton={false}>
+    <Modal isOpen={isOpen} onClose={onClose} maxWidth="max-w-6xl" showCloseButton={false} noPadding={true}>
       {aula && (
         <div className="relative w-full max-w-6xl bg-white rounded-3xl shadow-2xl ring-1 ring-black/5">
           {/* Header */}

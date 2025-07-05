@@ -7,6 +7,7 @@ import Select from '../ui/Select';
 import { useReservaForm } from '../../hooks/useReservaForm';
 import { useHorasDisponibles } from '../../hooks/useHorasDisponibles';
 import { MOTIVOS_RESERVA } from '../../constants/reservas';
+import { esDomingo, validarFechaReserva } from '../../utils/dateUtils';
 
 const ReservaModal = ({ 
   isOpen, 
@@ -60,6 +61,19 @@ const ReservaModal = ({
         .hora-select {
           background-color: white;
         }
+        
+        /* Estilos para bloquear domingos en el date picker */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+          background-color: #3b82f6;
+          border-radius: 4px;
+          padding: 2px;
+        }
+        
+        /* Información visual para fecha no válida */
+        .fecha-invalida {
+          border-color: #ef4444 !important;
+          box-shadow: 0 0 0 1px #ef4444 !important;
+        }
       `;
       document.head.appendChild(style);
     }
@@ -98,6 +112,40 @@ const ReservaModal = ({
   const getFechaMinima = () => {
     const hoy = new Date();
     return hoy.toISOString().split('T')[0];
+  };
+
+  // Obtener fecha máxima (6 meses desde hoy)
+  const getFechaMaxima = () => {
+    const hoy = new Date();
+    const fechaMaxima = new Date(hoy);
+    fechaMaxima.setMonth(hoy.getMonth() + 6);
+    return fechaMaxima.toISOString().split('T')[0];
+  };
+
+  // Función para validar si una fecha es seleccionable (no domingo)
+  const esFechaValida = (fecha) => {
+    const validacion = validarFechaReserva(fecha);
+    return validacion.valido;
+  };
+
+  // Manejar cambio de fecha con validación de domingos
+  const handleFechaChange = (e) => {
+    const nuevaFecha = e.target.value;
+    
+    // Limpiar errores locales primero
+    setLocalErrors(prev => ({ ...prev, fecha: undefined }));
+    
+    if (nuevaFecha && esDomingo(nuevaFecha)) {
+      setLocalErrors(prev => ({ 
+        ...prev, 
+        fecha: '❌ No se pueden hacer reservas los domingos. Por favor selecciona otro día.' 
+      }));
+      // No actualizar el campo si es domingo
+      return;
+    }
+    
+    // Si no es domingo, actualizar normalmente
+    updateField('fecha', nuevaFecha);
   };
 
   // Manejar envío del formulario
@@ -190,11 +238,24 @@ const ReservaModal = ({
               type="date"
               name="fecha"
               value={formData.fecha}
-              onChange={(e) => updateField('fecha', e.target.value)}
+              onChange={handleFechaChange}
               min={getFechaMinima()}
+              max={getFechaMaxima()}
               error={allErrors.fecha}
               required
             />
+            {formData.fecha && esDomingo(formData.fecha) && (
+              <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                  <p className="text-sm text-red-700">
+                    ⚠️ Los domingos no están disponibles para reservas. Selecciona un día de lunes a sábado.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Hora de inicio */}
@@ -303,6 +364,7 @@ const ReservaModal = ({
                 <p>• <strong>Duración máxima:</strong> 4 horas</p>
                 <p>• <strong>Horario institucional:</strong> 08:00 - 22:00</p>
                 <p>• <strong>Días permitidos:</strong> Lunes a Sábado</p>
+                <p>• <strong>❌ Domingos:</strong> <span className="font-semibold text-red-700">Bloqueados para reservas</span></p>
                 <p>• <strong>Horas ocupadas:</strong> Se muestran como no disponibles</p>
               </div>
             </div>

@@ -8,7 +8,8 @@ const Modal = ({
   title, 
   children, 
   maxWidth = 'max-w-lg',
-  showCloseButton = true 
+  showCloseButton = true,
+  noPadding = false // Nueva prop para controlar el padding
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -95,7 +96,7 @@ const Modal = ({
           )}
           
           {/* Content */}
-          <div className="p-6">
+          <div className={noPadding ? '' : 'p-6'}>
             {children}
           </div>
         </div>

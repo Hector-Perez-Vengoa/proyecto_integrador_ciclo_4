@@ -249,16 +249,7 @@ const CalendarioPage = () => {
                 </p>
               </div>
             </div>
-              <button
-              onClick={() => handleDateClick({ 
-                dateStr: new Date().toISOString().split('T')[0] 
-              })}
-              className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium shadow-sm hover:shadow-md shrink-0"
-            >
-              <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Nueva Reserva</span>
-              <span className="sm:hidden">Nueva</span>
-            </button>
+              
           </div>
         </div>
       </div>
