@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 const menuItems = [
   { 
@@ -80,8 +81,16 @@ const menuItems = [
 
 // eslint-disable-next-line react/prop-types
 const Sidebar = ({ onMenuClick, active, onSidebarToggle }) => {
+  const { user, logout } = useAuth();
   const [open, setOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  
+  // Función para manejar logout
+  const handleLogout = async () => {
+    if (window.confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+      await logout();
+    }
+  };
   
   // Detectar si es móvil
   React.useEffect(() => {
@@ -206,17 +215,33 @@ const Sidebar = ({ onMenuClick, active, onSidebarToggle }) => {
           {open && (
             <div className="flex items-center">
               <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                AD
+                {user?.first_name?.charAt(0) || user?.username?.charAt(0) || 'U'}
               </div>
               <div className="ml-3">
-                <div className="text-sm font-medium text-gray-700">Administrador</div>
-                <div className="text-xs text-gray-500">admin@sistema.com</div>
+                <div className="text-sm font-medium text-gray-700">
+                  {user?.first_name && user?.last_name 
+                    ? `${user.first_name} ${user.last_name}` 
+                    : user?.username || 'Usuario'
+                  }
+                  {user?.is_superuser && (
+                    <span className="ml-2 text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">
+                      Super Admin
+                    </span>
+                  )}
+                </div>
+                <div className="text-xs text-gray-500">
+                  {user?.email || 'admin@sistema.com'}
+                </div>
               </div>
             </div>
           )}
           
-          <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-            <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <button 
+            onClick={handleLogout}
+            className="p-2 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors group"
+            title="Cerrar sesión"
+          >
+            <svg className="w-5 h-5 text-gray-500 group-hover:text-red-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
           </button>

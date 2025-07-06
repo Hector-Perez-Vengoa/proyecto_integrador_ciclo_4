@@ -12,6 +12,9 @@ urlpatterns = [
     # Rutas administrativas 
     path('admin/', admin.site.urls),
     
+    # Rutas de autenticación
+    path("api/auth/", include("authentication.urls")),
+    
     # Rutas de la API de aula_virtual
     path("api/", include("aula_virtual.urls")),
 ]
