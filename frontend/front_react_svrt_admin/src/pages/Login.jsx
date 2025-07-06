@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router"
-import { useState } from "react"
+import { useState, useContext } from "react"
+import { AuthContext } from "../context/AuthContext"
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -9,6 +10,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const navigate = useNavigate()
+  const { login } = useContext(AuthContext)
 
   const handleChange = (e) => {
     setFormData({
@@ -22,16 +24,20 @@ const Login = () => {
     setLoading(true)
     setError('')
     
-    // Simulamos autenticación por ahora
-    setTimeout(() => {
-      if (formData.username && formData.password) {
-        localStorage.setItem('admin_token', 'sample_token')
+    try {
+      const result = await login(formData.username, formData.password)
+      
+      if (result.success) {
         navigate('/dashboard')
       } else {
-        setError('Por favor, complete todos los campos')
+        setError(result.error || 'Error de autenticación')
       }
+    } catch (error) {
+      console.error('Error en login:', error)
+      setError('Error de conexión con el servidor')
+    } finally {
       setLoading(false)
-    }, 1000)
+    }
   }
 
   return (
@@ -137,14 +143,10 @@ const Login = () => {
               )}
             </button>
 
-            {/* Enlace de acceso rápido para desarrollo */}
-            <div className="text-center">
-              <Link 
-                to="/dashboard" 
-                className="text-sm text-purple-600 hover:text-purple-500 transition-colors"
-              >
-                🚀 Acceso rápido al Dashboard (Demo)
-              </Link>
+            {/* Enlace de acceso rápido removido - ahora solo autenticación real */}
+            <div className="text-center text-sm text-gray-500">
+              <p>Usa las credenciales de administrador de Django</p>
+              <p className="mt-1">Usuario: <span className="font-mono">admin</span> | Contraseña: <span className="font-mono">admin123</span></p>
             </div>
           </form>
         </div>

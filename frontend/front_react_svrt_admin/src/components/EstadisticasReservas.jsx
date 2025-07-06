@@ -1,6 +1,7 @@
-// Gráfica de reservas (línea comparativa actual vs anterior)
+// Gráfica de reservas (línea)
 // Permite alternar entre vista diaria y mensual
 import React, { useState } from "react";
+import PropTypes from "prop-types";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -21,61 +22,55 @@ function getYearMonth(fecha) {
   return fecha ? fecha.slice(0, 7) : '';
 }
 
-const EstadisticasReservas = ({ reservas }) => {
+const EstadisticasReservas = ({ reservas = [] }) => {
   // Estado para alternar entre vista mensual y diaria
   const [periodo, setPeriodo] = useState('mes');
 
-  // Si no hay reservas, usar datos simulados para la demo
-  const reservasData = reservas?.length > 0 ? reservas : [
-    { fecha_reserva: '2025-06-01' },
-    { fecha_reserva: '2025-06-02' },
-    { fecha_reserva: '2025-06-02' },
-    { fecha_reserva: '2025-06-03' },
-    { fecha_reserva: '2025-06-05' },
-    { fecha_reserva: '2025-06-05' },
-    { fecha_reserva: '2025-06-05' },
-    { fecha_reserva: '2025-06-07' },
-    { fecha_reserva: '2025-06-10' },
-    { fecha_reserva: '2025-06-12' },
-    { fecha_reserva: '2025-06-12' },
-    { fecha_reserva: '2025-06-15' },
-    { fecha_reserva: '2025-06-18' },
-    { fecha_reserva: '2025-06-20' },
-    { fecha_reserva: '2025-06-22' },
-    { fecha_reserva: '2025-06-25' },
-    { fecha_reserva: '2025-06-28' },
-    { fecha_reserva: '2025-06-30' }
-  ];
+  // Si no hay reservas, mostrar componente vacío
+  if (!reservas || reservas.length === 0) {
+    return (
+      <div className="bg-white rounded-2xl shadow-custom p-6">
+        <h3 className="text-xl font-semibold text-gray-800 mb-4">Estadísticas de Reservas</h3>
+        <div className="flex items-center justify-center h-64 text-gray-500">
+          <div className="text-center">
+            <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            <p>No hay datos de reservas disponibles</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Agrupa reservas por mes
   const meses = {};
-  reservasData.forEach(r => {
+  reservas.forEach(r => {
     const mes = getYearMonth(r.fecha_reserva);
-    meses[mes] = (meses[mes] || 0) + 1;
+    if (mes) {
+      meses[mes] = (meses[mes] || 0) + 1;
+    }
   });
-  const labelsMes = Object.keys(meses).sort();
+  const labelsMes = Object.keys(meses).sort((a, b) => a.localeCompare(b));
   const dataMes = labelsMes.map(f => meses[f]);
 
   // Agrupa reservas por día
   const fechas = {};
-  reservasData.forEach(r => {
+  reservas.forEach(r => {
     const fecha = r.fecha_reserva;
-    fechas[fecha] = (fechas[fecha] || 0) + 1;
+    if (fecha) {
+      fechas[fecha] = (fechas[fecha] || 0) + 1;
+    }
   });
-  const labelsDia = Object.keys(fechas).sort();
+  const labelsDia = Object.keys(fechas).sort((a, b) => a.localeCompare(b));
   const dataDia = labelsDia.map(f => fechas[f]);
-
-  // Simula datos del año anterior para comparación visual
-  const getPreviousData = arr => arr.map((v, i) => Math.max(0, v - Math.round(Math.random() * 3 + 1)));
-  const previousMes = getPreviousData(dataMes);
-  const previousDia = getPreviousData(dataDia);
 
   // Configuración de datos para Chart.js
   const chartData = {
     labels: periodo === 'mes' ? labelsMes : labelsDia,
     datasets: [
       {
-        label: 'Actual',
+        label: 'Reservas',
         data: periodo === 'mes' ? dataMes : dataDia,
         fill: true,
         backgroundColor: 'rgba(59, 130, 246, 0.15)',
@@ -87,21 +82,6 @@ const EstadisticasReservas = ({ reservas }) => {
         pointHoverRadius: 7,
         tension: 0.4,
         borderWidth: 3,
-      },
-      {
-        label: 'Período Anterior',
-        data: periodo === 'mes' ? previousMes : previousDia,
-        fill: true,
-        borderDash: [8, 4],
-        backgroundColor: 'rgba(139, 92, 246, 0.10)',
-        borderColor: '#8b5cf6',
-        pointBackgroundColor: '#8b5cf6',
-        pointBorderColor: '#ffffff',
-        pointBorderWidth: 2,
-        pointRadius: 4,
-        pointHoverRadius: 6,
-        tension: 0.4,
-        borderWidth: 2,
       },
     ],
   };
@@ -302,6 +282,10 @@ const EstadisticasReservas = ({ reservas }) => {
       </div>
     </div>
   );
+};
+
+EstadisticasReservas.propTypes = {
+  reservas: PropTypes.arrayOf(PropTypes.object)
 };
 
 export default EstadisticasReservas;

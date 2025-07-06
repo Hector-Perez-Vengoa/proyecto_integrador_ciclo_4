@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-#2c-=kez)ot7c%y$gcmsnvw21ggq*x^0fw*zg09^*dfdj#=v!@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 
 # Application definition
 
@@ -53,7 +53,31 @@ REST_FRAMEWORK = {
 }
 
 # Configuración de CORS
-CORS_ALLOW_ALL_ORIGINS = True  # Para desarrollo, en producción especifica los orígenes
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # Vite dev server
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",  # React dev server alternativo
+    "http://127.0.0.1:3000",
+]
+
+# Headers permitidos para CORS
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+# Configuración adicional de CORS para cookies
+CORS_EXPOSE_HEADERS = [
+    'Set-Cookie',
+]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -118,6 +142,30 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# Configuración de CSRF
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+CSRF_COOKIE_SECURE = False  # True para HTTPS en producción
+CSRF_COOKIE_HTTPONLY = False  # Debe ser False para que JavaScript pueda acceder
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_NAME = 'csrftoken'
+CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'
+CSRF_USE_SESSIONS = False
+
+# Configuración de sesiones
+SESSION_COOKIE_SECURE = False  # True para HTTPS en producción
+SESSION_COOKIE_HTTPONLY = False  # Cambiado a False para cross-origin
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_AGE = 86400  # 24 horas
+SESSION_COOKIE_NAME = 'sessionid'
+SESSION_COOKIE_DOMAIN = None  # Para permitir localhost
+SESSION_SAVE_EVERY_REQUEST = True
 
 
 # Internationalization

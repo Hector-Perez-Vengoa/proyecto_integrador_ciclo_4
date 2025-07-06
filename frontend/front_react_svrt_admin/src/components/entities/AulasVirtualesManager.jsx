@@ -7,7 +7,6 @@ const AulasVirtualesManager = () => {
     data: aulasVirtuales, 
     loading, 
     error, 
-    createItem, 
     updateItem, 
     deleteItem 
   } = useAulasVirtuales();
@@ -63,16 +62,6 @@ const AulasVirtualesManager = () => {
     });
   };
 
-  const handleAdd = () => {
-    setEditingAula(null);
-    setFormData({
-      codigo: '',
-      descripcion: '',
-      estado: 'disponible'
-    });
-    setShowModal(true);
-  };
-
   const handleEdit = (aula) => {
     setEditingAula(aula);
     setFormData({
@@ -112,10 +101,8 @@ const AulasVirtualesManager = () => {
     try {
       if (editingAula) {
         await updateItem(editingAula.id, formData);
-      } else {
-        await createItem(formData);
+        setShowModal(false);
       }
-      setShowModal(false);
     } catch (error) {
       console.error('Error al guardar el aula virtual:', error);
       alert('Error al guardar el aula virtual');
@@ -132,15 +119,9 @@ const AulasVirtualesManager = () => {
 
   return (
     <div className="p-6">
-      {/* Header con título y botón agregar */}
-      <div className="mb-6 flex justify-between items-center">
+      {/* Header con título */}
+      <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-800">Gestión de Aulas Virtuales</h2>
-        <button
-          onClick={handleAdd}
-          className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded transition-colors duration-200"
-        >
-          Agregar Nueva Aula Virtual
-        </button>
       </div>
 
       {/* Filtros de búsqueda */}
@@ -269,7 +250,7 @@ const AulasVirtualesManager = () => {
           <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
             <div className="mt-3">
               <h3 className="text-lg font-medium text-gray-900 mb-4">
-                {editingAula ? 'Editar Aula Virtual' : 'Nueva Aula Virtual'}
+                Editar Aula Virtual
               </h3>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
@@ -330,7 +311,7 @@ const AulasVirtualesManager = () => {
                     type="submit"
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                   >
-                    {editingAula ? 'Actualizar' : 'Crear'}
+                    Actualizar
                   </button>
                 </div>
               </form>

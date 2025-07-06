@@ -1,6 +1,7 @@
 // Gráfica de aulas por estado (dona)
 // Recibe el array de aulas y muestra un resumen visual
 import React from "react";
+import PropTypes from "prop-types";
 import { Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -11,20 +12,27 @@ import {
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const EstadisticasAulas = ({ aulas }) => {
-  // Si no hay aulas, usar datos simulados
-  const aulasData = aulas?.length > 0 ? aulas : [
-    { estado: 'disponible' },
-    { estado: 'disponible' },
-    { estado: 'disponible' },
-    { estado: 'ocupada' },
-    { estado: 'ocupada' },
-    { estado: 'mantenimiento' }
-  ];
+const EstadisticasAulas = ({ aulas = [] }) => {
+  // Si no hay aulas, mostrar componente vacío
+  if (!aulas || aulas.length === 0) {
+    return (
+      <div className="bg-white rounded-2xl shadow-custom p-6">
+        <h3 className="text-xl font-semibold text-gray-800 mb-4">Estado de Aulas</h3>
+        <div className="flex items-center justify-center h-64 text-gray-500">
+          <div className="text-center">
+            <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            <p>No hay datos de aulas disponibles</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Cuenta aulas por estado
   const conteoEstados = {};
-  aulasData.forEach(a => {
+  aulas.forEach(a => {
     const estado = a.estado || 'Desconocido';
     conteoEstados[estado] = (conteoEstados[estado] || 0) + 1;
   });
@@ -212,6 +220,10 @@ const EstadisticasAulas = ({ aulas }) => {
       </div>
     </div>
   );
+};
+
+EstadisticasAulas.propTypes = {
+  aulas: PropTypes.arrayOf(PropTypes.object)
 };
 
 export default EstadisticasAulas;

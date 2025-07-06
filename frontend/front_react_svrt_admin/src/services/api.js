@@ -1,12 +1,24 @@
 // Configuración base de la API
 const API_BASE_URL = 'http://localhost:8000/api';
 
+// Función helper para obtener cookies
+const getCookie = (name) => {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+  return null;
+};
+
 // Función helper para realizar peticiones
 const apiRequest = async (endpoint, options = {}) => {
   const url = `${API_BASE_URL}${endpoint}`;
+  const csrfToken = getCookie('csrftoken') || localStorage.getItem('admin_csrf_token');
+  
   const config = {
+    credentials: 'include', // Incluir cookies de sesión
     headers: {
       'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken || '',
       ...options.headers,
     },
     ...options,
@@ -16,6 +28,14 @@ const apiRequest = async (endpoint, options = {}) => {
     const response = await fetch(url, config);
     
     if (!response.ok) {
+      // Si es 401 o 403, podría ser que la sesión expiró
+      if (response.status === 401 || response.status === 403) {
+        // Limpiar datos de autenticación
+        localStorage.removeItem('admin_user');
+        localStorage.removeItem('admin_csrf_token');
+        // Recargar la página para que vuelva al login
+        window.location.reload();
+      }
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
