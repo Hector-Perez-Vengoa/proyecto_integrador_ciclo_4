@@ -1,6 +1,6 @@
 import { useApi } from './useApi';
 import { 
-  profesorService, 
+  userService, 
   aulaVirtualService, 
   departamentoService, 
   carreraService, 
@@ -10,7 +10,11 @@ import {
 
 // Hooks específicos para cada entidad
 export const useProfesores = () => {
-  return useApi(profesorService);
+  return useApi(userService);
+};
+
+export const useUsuarios = () => {
+  return useApi(userService);
 };
 
 export const useAulasVirtuales = () => {

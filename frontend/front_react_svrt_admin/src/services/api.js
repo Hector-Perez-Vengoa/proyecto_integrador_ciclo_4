@@ -47,34 +47,34 @@ const apiRequest = async (endpoint, options = {}) => {
 };
 
 // Servicios para cada entidad
-export const profesorService = {
-  getAll: () => apiRequest('/profesores/'),
-  getById: (id) => apiRequest(`/profesores/${id}/`),
-  create: (data) => apiRequest('/profesores/', {
+export const userService = {
+  getAll: () => apiRequest('/usuarios/'),
+  getById: (id) => apiRequest(`/usuarios/${id}/`),
+  create: (data) => apiRequest('/usuarios/', {
     method: 'POST',
     body: JSON.stringify(data),
   }),
-  update: (id, data) => apiRequest(`/profesores/${id}/`, {
+  update: (id, data) => apiRequest(`/usuarios/${id}/`, {
     method: 'PUT',
     body: JSON.stringify(data),
   }),
-  delete: (id) => apiRequest(`/profesores/${id}/`, {
+  delete: (id) => apiRequest(`/usuarios/${id}/`, {
     method: 'DELETE',
   }),
 };
 
 export const aulaVirtualService = {
-  getAll: () => apiRequest('/aula-virtual/'),
-  getById: (id) => apiRequest(`/aula-virtual/${id}/`),
-  create: (data) => apiRequest('/aula-virtual/', {
+  getAll: () => apiRequest('/aulas-virtuales/'),
+  getById: (id) => apiRequest(`/aulas-virtuales/${id}/`),
+  create: (data) => apiRequest('/aulas-virtuales/', {
     method: 'POST',
     body: JSON.stringify(data),
   }),
-  update: (id, data) => apiRequest(`/aula-virtual/${id}/`, {
+  update: (id, data) => apiRequest(`/aulas-virtuales/${id}/`, {
     method: 'PUT',
     body: JSON.stringify(data),
   }),
-  delete: (id) => apiRequest(`/aula-virtual/${id}/`, {
+  delete: (id) => apiRequest(`/aulas-virtuales/${id}/`, {
     method: 'DELETE',
   }),
 };

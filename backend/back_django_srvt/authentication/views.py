@@ -5,10 +5,18 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.http import JsonResponse
 import json
+from rest_framework import viewsets, permissions
+from .models import Departamento, Carrera, Curso, Perfil, UsuarioCustom, Rol
+from .serializers import (
+    DepartamentoSerializer, CarreraSerializer, CursoSerializer, 
+    PerfilSerializer, PerfilCreateSerializer, UsuarioCustomSerializer, RolSerializer,
+    UserSerializer, UserCreateSerializer
+)
 
 
 @api_view(['POST'])
@@ -116,3 +124,211 @@ def csrf_token_view(request):
     return Response({
         'csrf_token': get_token(request)
     }, status=status.HTTP_200_OK)
+
+
+# Agregando ViewSets para los modelos de authentication
+
+class DepartamentoViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet para gestionar departamentos
+    """
+    queryset = Departamento.objects.all()
+    serializer_class = DepartamentoSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+class CarreraViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet para gestionar carreras
+    """
+    queryset = Carrera.objects.all()
+    serializer_class = CarreraSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        """
+        Filtrar carreras por departamento si se especifica
+        """
+        queryset = Carrera.objects.all()
+        departamento_id = self.request.query_params.get('departamento_id')
+        
+        if departamento_id:
+            queryset = queryset.filter(departamento_id=departamento_id)
+            
+        return queryset
+
+class CursoViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet para gestionar cursos
+    """
+    queryset = Curso.objects.all()
+    serializer_class = CursoSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        """
+        Filtrar cursos por carrera si se especifica
+        """
+        queryset = Curso.objects.all()
+        carrera_id = self.request.query_params.get('carrera_id')
+        
+        if carrera_id:
+            queryset = queryset.filter(carrera_id=carrera_id)
+            
+        return queryset
+
+class PerfilViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet para gestionar perfiles de usuario (anteriormente profesores)
+    """
+    queryset = Perfil.objects.all()
+    serializer_class = PerfilSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        """
+        Filtrar perfiles según el tipo de usuario y parámetros de consulta
+        """
+        queryset = Perfil.objects.select_related('user', 'departamento').prefetch_related('carreras', 'cursos')
+        
+        # Los usuarios normales solo ven su propio perfil, los admins ven todos
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(user=self.request.user)
+        
+        # Filtros opcionales
+        departamento_id = self.request.query_params.get('departamento_id')
+        carrera_id = self.request.query_params.get('carrera_id')
+        activo = self.request.query_params.get('activo')
+        
+        if departamento_id:
+            queryset = queryset.filter(departamento_id=departamento_id)
+        
+        if carrera_id:
+            queryset = queryset.filter(carreras__id=carrera_id)
+            
+        if activo is not None:
+            queryset = queryset.filter(user__is_active=activo.lower() == 'true')
+        
+        return queryset.distinct()
+    
+    def perform_create(self, serializer):
+        """
+        Crear perfil asegurando que se asocie al usuario correcto
+        """
+        # Si no es admin, solo puede crear su propio perfil
+        if not self.request.user.is_staff:
+            serializer.save(user=self.request.user)
+        else:
+            serializer.save()
+    
+    def get_serializer_class(self):
+        """
+        Usar diferente serializer para creación
+        """
+        if self.action == 'create':
+            return PerfilCreateSerializer
+        return PerfilSerializer
+    
+    def get_serializer_context(self):
+        """
+        Agregar contexto adicional al serializer
+        """
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+
+class RolViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet para gestionar roles (solo administradores)
+    """
+    queryset = Rol.objects.all()
+    serializer_class = RolSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+class UsuarioCustomViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet para gestionar usuarios personalizados
+    """
+    queryset = UsuarioCustom.objects.all()
+    serializer_class = UsuarioCustomSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        """
+        Los usuarios normales solo ven su propio usuario custom
+        """
+        if self.request.user.is_staff:
+            return UsuarioCustom.objects.all()
+        else:
+            return UsuarioCustom.objects.filter(user=self.request.user)
+
+class UserViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet para gestionar usuarios directamente desde auth_user
+    Esto reemplaza a los profesores utilizando la tabla de usuarios nativos de Django
+    """
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.AllowAny]  # Temporalmente permitir acceso sin autenticación
+    
+    def get_queryset(self):
+        """
+        Filtrar usuarios y aplicar filtros de consulta
+        """
+        queryset = User.objects.select_related('usuario_custom')
+        
+        # Para pruebas, mostrar todos los usuarios
+        # En producción, los usuarios normales solo ven su propio usuario, los admins ven todos
+        # if not self.request.user.is_staff:
+        #     queryset = queryset.filter(id=self.request.user.id)
+        
+        # Filtros opcionales
+        activo = self.request.query_params.get('activo')
+        is_staff = self.request.query_params.get('is_staff')
+        tipo_usuario = self.request.query_params.get('tipo_usuario')  # 'profesores', 'estudiantes', 'admin'
+        
+        if activo is not None:
+            queryset = queryset.filter(is_active=activo.lower() == 'true')
+            
+        if is_staff is not None:
+            queryset = queryset.filter(is_staff=is_staff.lower() == 'true')
+            
+        # Filtro por tipo de usuario
+        if tipo_usuario == 'profesores':
+            # Solo usuarios que son staff (consideramos profesores como staff)
+            queryset = queryset.filter(is_staff=True)
+        elif tipo_usuario == 'estudiantes':
+            # Solo usuarios que NO son staff
+            queryset = queryset.filter(is_staff=False)
+        elif tipo_usuario == 'admin':
+            # Solo usuarios superuser
+            queryset = queryset.filter(is_superuser=True)
+            
+        return queryset.distinct()
+    
+    def perform_create(self, serializer):
+        """
+        Personalizar la creación de usuarios
+        """
+        # Solo admins pueden crear usuarios
+        if not self.request.user.is_staff:
+            raise PermissionDenied("No tienes permisos para crear usuarios")
+        
+        serializer.save()
+    
+    def perform_update(self, serializer):
+        """
+        Personalizar la actualización de usuarios
+        """
+        # Los usuarios pueden actualizar su propio perfil, los admins pueden actualizar cualquiera
+        if not self.request.user.is_staff and serializer.instance != self.request.user:
+            raise PermissionDenied("No tienes permisos para actualizar este usuario")
+        
+        serializer.save()
+    
+    def get_serializer_class(self):
+        """
+        Usar diferente serializer para creación
+        """
+        if self.action == 'create':
+            return UserCreateSerializer
+        return UserSerializer
