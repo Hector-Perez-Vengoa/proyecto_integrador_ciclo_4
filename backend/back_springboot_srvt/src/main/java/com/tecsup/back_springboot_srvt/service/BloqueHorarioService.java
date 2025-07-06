@@ -23,7 +23,7 @@ public class BloqueHorarioService {
     // Configuración de horarios permitidos
     private static final LocalTime HORA_APERTURA = LocalTime.of(8, 0);  // 08:00 AM
     private static final LocalTime HORA_CIERRE = LocalTime.of(22, 0);   // 10:00 PM
-    private static final int DURACION_MINIMA_MINUTOS = 45;              // 45 minutos
+    private static final int DURACION_MINIMA_MINUTOS = 30;              // 30 minutos
     private static final int DURACION_MAXIMA_MINUTOS = 240;             // 4 horas
     private static final ZoneId ZONA_LIMA = ZoneId.of("America/Lima");   // Zona horaria de Perú
       /**
@@ -35,9 +35,9 @@ public class BloqueHorarioService {
     
     /**
      * Valida si un horario de reserva es válido según las nuevas reglas:
-     * - Duración mínima: 45 minutos
+     * - Duración mínima: 30 minutos
      * - Duración máxima: 4 horas (240 minutos)
-     * - Solo múltiplos de 60 minutos después de los 45 minutos iniciales
+     * - Solo múltiplos de 30 minutos
      * - Horario entre 08:00 y 22:00
      */
     public boolean esHorarioValido(LocalTime horaInicio, LocalTime horaFin) {
@@ -59,8 +59,8 @@ public class BloqueHorarioService {
             return false;
         }
         
-        // Permitir 45 minutos exactos o múltiplos de 60 minutos
-        return duracionMinutos == 45 || duracionMinutos % 60 == 0;
+        // Permitir múltiplos de 30 minutos (30, 60, 90, 120, 150, 180, 210, 240)
+        return duracionMinutos % 30 == 0;
     }
     
     /**
@@ -95,9 +95,9 @@ public class BloqueHorarioService {
         }
         
         // Validar múltiplos permitidos
-        if (duracionMinutos != 45 && duracionMinutos % 60 != 0) {
-            return String.format("La duración debe ser de 45 minutos exactos o múltiplos de 60 minutos. " +
-                    "Duraciones válidas: 45min, 60min, 120min, 180min, 240min. " +
+        if (duracionMinutos % 30 != 0) {
+            return String.format("La duración debe ser múltiplo de 30 minutos. " +
+                    "Duraciones válidas: 30min, 60min, 90min, 120min, 150min, 180min, 210min, 240min. " +
                     "Duración solicitada: %d minutos.", duracionMinutos);
         }
         

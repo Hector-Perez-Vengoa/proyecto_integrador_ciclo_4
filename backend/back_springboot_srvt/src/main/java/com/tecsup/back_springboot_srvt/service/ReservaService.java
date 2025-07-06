@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.time.LocalDateTime;
 
 @Service
 public class ReservaService {
@@ -78,20 +79,26 @@ public class ReservaService {
         }
         User user = userOpt.get();
         
+        System.out.println("✅ Usuario encontrado: ID=" + user.getId() + ", Username=" + user.getUsername());
+        
         // 5.1. Verificar perfil del usuario (para validar cursos asignados)
         Optional<Perfil> perfilOpt = perfilRepository.findByUserId(user.getId());
         Perfil perfil;
         
+        System.out.println("🔍 Buscando perfil para usuario ID: " + user.getId());
+        
         if (perfilOpt.isEmpty()) {
+            System.out.println("⚠️ No se encontró perfil para usuario ID: " + user.getId() + ", creando uno nuevo...");
             // Si no existe perfil, crear uno automáticamente
             perfil = new Perfil();
             perfil.setUser(user);
-            perfil.setFechaActualizacion(java.time.LocalDateTime.now());
+            perfil.setFechaActualizacion(LocalDateTime.now());
             perfil = perfilRepository.save(perfil);
             
-            System.out.println("✅ Perfil creado automáticamente para usuario ID: " + user.getId());
+            System.out.println("✅ Perfil creado automáticamente para usuario ID: " + user.getId() + ", Perfil ID: " + perfil.getId());
         } else {
             perfil = perfilOpt.get();
+            System.out.println("✅ Perfil encontrado: ID=" + perfil.getId() + " para usuario ID=" + user.getId());
         }
         
         // 6. Verificar existencia del aula virtual

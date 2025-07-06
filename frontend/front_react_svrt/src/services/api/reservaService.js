@@ -285,7 +285,7 @@ export const reservaService = {  // Crear nueva reserva
       
       console.log('📤 ReservaService: Enviando solicitud de cancelación a /cancelar');
       
-      const response = await api.post(`/reservas/${reservaId}/cancelar`, requestData);
+      const response = await api.put(`/reservas/${reservaId}/cancelar`, requestData);
       
       console.log('✅ ReservaService: Respuesta exitosa:', response.data);
       

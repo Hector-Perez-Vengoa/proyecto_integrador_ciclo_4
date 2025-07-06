@@ -244,9 +244,9 @@ class CalendarService {
       horaApertura: "08:00",
       horaCierre: "22:00",
       diasPermitidos: ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO"],
-      duracionMinima: 45,
+      duracionMinima: 30,
       duracionMaxima: 240,
-      incrementosPermitidos: [45, 60, 120, 180, 240],
+      incrementosPermitidos: [30, 60, 90, 120, 150, 180, 210, 240],
       zonaHoraria: "America/Lima"
     };
   }
@@ -300,7 +300,7 @@ class CalendarService {
     if (!horarioFuncionamiento.incrementosPermitidos.includes(duracionMinutos)) {
       return {
         valido: false,
-        mensaje: `La duración debe ser de 45 minutos exactos o múltiplos de 60 minutos. Duraciones permitidas: ${horarioFuncionamiento.incrementosPermitidos.join(', ')} minutos`
+        mensaje: `La duración debe ser múltiplo de 30 minutos. Duraciones permitidas: ${horarioFuncionamiento.incrementosPermitidos.join(', ')} minutos`
       };
     }
     
@@ -559,6 +559,14 @@ class CalendarService {
           error: 'La duración máxima es de 4 horas'
         };
       }
+      
+      // Validar que la duración sea múltiplo de 30 minutos
+      if (duracionMinutos % 30 !== 0) {
+        return {
+          isValid: false,
+          error: 'La duración debe ser múltiplo de 30 minutos (30, 60, 90, 120, 150, 180, 210, 240 minutos)'
+        };
+      }
         // Validar horario de funcionamiento (8:00 - 22:00)
       const apertura = 8 * 60; // 8:00
       const cierre = 22 * 60; // 22:00
@@ -628,9 +636,7 @@ class CalendarService {
       }
 
       const endpoints = [
-        `${this.baseURL}/api/usuarios/${authData.user.id}/perfil`,
-        `${this.baseURL}/api/perfil/usuario/${authData.user.id}`,
-        `${this.baseURL}/api/usuarios/perfil?userId=${authData.user.id}`
+        `${this.baseURL}/api/perfil`
       ];
 
       for (const endpoint of endpoints) {
@@ -693,48 +699,15 @@ class CalendarService {
    */
   async crearReserva(reservaData) {
     try {
-      // Obtener el userId del usuario actual
-      const perfilResponse = await this.obtenerPerfilUsuario();
-      if (!perfilResponse.success) {
-        throw new Error('No se pudo obtener el perfil del usuario: ' + perfilResponse.error);
-      }
-      
-      const userId = perfilResponse.data.userId;
-      if (!userId) {
-        throw new Error('No se pudo obtener el ID del usuario');
-      }
-
-      // Agregar el userId a los datos de la reserva
-      const reservaCompleta = {
-        ...reservaData,
-        userId: userId
-      };
-
-      console.log('Enviando reserva con datos completos:', reservaCompleta);
-
-      const response = await fetch(`${this.baseURL}/api/reservas`, {
-        method: 'POST',
-        headers: this.getAuthHeaders(),
-        body: JSON.stringify(reservaCompleta)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return {
-        success: true,
-        data: data.data || data,
-        message: data.message || 'Reserva creada exitosamente'
-      };
+      // Usar el servicio de reservas en lugar de reimplementar
+      const { reservaService } = await import('./api/reservaService');
+      return await reservaService.crearReserva(reservaData);
     } catch (error) {
-      console.error('Error creando reserva:', error);
+      console.error('Error al crear reserva:', error);
       return {
         success: false,
-        error: error.message,
-        data: null
+        error: error.message || 'Error al crear la reserva',
+        details: {}
       };
     }
   }

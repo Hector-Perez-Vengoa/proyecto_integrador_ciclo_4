@@ -60,21 +60,31 @@ public class ReservaController {
                 try {
                     // Extraer el username del token
                     String username = jwtUtils.getUserNameFromJwtToken(token);
+                    System.out.println("Username extraído del token: " + username);
                     
                     // Buscar el usuario por username/email
                     Optional<User> userOpt = userRepository.findByUsername(username);
                     
                     if (userOpt.isPresent()) {
                         User user = userOpt.get();
-                        // Asignar el userId si no está presente
-                        if (requestDTO.getUserId() == null) {
-                            requestDTO.setUserId(user.getId());
-                        }
+                        System.out.println("Usuario encontrado: ID=" + user.getId() + ", Username=" + user.getUsername());
+                        // SIEMPRE asignar el userId del token, no importa si viene en el DTO
+                        requestDTO.setUserId(user.getId());
+                        System.out.println("UserId asignado al DTO: " + requestDTO.getUserId());
+                    } else {
+                        System.err.println("Usuario no encontrado para username: " + username);
+                        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                            .body(StandardApiResponse.error("Usuario no encontrado"));
                     }
                 } catch (Exception e) {
-                    // Si hay error al extraer el token, continuar sin asignar userId
                     System.err.println("Error al extraer información del token: " + e.getMessage());
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(StandardApiResponse.error("Token inválido"));
                 }
+            } else {
+                System.err.println("Token no proporcionado en el header Authorization");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(StandardApiResponse.error("Token requerido"));
             }
             
             ReservaResponseDTO reserva = reservaService.crearReserva(requestDTO);
@@ -183,6 +193,52 @@ public class ReservaController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(StandardApiResponse.error("Error al verificar disponibilidad: " + e.getMessage()));
+        }
+    }
+    
+    /**
+     * Obtener reservas del usuario autenticado
+     */
+    @GetMapping("/mis-reservas")
+    public ResponseEntity<StandardApiResponse<List<ReservaResponseDTO>>> obtenerMisReservas(
+            HttpServletRequest request) {
+        try {
+            // Extraer información del usuario desde el token JWT
+            String token = request.getHeader("Authorization");
+            if (token != null && token.startsWith("Bearer ")) {
+                token = token.substring(7); // Remover "Bearer "
+                
+                try {
+                    // Extraer el username del token
+                    String username = jwtUtils.getUserNameFromJwtToken(token);
+                    System.out.println("Username extraído del token: " + username);
+                    
+                    // Buscar el usuario por username/email
+                    Optional<User> userOpt = userRepository.findByUsername(username);
+                    
+                    if (userOpt.isPresent()) {
+                        User user = userOpt.get();
+                        System.out.println("Obteniendo reservas para usuario ID: " + user.getId());
+                        
+                        List<ReservaResponseDTO> reservas = reservaService.obtenerReservasPorUsuario(user.getId());
+                        return ResponseEntity.ok(StandardApiResponse.success("Reservas obtenidas exitosamente", reservas));
+                    } else {
+                        System.err.println("Usuario no encontrado con username: " + username);
+                        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                            .body(StandardApiResponse.error("Usuario no encontrado"));
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error al extraer información del token: " + e.getMessage());
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(StandardApiResponse.error("Token inválido"));
+                }
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(StandardApiResponse.error("Token de autorización requerido"));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(StandardApiResponse.error("Error al obtener reservas: " + e.getMessage()));
         }
     }
     
