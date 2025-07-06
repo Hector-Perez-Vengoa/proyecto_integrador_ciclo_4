@@ -5,38 +5,71 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
+    app:cardCornerRadius="12dp"
+    app:cardElevation="6dp"
+    android:foreground="?attr/selectableItemBackground">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical">
 
-        <TextView
-            android:id="@+id/tvCodigo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Código"
-            android:textStyle="bold"
-            android:textSize="16sp"/>
+        <!-- Icono de aula con borde azul claro -->
+        <FrameLayout
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginEnd="16dp">
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/circle_border_blue" />
+            <ImageView
+                android:id="@+id/ivAulaIcon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_school"
+                android:tint="#2196F3" />
+        </FrameLayout>
 
-        <TextView
-            android:id="@+id/tvDescripcion"
-            android:layout_width="wrap_content"
+        <!-- Información del aula -->
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Descripción"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="14sp"/>
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tvEstado"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Estado"
-            android:textStyle="italic"
-            android:textSize="14sp"/>
+            <TextView
+                android:id="@+id/tvCodigo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Código A1"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#2196F3" />
+
+            <TextView
+                android:id="@+id/tvDescripcion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Descripción del aula"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp" />
+
+        </LinearLayout>
+
+        <!-- Solo icono de estado a la derecha -->
+        <ImageView
+            android:id="@+id/ivEstadoIcon"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="8dp"
+            android:scaleType="fitCenter"
+            android:contentDescription="Estado aula" />
+
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

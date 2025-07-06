@@ -19,11 +19,15 @@
     <color name="text_gray">#757575</color>
     <color name="text_light_gray">#BDBDBD</color>
     <color name="bottom_nav_selected">#2196F3</color>
+    <color name="light_gray">#F5F5F5</color>
     <color name="bottom_nav_unselected">#9E9E9E</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="gray_light">#F5F5F5</color>
     <color name="gray_medium">#CCCCCC</color>
     <color name="gray_dark">#666666</color>
+    <color name="estado_disponible">#43A047</color>
+    <color name="estado_mantenimiento">#FFD600</color>
+    <color name="estado_no_disponible">#E53935</color>
 
 </resources>

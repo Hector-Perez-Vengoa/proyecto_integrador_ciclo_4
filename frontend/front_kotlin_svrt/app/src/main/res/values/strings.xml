@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Tecsup</string>
+    <string name="app_name">ReservaTec</string>
     <string name="tecsup_logo">Logo de Tecsup</string>
     <string name="iniciar_sesion">Iniciar Sesión</string>
     <string name="usuario">Usuario</string>

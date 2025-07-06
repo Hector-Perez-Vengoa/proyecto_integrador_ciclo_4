@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "651082139214",
+    "project_id": "kotlin-8c923",
+    "storage_bucket": "kotlin-8c923.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:651082139214:android:10653ee19257add34fe51f",
+        "android_client_info": {
+          "package_name": "com.tecsup"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "651082139214-hp5ttpf37e1duh3n67l955ksath1o323.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdHhQL35NMtoxCJ29MMWohIJ1uKnCK82g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "651082139214-hp5ttpf37e1duh3n67l955ksath1o323.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

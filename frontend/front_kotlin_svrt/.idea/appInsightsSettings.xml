@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.tecsup" />
+                  <option name="mobileSdkAppId" value="1:651082139214:android:10653ee19257add34fe51f" />
+                  <option name="projectId" value="kotlin-8c923" />
+                  <option name="projectNumber" value="651082139214" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_gray">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/profileToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/tecsup_blue"
+        android:title="ReservaTec"
+        android:titleTextColor="@android:color/white"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:background="@color/tecsup_blue"
+            android:paddingBottom="0dp">
+
+            <!-- Encabezado tipo carnet TECSUP -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@color/tecsup_blue">
+                <!-- Logo TECSUP como texto estilizado -->
+                <TextView
+                    android:id="@+id/tvLogoTecsup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tecsup"
+                    android:textColor="@android:color/white"
+                    android:textSize="40sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1"
+                    android:layout_marginTop="24dp"
+                    android:fontFamily="sans-serif-medium"/>
+            </LinearLayout>
+
+            <!-- CardView de perfil -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardProfile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="32dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="12dp"
+                android:maxWidth="700dp"
+                android:background="@android:color/white">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal"
+                    android:padding="28dp">
+                    <!-- Foto de perfil mejorada -->
+                    <ImageView
+                        android:id="@+id/ivAvatar"
+                        android:layout_width="140dp"
+                        android:layout_height="140dp"
+                        android:src="@drawable/default_avatar"
+                        android:background="@drawable/circle_border_blue"
+                        android:scaleType="centerCrop"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="0dp"
+                        android:layout_marginBottom="18dp" />
+                    <!-- Nombre completo en negrita y centrado -->
+                    <TextView
+                        android:id="@+id/tvNombreCompleto"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Nombre Apellido"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:textColor="#222"
+                        android:gravity="center"
+                        android:layout_marginBottom="16dp"/>
+                    <!-- Lista de campos -->
+                    <TextView
+                        android:id="@+id/tvNombre"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Nombre: ..."
+                        android:textSize="16sp"
+                        android:textColor="#444"
+                        android:gravity="center"
+                        android:layout_marginBottom="6dp"/>
+                    <TextView
+                        android:id="@+id/tvApellidos"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Apellidos: ..."
+                        android:textSize="16sp"
+                        android:textColor="#444"
+                        android:gravity="center"
+                        android:layout_marginBottom="6dp"/>
+                    <TextView
+                        android:id="@+id/tvCorreo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Correo: ..."
+                        android:textSize="16sp"
+                        android:textColor="#444"
+                        android:gravity="center"
+                        android:layout_marginBottom="6dp"/>
+                    <TextView
+                        android:id="@+id/tvDepartamento"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Departamento: ..."
+                        android:textSize="16sp"
+                        android:textColor="#444"
+                        android:gravity="center"
+                        android:layout_marginBottom="6dp"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+            <!-- Botón Editar Perfil debajo de la card -->
+            <Button
+                android:id="@+id/btnEditarPerfil"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginStart="48dp"
+                android:layout_marginEnd="48dp"
+                android:layout_marginTop="-4dp"
+                android:layout_marginBottom="32dp"
+                android:text="EDITAR PERFIL"
+                android:textAllCaps="true"
+                android:textColor="@android:color/white"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:backgroundTint="@color/tecsup_blue"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                app:cornerRadius="24dp"
+                android:elevation="6dp" />
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout> 
