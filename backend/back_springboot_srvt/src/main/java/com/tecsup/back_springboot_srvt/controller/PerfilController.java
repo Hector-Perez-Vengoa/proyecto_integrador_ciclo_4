@@ -146,7 +146,6 @@ public class PerfilController {
             perfilData.put("nombre", perfil.getFirstName());
             perfilData.put("apellidos", perfil.getLastName());
             perfilData.put("email", perfil.getEmail());
-            perfilData.put("telefono", perfil.getTelefono());
             perfilData.put("fechaNacimiento", perfil.getFechaNacimiento());
             
             return ResponseEntity.ok(StandardApiResponse.success("Perfil obtenido exitosamente", perfilData));
