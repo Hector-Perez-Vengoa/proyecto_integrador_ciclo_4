@@ -90,7 +90,6 @@ public class PerfilServiceImpl implements PerfilService {
         Perfil perfil = perfilOpt.get();
         
         if (request.getBiografia() != null) perfil.setBiografia(request.getBiografia());
-        if (request.getTelefono() != null) perfil.setTelefono(request.getTelefono());
         if (request.getFechaNacimiento() != null) perfil.setFechaNacimiento(request.getFechaNacimiento());
 
         // Actualizar Departamento
@@ -243,7 +242,6 @@ public class PerfilServiceImpl implements PerfilService {
         
         response.setId(perfil.getId());
         response.setBiografia(perfil.getBiografia());
-        response.setTelefono(perfil.getTelefono());
         response.setFechaNacimiento(perfil.getFechaNacimiento());
         response.setImagenPerfil(perfil.getImagenUrl());
         response.setFechaActualizacion(perfil.getFechaActualizacion());
