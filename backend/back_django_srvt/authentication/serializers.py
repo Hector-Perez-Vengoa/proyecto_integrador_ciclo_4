@@ -40,6 +40,7 @@ class UserSerializer(serializers.ModelSerializer):
     apellidos = serializers.CharField(source='last_name')  # Mapeo para compatibilidad
     correo = serializers.EmailField(source='email')  # Mapeo para compatibilidad
     codigo = serializers.CharField(source='username')  # Mapeo para compatibilidad
+    super_user = serializers.BooleanField(source='is_superuser', read_only=True)  # Para filtro frontend
     usuario_custom = UsuarioCustomSerializer(read_only=True)
     perfil = serializers.SerializerMethodField()  # Información del perfil si existe
     departamento = serializers.SerializerMethodField()  # Del perfil
@@ -54,7 +55,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'username', 'email', 'first_name', 'last_name', 
             'codigo', 'nombres', 'apellidos', 'correo',  # Campos mapeados
-            'full_name', 'nombre_completo', 'is_active', 'is_staff', 'is_superuser',
+            'full_name', 'nombre_completo', 'is_active', 'is_staff', 'is_superuser', 'super_user',
             'date_joined', 'last_login', 'usuario_custom', 'perfil',
             'departamento', 'departamento_nombre', 'carreras', 'carreras_nombres',
             'cursos', 'cursos_nombres'

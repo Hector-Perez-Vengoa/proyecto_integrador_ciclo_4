@@ -19,13 +19,16 @@ const ProfesoresManager = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingProfesor, setEditingProfesor] = useState(null);
   const [formData, setFormData] = useState({
+    username: '',
     codigo: '',
     nombres: '',
     apellidos: '',
     correo: '',
-    departamento: '',
-    carreras: [],
-    cursos: []
+    first_name: '',
+    last_name: '',
+    email: '',
+    is_active: true,
+    is_staff: false
   });
 
   // Estados para filtros de búsqueda
@@ -35,8 +38,30 @@ const ProfesoresManager = () => {
     carrera: ''
   });
 
+  // Función para formatear fecha de última conexión
+  const formatLastLogin = (lastLoginDate) => {
+    if (!lastLoginDate) return 'Nunca se ha conectado';
+    
+    const date = new Date(lastLoginDate);
+    const now = new Date();
+    const diffTime = Math.abs(now - date);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return 'Hoy';
+    if (diffDays === 1) return 'Ayer';
+    if (diffDays < 7) return `Hace ${diffDays} días`;
+    if (diffDays < 30) return `Hace ${Math.floor(diffDays / 7)} semanas`;
+    if (diffDays < 365) return `Hace ${Math.floor(diffDays / 30)} meses`;
+    return `Hace ${Math.floor(diffDays / 365)} años`;
+  };
+
   // Función para filtrar profesores
   const filteredProfesores = profesores.filter(profesor => {
+    // Filtrar super_user = 1 (no mostrar super usuarios)
+    if (profesor.super_user === 1 || profesor.is_superuser === true) {
+      return false;
+    }
+
     const matchesNombre = !searchFilters.nombre || 
       `${profesor.nombres} ${profesor.apellidos}`.toLowerCase().includes(searchFilters.nombre.toLowerCase()) ||
       profesor.codigo?.toLowerCase().includes(searchFilters.nombre.toLowerCase());
@@ -50,30 +75,19 @@ const ProfesoresManager = () => {
     return matchesNombre && matchesDepartamento && matchesCarrera;
   });
 
-  const handleAdd = () => {
-    setEditingProfesor(null);
-    setFormData({
-      codigo: '',
-      nombres: '',
-      apellidos: '',
-      correo: '',
-      departamento: '',
-      carreras: [],
-      cursos: []
-    });
-    setShowModal(true);
-  };
-
   const handleEdit = (profesor) => {
     setEditingProfesor(profesor);
     setFormData({
+      username: profesor.username || '',
       codigo: profesor.codigo || '',
       nombres: profesor.nombres || '',
       apellidos: profesor.apellidos || '',
       correo: profesor.correo || '',
-      departamento: profesor.departamento || '',
-      carreras: profesor.carreras || [],
-      cursos: profesor.cursos || []
+      first_name: profesor.first_name || '',
+      last_name: profesor.last_name || '',
+      email: profesor.email || '',
+      is_active: profesor.is_active !== undefined ? profesor.is_active : true,
+      is_staff: profesor.is_staff !== undefined ? profesor.is_staff : false
     });
     setShowModal(true);
   };
@@ -91,16 +105,30 @@ const ProfesoresManager = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Solo permitir edición, no creación
+    if (!editingProfesor) {
+      alert('Error: Solo se puede editar profesores existentes');
+      return;
+    }
+
     try {
-      if (editingProfesor) {
-        await updateItem(editingProfesor.id, formData);
-      } else {
-        await createItem(formData);
-      }
+      // Preparar los datos para enviar, asegurando consistencia
+      const dataToSend = {
+        ...formData,
+        // Asegurar que username sea el mismo que codigo si no se especifica
+        username: formData.username || formData.codigo,
+        // Sincronizar campos duplicados
+        first_name: formData.nombres,
+        last_name: formData.apellidos,
+        email: formData.correo
+      };
+
+      await updateItem(editingProfesor.id, dataToSend);
       setShowModal(false);
     } catch (error) {
-      console.error('Error al guardar el profesor:', error);
-      alert('Error al guardar el profesor');
+      console.error('Error al actualizar el profesor:', error);
+      alert('Error al actualizar el profesor');
     }
   };
 
@@ -132,15 +160,10 @@ const ProfesoresManager = () => {
 
   return (
     <div className="p-6">
-      {/* Header con título y botón agregar */}
-      <div className="mb-6 flex justify-between items-center">
+      {/* Header con título */}
+      <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-800">Gestión de Profesores</h2>
-        <button
-          onClick={handleAdd}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors duration-200"
-        >
-          Agregar Nuevo Profesor
-        </button>
+        <p className="text-gray-600 mt-2">Edita la información de los profesores existentes</p>
       </div>
 
       {/* Filtros de búsqueda */}
@@ -258,7 +281,7 @@ const ProfesoresManager = () => {
             {filteredProfesores.length === 0 ? (
               <div className="col-span-full text-center py-12">
                 {profesores.length === 0 ? (
-                  <p className="text-gray-500 text-lg">No hay profesores registrados</p>
+                  <p className="text-gray-500 text-lg">No hay profesores registrados en el sistema</p>
                 ) : (
                   <div>
                     <p className="text-gray-500 text-lg mb-2">No se encontraron profesores con los filtros aplicados</p>
@@ -293,9 +316,23 @@ const ProfesoresManager = () => {
           <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
             <div className="mt-3">
               <h3 className="text-lg font-medium text-gray-900 mb-4">
-                {editingProfesor ? 'Editar Profesor' : 'Nuevo Profesor'}
+                Editar Profesor
               </h3>
               <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label htmlFor="username" className="block text-sm font-medium text-gray-700">Usuario (Username)</label>
+                  <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                    required
+                    placeholder="Ej: juan.perez"
+                  />
+                </div>
+
                 <div>
                   <label htmlFor="codigo" className="block text-sm font-medium text-gray-700">Código</label>
                   <input
@@ -306,6 +343,7 @@ const ProfesoresManager = () => {
                     onChange={handleInputChange}
                     className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
                     required
+                    placeholder="Código del profesor"
                   />
                 </div>
                 
@@ -347,23 +385,72 @@ const ProfesoresManager = () => {
                     required
                   />
                 </div>
-                
-                <div>
-                  <label htmlFor="departamento" className="block text-sm font-medium text-gray-700">Departamento</label>
-                  <select
-                    id="departamento"
-                    name="departamento"
-                    value={formData.departamento}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                  >
-                    <option value="">Seleccionar departamento</option>
-                    {departamentos.map(dept => (
-                      <option key={dept.id} value={dept.id}>
-                        {dept.nombre}
-                      </option>
-                    ))}
-                  </select>
+
+                {/* Información de conexión y estado - Solo visible al editar */}
+                {editingProfesor && (
+                  <div className="border-t pt-4 mt-4">
+                    <h4 className="text-md font-medium text-gray-800 mb-3">Información de Estado</h4>
+                    
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div className="bg-gray-50 p-3 rounded-md">
+                        <label className="block text-sm font-medium text-gray-600">Estado del Usuario</label>
+                        <div className="flex items-center mt-1">
+                          <div className={`w-3 h-3 rounded-full mr-2 ${editingProfesor.is_active ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                          <span className={`text-sm font-medium ${editingProfesor.is_active ? 'text-green-700' : 'text-red-700'}`}>
+                            {editingProfesor.is_active ? 'Activo' : 'Inactivo'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="bg-gray-50 p-3 rounded-md">
+                        <label className="block text-sm font-medium text-gray-600">Última Conexión</label>
+                        <p className="text-sm text-gray-800 mt-1">
+                          {formatLastLogin(editingProfesor.last_login)}
+                        </p>
+                        {editingProfesor.last_login && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            {new Date(editingProfesor.last_login).toLocaleDateString('es-ES', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="is_active"
+                      name="is_active"
+                      checked={formData.is_active}
+                      onChange={(e) => setFormData(prev => ({ ...prev, is_active: e.target.checked }))}
+                      className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                    />
+                    <label htmlFor="is_active" className="ml-2 block text-sm text-gray-700">
+                      Usuario activo
+                    </label>
+                  </div>
+
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="is_staff"
+                      name="is_staff"
+                      checked={formData.is_staff}
+                      onChange={(e) => setFormData(prev => ({ ...prev, is_staff: e.target.checked }))}
+                      className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                    />
+                    <label htmlFor="is_staff" className="ml-2 block text-sm text-gray-700">
+                      Personal (Staff)
+                    </label>
+                  </div>
                 </div>
 
                 <div className="flex justify-end space-x-3">
@@ -378,7 +465,7 @@ const ProfesoresManager = () => {
                     type="submit"
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                   >
-                    {editingProfesor ? 'Actualizar' : 'Crear'}
+                    Actualizar
                   </button>
                 </div>
               </form>

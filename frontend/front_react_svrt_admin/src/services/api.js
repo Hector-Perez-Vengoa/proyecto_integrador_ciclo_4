@@ -39,7 +39,20 @@ const apiRequest = async (endpoint, options = {}) => {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
-    return await response.json();
+    // Si la respuesta está vacía (como en DELETE exitoso), devolver objeto vacío
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      // Si no es JSON o está vacía (como 204 No Content), devolver objeto vacío
+      return {};
+    }
+    
+    const text = await response.text();
+    if (!text) {
+      // Si el texto está vacío, devolver objeto vacío
+      return {};
+    }
+    
+    return JSON.parse(text);
   } catch (error) {
     console.error('API request failed:', error);
     throw error;

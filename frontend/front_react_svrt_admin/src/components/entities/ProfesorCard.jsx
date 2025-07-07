@@ -36,6 +36,21 @@ const ProfesorCard = ({
     return initials.toUpperCase();
   };
 
+  const formatLastLogin = (lastLoginDate) => {
+    if (!lastLoginDate) return 'Nunca conectado';
+    
+    const date = new Date(lastLoginDate);
+    const now = new Date();
+    const diffTime = Math.abs(now - date);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return 'Hoy';
+    if (diffDays === 1) return 'Ayer';
+    if (diffDays < 7) return `Hace ${diffDays} días`;
+    if (diffDays < 30) return `Hace ${Math.floor(diffDays / 7)} semanas`;
+    return `Hace ${Math.floor(diffDays / 30)} meses`;
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6">
       {/* Vista básica - siempre visible */}
@@ -51,9 +66,23 @@ const ProfesorCard = ({
         </h3>
         
         {/* Código del profesor */}
-        <p className="text-sm text-gray-600 mb-4">
+        <p className="text-sm text-gray-600 mb-2">
           Código: {profesor.codigo}
         </p>
+
+        {/* Estado activo y última conexión */}
+        <div className="flex flex-col items-center space-y-2 mb-4">
+          <div className="flex items-center">
+            <div className={`w-2 h-2 rounded-full mr-2 ${profesor.is_active ? 'bg-green-500' : 'bg-red-500'}`}></div>
+            <span className={`text-xs font-medium ${profesor.is_active ? 'text-green-700' : 'text-red-700'}`}>
+              {profesor.is_active ? 'Activo' : 'Inactivo'}
+            </span>
+          </div>
+          
+          <p className="text-xs text-gray-500 text-center">
+            Última conexión: {formatLastLogin(profesor.last_login)}
+          </p>
+        </div>
 
         {/* Botón para ver más detalles */}
         <button
@@ -85,6 +114,31 @@ const ProfesorCard = ({
           <div>
             <span className="font-medium text-gray-700">Cursos:</span>
             <p className="text-gray-600 text-sm">{getCursosNombres(profesor.cursos)}</p>
+          </div>
+
+          {/* Información adicional de estado */}
+          <div className="border-t pt-3">
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <span className="font-medium text-gray-700">Estado:</span>
+                <div className="flex items-center mt-1">
+                  <div className={`w-2 h-2 rounded-full mr-2 ${profesor.is_active ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                  <span className={profesor.is_active ? 'text-green-700' : 'text-red-700'}>
+                    {profesor.is_active ? 'Activo' : 'Inactivo'}
+                  </span>
+                </div>
+              </div>
+              
+              <div>
+                <span className="font-medium text-gray-700">Conexión:</span>
+                <p className="text-gray-600 mt-1">{formatLastLogin(profesor.last_login)}</p>
+                {profesor.last_login && (
+                  <p className="text-xs text-gray-400 mt-1">
+                    {new Date(profesor.last_login).toLocaleDateString('es-ES')}
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}

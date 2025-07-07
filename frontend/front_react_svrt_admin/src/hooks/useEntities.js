@@ -17,6 +17,10 @@ export const useUsuarios = () => {
   return useApi(userService);
 };
 
+export const useUsers = () => {
+  return useApi(userService);
+};
+
 export const useAulasVirtuales = () => {
   return useApi(aulaVirtualService);
 };
