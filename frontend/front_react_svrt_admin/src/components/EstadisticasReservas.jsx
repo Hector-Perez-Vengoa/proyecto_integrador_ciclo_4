@@ -65,6 +65,37 @@ const EstadisticasReservas = ({ reservas = [] }) => {
   const labelsDia = Object.keys(fechas).sort((a, b) => a.localeCompare(b));
   const dataDia = labelsDia.map(f => fechas[f]);
 
+  // Calcular datos del período anterior para comparación
+  const ahora = new Date();
+  const mesAnterior = new Date(ahora.getFullYear(), ahora.getMonth() - 1, 1);
+  const mesAnteriorStr = mesAnterior.toISOString().slice(0, 7);
+  
+  const fechaAnterior = new Date(ahora);
+  fechaAnterior.setDate(fechaAnterior.getDate() - 30);
+  const fechaAnteriorStr = fechaAnterior.toISOString().slice(0, 10);
+
+  // Datos del mes anterior
+  const mesesAnteriores = {};
+  reservas.forEach(r => {
+    const mes = getYearMonth(r.fecha_reserva);
+    if (mes && mes < labelsMes[labelsMes.length - 1]) {
+      mesesAnteriores[mes] = (mesesAnteriores[mes] || 0) + 1;
+    }
+  });
+  const labelsMesAnterior = Object.keys(mesesAnteriores).sort((a, b) => a.localeCompare(b));
+  const previousMes = labelsMesAnterior.map(f => mesesAnteriores[f]);
+
+  // Datos del período anterior (días)
+  const fechasAnteriores = {};
+  reservas.forEach(r => {
+    const fecha = r.fecha_reserva;
+    if (fecha && fecha < labelsDia[labelsDia.length - 1] && fecha >= fechaAnteriorStr) {
+      fechasAnteriores[fecha] = (fechasAnteriores[fecha] || 0) + 1;
+    }
+  });
+  const labelsDiaAnterior = Object.keys(fechasAnteriores).sort((a, b) => a.localeCompare(b));
+  const previousDia = labelsDiaAnterior.map(f => fechasAnteriores[f]);
+
   // Configuración de datos para Chart.js
   const chartData = {
     labels: periodo === 'mes' ? labelsMes : labelsDia,
@@ -159,9 +190,11 @@ const EstadisticasReservas = ({ reservas = [] }) => {
 
   // Calcular estadísticas
   const totalActual = periodo === 'mes' ? dataMes.reduce((a, b) => a + b, 0) : dataDia.reduce((a, b) => a + b, 0);
-  const totalAnterior = periodo === 'mes' ? previousMes.reduce((a, b) => a + b, 0) : previousDia.reduce((a, b) => a + b, 0);
+  const totalAnterior = periodo === 'mes' 
+    ? (previousMes.length > 0 ? previousMes.reduce((a, b) => a + b, 0) : 0)
+    : (previousDia.length > 0 ? previousDia.reduce((a, b) => a + b, 0) : 0);
   const cambio = totalAnterior > 0 ? ((totalActual - totalAnterior) / totalAnterior * 100) : 0;
-  const promedioActual = totalActual / (periodo === 'mes' ? dataMes.length : dataDia.length) || 0;
+  const promedioActual = totalActual / (periodo === 'mes' ? (dataMes.length || 1) : (dataDia.length || 1));
 
   return (
     <div className="bg-white rounded-2xl shadow-custom p-6 animate-fadeIn">

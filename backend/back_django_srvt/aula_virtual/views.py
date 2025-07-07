@@ -20,7 +20,16 @@ class AulaVirtualViewSet(viewsets.ModelViewSet):
     ViewSet para gestionar las aulas virtuales
     """
     queryset = AulaVirtual.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_permissions(self):
+        """
+        Permitir lectura sin autenticación, pero requerir autenticación para modificaciones
+        """
+        if self.action in ['list', 'retrieve', 'disponibilidad']:
+            permission_classes = [permissions.AllowAny]
+        else:
+            permission_classes = [permissions.IsAuthenticated]
+        return [permission() for permission in permission_classes]
     
     def get_serializer_class(self):
         if self.action == 'list':
@@ -93,7 +102,16 @@ class ReservaViewSet(viewsets.ModelViewSet):
     ViewSet para gestionar las reservas
     """
     queryset = Reserva.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_permissions(self):
+        """
+        Permitir lectura sin autenticación, pero requerir autenticación para modificaciones
+        """
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [permissions.AllowAny]
+        else:
+            permission_classes = [permissions.IsAuthenticated]
+        return [permission() for permission in permission_classes]
     
     def get_serializer_class(self):
         if self.action == 'list':
@@ -106,8 +124,8 @@ class ReservaViewSet(viewsets.ModelViewSet):
         """
         queryset = Reserva.objects.all()
         
-        # Los usuarios normales solo ven sus propias reservas
-        if not self.request.user.is_staff:
+        # Solo filtrar por usuario si está autenticado
+        if self.request.user.is_authenticated and not self.request.user.is_staff:
             queryset = queryset.filter(user=self.request.user)
         
         # Filtros opcionales

@@ -207,9 +207,10 @@ class ReservaListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reserva
         fields = [
-            'id', 'user_nombre', 'aula_virtual_codigo', 'curso_nombre',
-            'hora_inicio', 'hora_fin', 'fecha_reserva', 'estado'
+            'id', 'user', 'user_nombre', 'aula_virtual', 'aula_virtual_codigo', 'curso', 'curso_nombre',
+            'hora_inicio', 'hora_fin', 'fecha_reserva', 'motivo', 'estado', 'fecha_creacion'
         ]
+        read_only_fields = ['id', 'fecha_creacion']
     
     def get_user_nombre(self, obj):
         return f"{obj.user.first_name} {obj.user.last_name}".strip() or obj.user.username

@@ -134,7 +134,16 @@ class DepartamentoViewSet(viewsets.ModelViewSet):
     """
     queryset = Departamento.objects.all()
     serializer_class = DepartamentoSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_permissions(self):
+        """
+        Permitir lectura sin autenticación, pero requerir autenticación para modificaciones
+        """
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [permissions.AllowAny]
+        else:
+            permission_classes = [permissions.IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
 class CarreraViewSet(viewsets.ModelViewSet):
     """
@@ -142,7 +151,16 @@ class CarreraViewSet(viewsets.ModelViewSet):
     """
     queryset = Carrera.objects.all()
     serializer_class = CarreraSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_permissions(self):
+        """
+        Permitir lectura sin autenticación, pero requerir autenticación para modificaciones
+        """
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [permissions.AllowAny]
+        else:
+            permission_classes = [permissions.IsAuthenticated]
+        return [permission() for permission in permission_classes]
     
     def get_queryset(self):
         """
@@ -162,7 +180,16 @@ class CursoViewSet(viewsets.ModelViewSet):
     """
     queryset = Curso.objects.all()
     serializer_class = CursoSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_permissions(self):
+        """
+        Permitir lectura sin autenticación, pero requerir autenticación para modificaciones
+        """
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [permissions.AllowAny]
+        else:
+            permission_classes = [permissions.IsAuthenticated]
+        return [permission() for permission in permission_classes]
     
     def get_queryset(self):
         """
