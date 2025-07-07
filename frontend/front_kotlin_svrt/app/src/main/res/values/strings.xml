@@ -14,7 +14,7 @@
     <string name="ingrese_usuario">Ingrese su usuario</string>
     <string name="ingrese_contrasena">Ingrese su contraseña</string>
     <string name="ingresando">Ingresando...</string>
-    <string name="default_web_client_id">168128064756-8jiti0v3clhlcso3blmc19bqs59u1s2g.apps.googleusercontent.com</string>
+    <string name="default_web_client_id">651082139214-hp5ttpf37e1duh3n67l955ksath1o323.apps.googleusercontent.com</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Sistema de Aulas Virtuales</string>
@@ -32,4 +32,5 @@
     <dimen name="nav_header_height">176dp</dimen>
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+    <string name="profile_image_description">Foto de perfil</string>
 </resources>

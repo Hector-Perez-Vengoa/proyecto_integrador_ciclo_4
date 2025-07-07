@@ -5,7 +5,7 @@
     <color name="tecsup_light_blue">#87CEEB</color>
     <color name="colorPrimary">#2196F3</color>
     <color name="colorPrimaryDark">#1976D2</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorAccent">#00BFFF</color>
     <color name="success">#4CAF50</color>
     <color name="error">#F44336</color>
     <color name="warning">#FF9800</color>
@@ -14,7 +14,7 @@
     <color name="primary_blue_light">#64B5F6</color>
     <color name="background_gray">#F5F5F5</color>
     <color name="card_background">#FFFFFF</color>
-    <color name="aula_background">#424242</color>
+    <color name="aula_background">#FFFFFF</color>
     <color name="text_dark">#212121</color>
     <color name="text_gray">#757575</color>
     <color name="text_light_gray">#BDBDBD</color>

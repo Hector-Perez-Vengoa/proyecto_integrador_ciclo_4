@@ -155,7 +155,7 @@ class MainActivity : AppCompatActivity() {
         showLoading(true)
 
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:8080/")
+            .baseUrl("http://192.168.1.208:8080/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(NetworkUtils.createOkHttpClient())
             .build()

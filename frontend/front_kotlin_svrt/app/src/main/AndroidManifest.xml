@@ -29,14 +29,21 @@
         <activity
             android:name=".ui.MainActivity"
             android:exported="false"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+            android:theme="@style/Theme.Front_kotlin_svrt" />
 
         <activity android:name=".ui.ProfileActivity" />
+
+        <activity android:name=".ui.EditProfileActivity" />
 
         <!-- Meta-data para Google Services -->
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+
+        <!-- Configuración para Google Sign-In -->
+        <meta-data
+            android:name="com.google.android.gms.auth.api.signin.GoogleSignInOptions"
+            android:value="@string/default_web_client_id" />
 
     </application>
 </manifest>

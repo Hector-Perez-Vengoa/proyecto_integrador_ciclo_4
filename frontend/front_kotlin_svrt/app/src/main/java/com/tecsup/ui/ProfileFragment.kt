@@ -15,6 +15,8 @@ import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
 import android.util.Log
+import android.graphics.drawable.GradientDrawable
+import com.google.android.flexbox.FlexboxLayout
 
 class ProfileFragment : Fragment() {
     private lateinit var ivAvatar: ImageView
@@ -23,6 +25,8 @@ class ProfileFragment : Fragment() {
     private lateinit var tvApellidos: TextView
     private lateinit var tvCorreo: TextView
     private lateinit var tvDepartamento: TextView
+    private lateinit var layoutCarreras: FlexboxLayout
+    private lateinit var layoutCursos: FlexboxLayout
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -34,8 +38,21 @@ class ProfileFragment : Fragment() {
         tvApellidos = view.findViewById(R.id.tvApellidos)
         tvCorreo = view.findViewById(R.id.tvCorreo)
         tvDepartamento = view.findViewById(R.id.tvDepartamento)
+        layoutCarreras = view.findViewById(R.id.layoutCarreras)
+        layoutCursos = view.findViewById(R.id.layoutCursos)
         cargarPerfil()
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val toolbar = requireActivity().findViewById<androidx.appcompat.widget.Toolbar>(R.id.profileToolbar)
+        toolbar?.title = "TECSUP"
+        val btnEditarPerfil = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnEditarPerfil)
+        btnEditarPerfil.setOnClickListener {
+            val intent = android.content.Intent(requireContext(), EditProfileActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun cargarPerfil() {
@@ -48,7 +65,7 @@ class ProfileFragment : Fragment() {
         }
         val client = NetworkUtils.createOkHttpClient()
         val request = Request.Builder()
-            .url("http://10.0.2.2:8080/api/perfil")
+            .url("http://192.168.1.208:8080/api/perfil")
             .get()
             .addHeader("Authorization", "Bearer $token")
             .build()
@@ -75,13 +92,14 @@ class ProfileFragment : Fragment() {
                             val firstName = data.optString("firstName", "")
                             val lastName = data.optString("lastName", "")
                             val email = data.optString("email", "")
-                            val departamento = "" // No existe en el JSON, dejar vacío
+                            val departamentoObj = data.optJSONObject("departamento")
+                            val departamentoNombre = departamentoObj?.optString("nombre", "") ?: ""
                             val nombreCompleto = "$firstName $lastName".trim()
                             tvNombreCompleto.text = nombreCompleto
                             tvNombre.text = "Nombre: $firstName"
                             tvApellidos.text = "Apellidos: $lastName"
                             tvCorreo.text = "Correo: $email"
-                            tvDepartamento.text = "Departamento: $departamento"
+                            tvDepartamento.text = "Departamento: ${departamentoNombre}"
                             val imagenPerfil = data.optString("imagenPerfil", null)
                             if (!imagenPerfil.isNullOrBlank()) {
                                 Glide.with(this@ProfileFragment)
@@ -96,6 +114,61 @@ class ProfileFragment : Fragment() {
                             if (firstName.isBlank() || lastName.isBlank() || email.isBlank()) {
                                 Toast.makeText(requireContext(), "Algunos campos están vacíos. Revisa el JSON en Logcat.", Toast.LENGTH_LONG).show()
                                 Log.w("ProfileFragment", "Campos vacíos: firstName='$firstName', lastName='$lastName', email='$email'")
+                            }
+                            val carrerasArray = data.optJSONArray("carreras")
+                            val cursosArray = data.optJSONArray("cursos")
+                            // Parsear carreras
+                            val carrerasList = mutableListOf<String>()
+                            if (carrerasArray != null) {
+                                for (i in 0 until carrerasArray.length()) {
+                                    val carrera = carrerasArray.getJSONObject(i)
+                                    val nombre = carrera.optString("nombre", "")
+                                    if (nombre.isNotBlank()) carrerasList.add(nombre)
+                                }
+                            }
+                            // Parsear cursos
+                            val cursosList = mutableListOf<String>()
+                            if (cursosArray != null) {
+                                for (i in 0 until cursosArray.length()) {
+                                    val curso = cursosArray.getJSONObject(i)
+                                    val nombre = curso.optString("nombre", "")
+                                    if (nombre.isNotBlank()) cursosList.add(nombre)
+                                }
+                            }
+                            Log.d("ProfileFragment", "Cursos parseados: $cursosList")
+                            // Chips para carreras
+                            layoutCarreras.removeAllViews()
+                            for (nombre in carrerasList) {
+                                val chip = TextView(requireContext())
+                                chip.text = nombre
+                                chip.setPadding(32, 12, 32, 12)
+                                chip.setTextColor(0xFF1976D2.toInt())
+                                chip.textSize = 15f
+                                val bg = GradientDrawable()
+                                bg.cornerRadius = 40f
+                                bg.setColor(0xFFE3F2FD.toInt())
+                                chip.background = bg
+                                val params = FlexboxLayout.LayoutParams(FlexboxLayout.LayoutParams.WRAP_CONTENT, FlexboxLayout.LayoutParams.WRAP_CONTENT)
+                                params.setMargins(0, 0, 16, 0)
+                                chip.layoutParams = params
+                                layoutCarreras.addView(chip)
+                            }
+                            // Chips para cursos
+                            layoutCursos.removeAllViews()
+                            for (nombre in cursosList) {
+                                val chip = TextView(requireContext())
+                                chip.text = nombre
+                                chip.setPadding(32, 12, 32, 12)
+                                chip.setTextColor(0xFF388E3C.toInt())
+                                chip.textSize = 15f
+                                val bg = GradientDrawable()
+                                bg.cornerRadius = 40f
+                                bg.setColor(0xFFC8E6C9.toInt())
+                                chip.background = bg
+                                val params = FlexboxLayout.LayoutParams(FlexboxLayout.LayoutParams.WRAP_CONTENT, FlexboxLayout.LayoutParams.WRAP_CONTENT)
+                                params.setMargins(0, 0, 16, 0)
+                                chip.layoutParams = params
+                                layoutCursos.addView(chip)
                             }
                         } catch (e: Exception) {
                             Toast.makeText(requireContext(), "Error procesando datos de perfil", Toast.LENGTH_LONG).show()

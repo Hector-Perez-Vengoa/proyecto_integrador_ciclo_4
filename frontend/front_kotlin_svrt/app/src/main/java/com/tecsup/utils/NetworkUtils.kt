@@ -7,6 +7,9 @@ import okhttp3.OkHttpClient
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import com.tecsup.api.ApiService
 
 object NetworkUtils {
     
@@ -62,5 +65,14 @@ object NetworkUtils {
             503 -> "Servicio no disponible."
             else -> "Error del servidor: $code"
         }
+    }
+
+    fun getApiService(): ApiService {
+        val retrofit = Retrofit.Builder()
+            .baseUrl("http://192.168.1.208:8080/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(createOkHttpClient())
+            .build()
+        return retrofit.create(ApiService::class.java)
     }
 } 

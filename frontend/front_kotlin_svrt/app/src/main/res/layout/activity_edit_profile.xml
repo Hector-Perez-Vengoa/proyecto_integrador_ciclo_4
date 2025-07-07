@@ -7,11 +7,11 @@
     android:background="@color/background_gray">
 
     <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/profileToolbar"
+        android:id="@+id/editProfileToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/tecsup_blue"
-        android:title="TECSUP"
+        android:title="Editar Perfil"
         android:titleTextColor="@android:color/white"
         app:titleCentered="true"
         android:elevation="4dp"
@@ -42,7 +42,6 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <!-- Logo TECSUP como texto estilizado -->
                 <TextView
                     android:id="@+id/tvLogoTecsup"
                     android:layout_width="169dp"
@@ -59,9 +58,9 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- CardView de perfil -->
+            <!-- CardView de perfil editable -->
             <androidx.cardview.widget.CardView
-                android:id="@+id/cardProfile"
+                android:id="@+id/cardEditProfile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -81,7 +80,7 @@
                     android:padding="20dp"
                     android:background="@android:color/white">
 
-                    <!-- Foto de perfil mejorada -->
+                    <!-- Foto de perfil -->
                     <ImageView
                         android:id="@+id/ivAvatar"
                         android:layout_width="100dp"
@@ -94,7 +93,7 @@
                         android:layout_marginBottom="16dp"
                         android:contentDescription="Foto de perfil" />
 
-                    <!-- Nombre completo en negrita y centrado -->
+                    <!-- Nombre completo solo lectura -->
                     <TextView
                         android:id="@+id/tvNombreCompleto"
                         android:layout_width="wrap_content"
@@ -107,7 +106,7 @@
                         android:layout_marginBottom="20dp"
                         tools:text="Juan Pérez García"/>
 
-                    <!-- Información personal -->
+                    <!-- Información personal solo lectura -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -162,108 +161,117 @@
                             android:layout_width="match_parent"
                             android:layout_height="1dp"
                             android:background="#E0E0E0"/>
-
-                        <TextView
-                            android:id="@+id/tvDepartamento"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Departamento: ..."
-                            android:textSize="15sp"
-                            android:textColor="#444"
-                            android:gravity="start"
-                            android:paddingVertical="8dp"
-                            tools:text="Departamento: Ingeniería"/>
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="#E0E0E0"/>
                     </LinearLayout>
 
-                    <!-- Sección de Carreras -->
+                    <!-- Departamento editable -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_marginBottom="16dp">
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="8dp">
+                        <TextView
+                            android:id="@+id/labelDepartamento"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Departamento:"
+                            android:textStyle="bold"
+                            android:textSize="16sp"
+                            android:textColor="#1976D2"
+                            android:gravity="start"/>
+                        <Spinner
+                            android:id="@+id/spinnerDepartamento"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"/>
+                    </LinearLayout>
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#E0E0E0"/>
 
+                    <!-- Carreras editables -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="8dp">
                         <TextView
                             android:id="@+id/labelCarreras"
-                            android:layout_width="match_parent"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="Carreras:"
                             android:textStyle="bold"
                             android:textSize="16sp"
                             android:textColor="#1976D2"
-                            android:gravity="start"
-                            android:layout_marginBottom="8dp"/>
-
-                        <com.google.android.flexbox.FlexboxLayout
-                            android:id="@+id/layoutCarreras"
-                            android:layout_width="match_parent"
+                            android:gravity="start"/>
+                        <Spinner
+                            android:id="@+id/spinnerCarrera"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            app:flexWrap="wrap"
-                            app:justifyContent="flex_start"
-                            app:alignItems="flex_start"
-                            android:layout_marginBottom="8dp"/>
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="#E0E0E0"/>
+                            android:layout_marginStart="8dp"/>
                     </LinearLayout>
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#E0E0E0"/>
 
-                    <!-- Sección de Cursos -->
+                    <!-- Cursos editables -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_marginBottom="20dp">
-
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="8dp">
                         <TextView
                             android:id="@+id/labelCursos"
-                            android:layout_width="match_parent"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="Cursos:"
                             android:textStyle="bold"
                             android:textSize="16sp"
                             android:textColor="#1976D2"
-                            android:gravity="start"
-                            android:layout_marginBottom="8dp"/>
-
-                        <!-- FlexboxLayout directo para cursos -->
-                        <com.google.android.flexbox.FlexboxLayout
-                            android:id="@+id/layoutCursos"
-                            android:layout_width="match_parent"
+                            android:gravity="start"/>
+                        <Spinner
+                            android:id="@+id/spinnerCurso"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            app:flexWrap="wrap"
-                            app:justifyContent="flex_start"
-                            app:alignItems="flex_start"
-                            android:layout_marginBottom="8dp"/>
+                            android:layout_marginStart="8dp"/>
                     </LinearLayout>
 
-                    <!-- Botón Editar Perfil -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnEditarPerfil"
-                        android:layout_width="wrap_content"
-                        android:layout_height="48dp"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginBottom="16dp"
-                        android:text="EDITAR PERFIL"
-                        android:textAllCaps="true"
-                        android:textColor="@android:color/white"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        app:backgroundTint="@color/tecsup_blue"
-                        android:fontFamily="sans-serif-medium"
-                        app:cornerRadius="24dp"
-                        android:elevation="6dp"
-                        android:paddingHorizontal="24dp"
-                        app:rippleColor="@android:color/white" />
+                    <!-- Botones Guardar y Cancelar -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_marginTop="24dp">
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnCancelar"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:text="Cancelar"
+                            android:textColor="#1976D2"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+                        <Space
+                            android:layout_width="16dp"
+                            android:layout_height="wrap_content"/>
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnGuardar"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:text="Guardar"
+                            android:textColor="#FFFFFF"
+                            android:backgroundTint="#1976D2"/>
+                    </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
         </LinearLayout>
     </ScrollView>
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout> 

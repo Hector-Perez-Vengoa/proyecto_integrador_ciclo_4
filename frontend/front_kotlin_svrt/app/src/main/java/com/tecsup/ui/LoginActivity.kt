@@ -134,8 +134,10 @@ class LoginActivity : AppCompatActivity() {
     private fun signIn() {
         try {
             Log.d("GoogleSignIn", "Iniciando Google Sign-In...")
-            val signInIntent = googleSignInClient.signInIntent
-            googleSignInLauncher.launch(signInIntent)
+            googleSignInClient.signOut().addOnCompleteListener {
+                val signInIntent = googleSignInClient.signInIntent
+                googleSignInLauncher.launch(signInIntent)
+            }
         } catch (e: Exception) {
             Log.e("GoogleSignIn", "Error al iniciar Google Sign-In", e)
             showLoading(false)
@@ -196,7 +198,7 @@ class LoginActivity : AppCompatActivity() {
         }
         val requestBody = json.toString().toRequestBody("application/json".toMediaType())
         val request = okhttp3.Request.Builder()
-            .url("http://10.0.2.2:8080/api/auth/google")
+            .url("http://192.168.1.208:8080/api/auth/google")
             .post(requestBody)
             .build()
         val client = com.tecsup.utils.NetworkUtils.createOkHttpClient()
@@ -258,7 +260,7 @@ class LoginActivity : AppCompatActivity() {
         val requestBody = json.toString().toRequestBody("application/json".toMediaType())
 
         val request = Request.Builder()
-            .url("http://10.0.2.2:8080/api/auth/signin")
+            .url("http://192.168.1.208:8080/api/auth/signin")
             .post(requestBody)
             .build()
 
