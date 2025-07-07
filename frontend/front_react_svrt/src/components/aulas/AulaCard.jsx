@@ -1,9 +1,9 @@
 // src/components/aulas/AulaCard.jsx
 import React from 'react';
-import { COLORES_ESTADO, LABELS_ESTADO, ICONOS_ESTADO } from '../../constants/aulaVirtual';
+import { COLORES_ESTADO, LABELS_ESTADO, ICONOS_ESTADO, getEstadoVisual } from '../../constants/aulaVirtual';
 
 const AulaCard = ({ aula, onSelect, isSelected = false }) => {
-  const estadoConfig = COLORES_ESTADO[aula.estado] || COLORES_ESTADO.inactiva;
+  const estadoVisual = getEstadoVisual(aula.estado);
 
   const formatearFecha = (fecha) => {
     if (!fecha) return 'No especificada';
@@ -40,7 +40,7 @@ const AulaCard = ({ aula, onSelect, isSelected = false }) => {
           ? 'border-tecsup-primary shadow-tecsup-primary/20 ring-2 ring-tecsup-primary/20' 
           : 'border-gray-200'
         }
-        ${estadoConfig.border}
+        ${estadoVisual.border}
       `}
       onClick={() => onSelect?.(aula)}
     >
@@ -63,14 +63,20 @@ const AulaCard = ({ aula, onSelect, isSelected = false }) => {
             </div>
           </div>
           
-          {/* Badge de estado */}
-          <div className={`
-            px-3 py-1 rounded-full text-xs font-medium flex items-center space-x-1
-            ${estadoConfig.badge}
-          `}>
-            <span>{ICONOS_ESTADO[aula.estado]}</span>
-            <span>{LABELS_ESTADO[aula.estado]}</span>
-          </div>
+          {/* Badge de estado especial para 'reservado' */}
+          {aula.estado && aula.estado.toLowerCase() === 'reservado' && (
+            <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1.5 shadow-lg border border-red-600 bg-red-600 text-white z-10">
+              <svg className="w-4 h-4 text-white drop-shadow-sm" fill="currentColor" viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0z"/><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 0V6c0-1.66 1.34-3 3-3s3 1.34 3 3v2h-6zm6 12H6V10h12v10z"/></svg>
+              <span className="font-semibold text-white drop-shadow-sm">Reservado</span>
+            </div>
+          )}
+          {/* Badge de estado normal para otros estados */}
+          {(!aula.estado || aula.estado.toLowerCase() !== 'reservado') && (
+            <div className={`absolute top-4 left-4 px-3 py-1.5 rounded-full text-xs font-medium flex items-center space-x-1.5 shadow-md border-white/20 z-10 ${estadoVisual.badge}`}>
+              <span className="text-lg">{estadoVisual.icon}</span>
+              <span className="ml-1">{estadoVisual.label}</span>
+            </div>
+          )}
         </div>
 
         {/* Información adicional */}
@@ -78,19 +84,19 @@ const AulaCard = ({ aula, onSelect, isSelected = false }) => {
           {/* Información de reserva si existe */}
           {aula.fecha_reserva && (
             <div className={`
-              p-3 rounded-lg ${estadoConfig.bg} ${estadoConfig.border} border
+              p-3 rounded-lg ${estadoVisual.bg} ${estadoVisual.border} border
             `}>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                 <div>
                   <span className="font-medium text-tecsup-gray-dark">Fecha:</span>
-                  <span className={`ml-2 ${estadoConfig.text}`}>
+                  <span className={`ml-2 ${estadoVisual.text}`}>
                     {formatearFecha(aula.fecha_reserva)}
                   </span>
                 </div>
                 {(aula.hora_inicio || aula.hora_fin) && (
                   <div>
                     <span className="font-medium text-tecsup-gray-dark">Horario:</span>
-                    <span className={`ml-2 ${estadoConfig.text}`}>
+                    <span className={`ml-2 ${estadoVisual.text}`}>
                       {formatearHora(aula.hora_inicio)} - {formatearHora(aula.hora_fin)}
                     </span>
                   </div>
@@ -100,7 +106,7 @@ const AulaCard = ({ aula, onSelect, isSelected = false }) => {
               {aula.motivo_reserva && (
                 <div className="mt-2">
                   <span className="font-medium text-tecsup-gray-dark">Motivo:</span>
-                  <p className={`mt-1 text-sm ${estadoConfig.text}`}>
+                  <p className={`mt-1 text-sm ${estadoVisual.text}`}>
                     {aula.motivo_reserva}
                   </p>
                 </div>

@@ -1,10 +1,11 @@
 // src/components/aulas/AulasDisponibles.jsx
-import React, { useState, useEffect, useMemo, useRef } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { aulaVirtualService } from '../../services'
 import {
   FILTROS_AULA,
   ORDENAMIENTO,
-  ESTADOS_AULA
+  ESTADOS_AULA,
+  normalizarEstadoAula
 } from '../../constants/aulaVirtual'
 import { useAuth } from '../../hooks/useAuth'
 import { showToast } from '../../utils/authUtils'
@@ -27,7 +28,6 @@ const AulasDisponibles = () => {
     profesor: '',
     total: 0
   })
-  const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [filtrosAvanzados, setFiltrosAvanzados] = useState({})
 
   // Estados para el modal de reserva y preview
@@ -46,30 +46,6 @@ const AulasDisponibles = () => {
   const handleFiltrosAvanzadosChange = nuevosFiltros => {
     setFiltrosAvanzados(nuevosFiltros)
     // No recargar datos, solo aplicar filtros en el frontend
-  }
-  const cargarAulasDisponibles = async (filtrosPersonalizados = {}) => {
-    try {
-      setLoading(true)
-      setError(null)
-
-      const response = await aulaVirtualService.obtenerAulasDisponibles(
-        filtrosPersonalizados
-      )
-
-      if (response.success) {
-        setAulas(response.data.aulas || [])
-        setDatosProfesor({
-          profesor: response.data.profesor || '',
-          total: response.data.total || 0
-        })
-      } else {
-        setError(response.message || 'Error al cargar las aulas disponibles')
-      }
-    } catch (err) {
-      setError('Error de conexión. Por favor, intenta de nuevo.')
-    } finally {
-      setLoading(false)
-    }
   }
 
   const cargarTodasLasAulas = async () => {
@@ -103,7 +79,7 @@ const AulasDisponibles = () => {
       )
     } else if (filtroActual === FILTROS_AULA.RESERVADAS) {
       aulasResultado = aulasResultado.filter(
-        aula => aula.estado === ESTADOS_AULA.RESERVADA
+        aula => normalizarEstadoAula(aula.estado) === ESTADOS_AULA.RESERVADA
       )
     }
 

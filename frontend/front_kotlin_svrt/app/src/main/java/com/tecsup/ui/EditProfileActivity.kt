@@ -25,6 +25,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import com.tecsup.model.UserProfile
+import android.widget.AutoCompleteTextView
 
 class EditProfileActivity : AppCompatActivity() {
     private lateinit var ivAvatar: ImageView
@@ -32,14 +34,15 @@ class EditProfileActivity : AppCompatActivity() {
     private lateinit var tvNombre: TextView
     private lateinit var tvApellidos: TextView
     private lateinit var tvCorreo: TextView
-    private lateinit var spinnerDepartamento: Spinner
-    private lateinit var spinnerCarrera: Spinner
-    private lateinit var spinnerCurso: Spinner
+    private lateinit var spinnerDepartamento: AutoCompleteTextView
+    private lateinit var spinnerCarrera: AutoCompleteTextView
+    private lateinit var spinnerCurso: AutoCompleteTextView
     private lateinit var btnGuardar: MaterialButton
     private lateinit var btnCancelar: MaterialButton
-    private lateinit var departamentos: List<Departamento>
-    private lateinit var carreras: List<Carrera>
-    private lateinit var cursos: List<Curso>
+    private var departamentos: List<Departamento> = emptyList()
+    private var carreras: List<Carrera> = emptyList()
+    private var cursos: List<Curso> = emptyList()
+    private var spinnersCargados = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,26 +52,31 @@ class EditProfileActivity : AppCompatActivity() {
         tvNombre = findViewById(R.id.tvNombre)
         tvApellidos = findViewById(R.id.tvApellidos)
         tvCorreo = findViewById(R.id.tvCorreo)
-        spinnerDepartamento = findViewById(R.id.spinnerDepartamento)
-        spinnerCarrera = findViewById(R.id.spinnerCarrera)
-        spinnerCurso = findViewById(R.id.spinnerCurso)
+        spinnerDepartamento = findViewById<AutoCompleteTextView>(R.id.spinnerDepartamento)
+        spinnerCarrera = findViewById<AutoCompleteTextView>(R.id.spinnerCarrera)
+        spinnerCurso = findViewById<AutoCompleteTextView>(R.id.spinnerCurso)
         btnGuardar = findViewById(R.id.btnGuardar)
         btnCancelar = findViewById(R.id.btnCancelar)
-        cargarDatosPerfil()
+        cargarOpcionesSpinners()
         btnGuardar.setOnClickListener { guardarCambios() }
         btnCancelar.setOnClickListener { finish() }
-        cargarOpcionesSpinners()
     }
 
     private fun cargarOpcionesSpinners() {
         val prefs = getSharedPreferences("MisPreferencias", 0)
         val token = prefs.getString("token", null) ?: return
         val api = NetworkUtils.getApiService()
+        spinnersCargados = 0
         // Departamentos
-        api.listarDepartamentos("Bearer $token").enqueue(object : Callback<com.tecsup.model.ApiResponse<List<Departamento>>> {
-            override fun onResponse(call: Call<com.tecsup.model.ApiResponse<List<Departamento>>>, response: Response<com.tecsup.model.ApiResponse<List<Departamento>>>) {
+        api.listarDepartamentos("Bearer $token").enqueue(object : retrofit2.Callback<com.tecsup.model.ApiResponse<List<Departamento>>> {
+            override fun onResponse(call: retrofit2.Call<com.tecsup.model.ApiResponse<List<Departamento>>>, response: retrofit2.Response<com.tecsup.model.ApiResponse<List<Departamento>>>) {
+                android.util.Log.d("EditProfile", "Departamentos - Código HTTP: ${response.code()}")
+                android.util.Log.d("EditProfile", "Departamentos - Body: ${response.body()}")
+                android.util.Log.d("EditProfile", "Departamentos - ErrorBody: ${response.errorBody()?.string()}")
                 val lista = response.body()?.data ?: emptyList()
+                android.util.Log.d("EditProfile", "Departamentos - Lista recibida: $lista")
                 departamentos = lista
+                if (lista.isEmpty()) Toast.makeText(this@EditProfileActivity, "No hay departamentos disponibles", Toast.LENGTH_LONG).show()
                 val adapter = object : ArrayAdapter<Departamento>(this@EditProfileActivity, R.layout.item_spinner, lista) {
                     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                         val view = convertView ?: LayoutInflater.from(context).inflate(R.layout.item_spinner, parent, false)
@@ -84,14 +92,24 @@ class EditProfileActivity : AppCompatActivity() {
                     }
                 }
                 spinnerDepartamento.adapter = adapter
+                spinnersCargados++
+                intentarCargarPerfil()
             }
-            override fun onFailure(call: Call<com.tecsup.model.ApiResponse<List<Departamento>>>, t: Throwable) {}
+            override fun onFailure(call: retrofit2.Call<com.tecsup.model.ApiResponse<List<Departamento>>>, t: Throwable) {
+                android.util.Log.e("EditProfile", "Departamentos - Error de red: ${t.message}", t)
+                Toast.makeText(this@EditProfileActivity, "Error al cargar departamentos: ${t.message}", Toast.LENGTH_LONG).show()
+            }
         })
         // Carreras
-        api.listarCarreras("Bearer $token").enqueue(object : Callback<com.tecsup.model.ApiResponse<List<Carrera>>> {
-            override fun onResponse(call: Call<com.tecsup.model.ApiResponse<List<Carrera>>>, response: Response<com.tecsup.model.ApiResponse<List<Carrera>>>) {
+        api.listarCarreras("Bearer $token").enqueue(object : retrofit2.Callback<com.tecsup.model.ApiResponse<List<Carrera>>> {
+            override fun onResponse(call: retrofit2.Call<com.tecsup.model.ApiResponse<List<Carrera>>>, response: retrofit2.Response<com.tecsup.model.ApiResponse<List<Carrera>>>) {
+                android.util.Log.d("EditProfile", "Carreras - Código HTTP: ${response.code()}")
+                android.util.Log.d("EditProfile", "Carreras - Body: ${response.body()}")
+                android.util.Log.d("EditProfile", "Carreras - ErrorBody: ${response.errorBody()?.string()}")
                 val lista = response.body()?.data ?: emptyList()
+                android.util.Log.d("EditProfile", "Carreras - Lista recibida: $lista")
                 carreras = lista
+                if (lista.isEmpty()) Toast.makeText(this@EditProfileActivity, "No hay carreras disponibles", Toast.LENGTH_LONG).show()
                 val adapter = object : ArrayAdapter<Carrera>(this@EditProfileActivity, R.layout.item_spinner, lista) {
                     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                         val view = convertView ?: LayoutInflater.from(context).inflate(R.layout.item_spinner, parent, false)
@@ -107,14 +125,24 @@ class EditProfileActivity : AppCompatActivity() {
                     }
                 }
                 spinnerCarrera.adapter = adapter
+                spinnersCargados++
+                intentarCargarPerfil()
             }
-            override fun onFailure(call: Call<com.tecsup.model.ApiResponse<List<Carrera>>>, t: Throwable) {}
+            override fun onFailure(call: retrofit2.Call<com.tecsup.model.ApiResponse<List<Carrera>>>, t: Throwable) {
+                android.util.Log.e("EditProfile", "Carreras - Error de red: ${t.message}", t)
+                Toast.makeText(this@EditProfileActivity, "Error al cargar carreras: ${t.message}", Toast.LENGTH_LONG).show()
+            }
         })
         // Cursos
-        api.listarCursos("Bearer $token").enqueue(object : Callback<com.tecsup.model.ApiResponse<List<Curso>>> {
-            override fun onResponse(call: Call<com.tecsup.model.ApiResponse<List<Curso>>>, response: Response<com.tecsup.model.ApiResponse<List<Curso>>>) {
+        api.listarCursos("Bearer $token").enqueue(object : retrofit2.Callback<com.tecsup.model.ApiResponse<List<Curso>>> {
+            override fun onResponse(call: retrofit2.Call<com.tecsup.model.ApiResponse<List<Curso>>>, response: retrofit2.Response<com.tecsup.model.ApiResponse<List<Curso>>>) {
+                android.util.Log.d("EditProfile", "Cursos - Código HTTP: ${response.code()}")
+                android.util.Log.d("EditProfile", "Cursos - Body: ${response.body()}")
+                android.util.Log.d("EditProfile", "Cursos - ErrorBody: ${response.errorBody()?.string()}")
                 val lista = response.body()?.data ?: emptyList()
+                android.util.Log.d("EditProfile", "Cursos - Lista recibida: $lista")
                 cursos = lista
+                if (lista.isEmpty()) Toast.makeText(this@EditProfileActivity, "No hay cursos disponibles", Toast.LENGTH_LONG).show()
                 val adapter = object : ArrayAdapter<Curso>(this@EditProfileActivity, R.layout.item_spinner, lista) {
                     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                         val view = convertView ?: LayoutInflater.from(context).inflate(R.layout.item_spinner, parent, false)
@@ -130,97 +158,61 @@ class EditProfileActivity : AppCompatActivity() {
                     }
                 }
                 spinnerCurso.adapter = adapter
+                spinnersCargados++
+                intentarCargarPerfil()
             }
-            override fun onFailure(call: Call<com.tecsup.model.ApiResponse<List<Curso>>>, t: Throwable) {}
+            override fun onFailure(call: retrofit2.Call<com.tecsup.model.ApiResponse<List<Curso>>>, t: Throwable) {
+                android.util.Log.e("EditProfile", "Cursos - Error de red: ${t.message}", t)
+                Toast.makeText(this@EditProfileActivity, "Error al cargar cursos: ${t.message}", Toast.LENGTH_LONG).show()
+            }
         })
+    }
+
+    private fun intentarCargarPerfil() {
+        if (spinnersCargados == 3) {
+            cargarDatosPerfil()
+        }
     }
 
     private fun cargarDatosPerfil() {
         val prefs = getSharedPreferences("MisPreferencias", 0)
-        val token = prefs.getString("token", null)
-        if (token.isNullOrBlank()) {
-            Toast.makeText(this, "Token no encontrado. Inicia sesión primero.", Toast.LENGTH_LONG).show()
-            finish()
-            return
-        }
-        val client = NetworkUtils.createOkHttpClient()
-        val request = Request.Builder()
-            .url("http://192.168.1.208:8080/api/perfil")
-            .get()
-            .addHeader("Authorization", "Bearer $token")
-            .build()
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                runOnUiThread {
-                    Toast.makeText(this@EditProfileActivity, "Error de red: ${e.message}", Toast.LENGTH_LONG).show()
-                    finish()
+        val token = prefs.getString("token", null) ?: return
+        val api = NetworkUtils.getApiService()
+        api.obtenerPerfil("Bearer $token").enqueue(object : retrofit2.Callback<UserProfile> {
+            override fun onResponse(call: retrofit2.Call<UserProfile>, response: retrofit2.Response<UserProfile>) {
+                if (response.isSuccessful) {
+                    val data = response.body() ?: return
+                    tvNombreCompleto.text = "${data.firstName ?: ""} ${data.lastName ?: ""}"
+                    tvNombre.text = "Nombre: ${data.firstName ?: ""}"
+                    tvApellidos.text = "Apellidos: ${data.lastName ?: ""}"
+                    tvCorreo.text = "Correo: ${data.email ?: ""}"
+                    if (!data.imagenPerfil.isNullOrBlank()) {
+                        Glide.with(this@EditProfileActivity)
+                            .load(data.imagenPerfil)
+                            .placeholder(R.drawable.default_avatar)
+                            .error(R.drawable.default_avatar)
+                            .circleCrop()
+                            .into(ivAvatar)
+                    } else {
+                        ivAvatar.setImageResource(R.drawable.default_avatar)
+                    }
+                    // Seleccionar valores actuales en los spinners si existen
+                    data.departamento?.let { dep ->
+                        val idx = departamentos.indexOfFirst { it.id == dep.id }
+                        if (idx >= 0) spinnerDepartamento.setSelection(idx)
+                    }
+                    data.carreras?.firstOrNull()?.let { car ->
+                        val idx = carreras.indexOfFirst { it.id == car.id }
+                        if (idx >= 0) spinnerCarrera.setSelection(idx)
+                    }
+                    data.cursos?.firstOrNull()?.let { cur ->
+                        val idx = cursos.indexOfFirst { it.id == cur.id }
+                        if (idx >= 0) spinnerCurso.setSelection(idx)
+                    }
                 }
             }
-            override fun onResponse(call: Call, response: Response) {
-                val body = response.body?.string()
-                runOnUiThread {
-                    if (body.isNullOrBlank()) {
-                        Toast.makeText(this@EditProfileActivity, "Respuesta vacía del servidor", Toast.LENGTH_LONG).show()
-                        finish()
-                        return@runOnUiThread
-                    }
-                    if (response.isSuccessful) {
-                        try {
-                            val json = JSONObject(body)
-                            val data = json.optJSONObject("data") ?: json
-                            val firstName = data.optString("firstName", "")
-                            val lastName = data.optString("lastName", "")
-                            val email = data.optString("email", "")
-                            val imagenPerfil = data.optString("imagenPerfil", null)
-                            val departamentoObj = data.optJSONObject("departamento")
-                            val departamentoNombre = departamentoObj?.optString("nombre", "") ?: ""
-                            val carrerasArray = data.optJSONArray("carreras")
-                            val cursosArray = data.optJSONArray("cursos")
-                            tvNombreCompleto.text = "$firstName $lastName"
-                            tvNombre.text = "Nombre: $firstName"
-                            tvApellidos.text = "Apellidos: $lastName"
-                            tvCorreo.text = "Correo: $email"
-                            if (!imagenPerfil.isNullOrBlank()) {
-                                Glide.with(this@EditProfileActivity)
-                                    .load(imagenPerfil)
-                                    .placeholder(R.drawable.default_avatar)
-                                    .error(R.drawable.default_avatar)
-                                    .circleCrop()
-                                    .into(ivAvatar)
-                            } else {
-                                ivAvatar.setImageResource(R.drawable.default_avatar)
-                            }
-                            // Simular datos para spinners (deberían venir de la API en producción)
-                            val departamentos = listOf("Ingeniería", "Administración", "Ciencias")
-                            val carreras = listOf("Sistemas", "Industrial", "Mecatrónica")
-                            val cursos = listOf("Matemática", "Programación", "Física")
-                            spinnerDepartamento.adapter = ArrayAdapter(this@EditProfileActivity, android.R.layout.simple_spinner_dropdown_item, departamentos)
-                            spinnerCarrera.adapter = ArrayAdapter(this@EditProfileActivity, android.R.layout.simple_spinner_dropdown_item, carreras)
-                            spinnerCurso.adapter = ArrayAdapter(this@EditProfileActivity, android.R.layout.simple_spinner_dropdown_item, cursos)
-                            // Seleccionar valores actuales si existen
-                            if (departamentoNombre.isNotBlank()) {
-                                val idx = departamentos.indexOf(departamentoNombre)
-                                if (idx >= 0) spinnerDepartamento.setSelection(idx)
-                            }
-                            // Para carreras y cursos, seleccionar el primero si hay datos
-                            if (carrerasArray != null && carrerasArray.length() > 0) {
-                                val nombre = carrerasArray.getJSONObject(0).optString("nombre", "")
-                                val idx = carreras.indexOf(nombre)
-                                if (idx >= 0) spinnerCarrera.setSelection(idx)
-                            }
-                            if (cursosArray != null && cursosArray.length() > 0) {
-                                val nombre = cursosArray.getJSONObject(0).optString("nombre", "")
-                                val idx = cursos.indexOf(nombre)
-                                if (idx >= 0) spinnerCurso.setSelection(idx)
-                            }
-                        } catch (e: Exception) {
-                            Toast.makeText(this@EditProfileActivity, "Error procesando datos de perfil", Toast.LENGTH_LONG).show()
-                        }
-                    } else {
-                        Toast.makeText(this@EditProfileActivity, "Error al obtener perfil", Toast.LENGTH_LONG).show()
-                        finish()
-                    }
-                }
+            override fun onFailure(call: retrofit2.Call<UserProfile>, t: Throwable) {
+                Toast.makeText(this@EditProfileActivity, "Error al cargar perfil: ${t.message}", Toast.LENGTH_LONG).show()
             }
         })
     }
@@ -232,13 +224,19 @@ class EditProfileActivity : AppCompatActivity() {
             Toast.makeText(this, "Token no encontrado. Inicia sesión primero.", Toast.LENGTH_LONG).show()
             return
         }
-        val departamento = departamentos.getOrNull(spinnerDepartamento.selectedItemPosition)
-        val carrera = carreras.getOrNull(spinnerCarrera.selectedItemPosition)
-        val curso = cursos.getOrNull(spinnerCurso.selectedItemPosition)
+        // Obtener el elemento seleccionado por texto
+        val depIdx = departamentos.indexOfFirst { it.nombre == spinnerDepartamento.text.toString() }
+        val departamento = departamentos.getOrNull(depIdx)
+        val carIdx = carreras.indexOfFirst { it.nombre == spinnerCarrera.text.toString() }
+        val carrera = carreras.getOrNull(carIdx)
+        val curIdx = cursos.indexOfFirst { it.nombre == spinnerCurso.text.toString() }
+        val curso = cursos.getOrNull(curIdx)
         val json = org.json.JSONObject()
         json.put("departamentoId", departamento?.id)
-        json.put("carreraId", carrera?.id)
-        json.put("cursoId", curso?.id)
+        val carreraIds = org.json.JSONArray(listOfNotNull(carrera?.id))
+        val cursoIds = org.json.JSONArray(listOfNotNull(curso?.id))
+        json.put("carreraIds", carreraIds)
+        json.put("cursoIds", cursoIds)
         val requestBody = okhttp3.RequestBody.create("application/json".toMediaType(), json.toString())
         val api = NetworkUtils.getApiService()
         val call = api.actualizarPerfil("Bearer $token", requestBody)

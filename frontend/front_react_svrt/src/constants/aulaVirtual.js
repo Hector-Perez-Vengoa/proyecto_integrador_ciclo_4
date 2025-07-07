@@ -78,3 +78,41 @@ export const ORDENAMIENTO = {
   ESTADO_ASC: 'estado_asc',
   ESTADO_DESC: 'estado_desc'
 };
+
+// Utilidad para normalizar estados (aceptar 'reservado' como 'reservada')
+export function normalizarEstadoAula(estado) {
+  if (!estado) return '';
+  const e = estado.toLowerCase();
+  if (e === 'reservado') return ESTADOS_AULA.RESERVADA;
+  if (e === 'en uso') return ESTADOS_AULA.EN_USO;
+  if (e === 'en_mantenimiento') return ESTADOS_AULA.EN_MANTENIMIENTO;
+  if (e === 'bloqueado') return ESTADOS_AULA.BLOQUEADA;
+  return e;
+}
+
+// Nueva utilidad para obtener el label y color visual correcto para 'reservado' o 'reservada'
+export function getEstadoVisual(estado) {
+  const normalizado = normalizarEstadoAula(estado);
+  // Si el original es 'reservado', forzar label masculino y color rojo
+  if (estado && estado.toLowerCase() === 'reservado') {
+    return {
+      label: 'Reservado',
+      icon: ICONOS_ESTADO[ESTADOS_AULA.RESERVADA],
+      ...COLORES_ESTADO[ESTADOS_AULA.BLOQUEADA], // Usa el color rojo
+    };
+  }
+  // Si es 'reservada', usa el label femenino y color cyan (o el que ya tiene)
+  if (normalizado === ESTADOS_AULA.RESERVADA) {
+    return {
+      label: LABELS_ESTADO[ESTADOS_AULA.RESERVADA],
+      icon: ICONOS_ESTADO[ESTADOS_AULA.RESERVADA],
+      ...COLORES_ESTADO[ESTADOS_AULA.RESERVADA],
+    };
+  }
+  // Otros estados
+  return {
+    label: LABELS_ESTADO[normalizado] || normalizado,
+    icon: ICONOS_ESTADO[normalizado],
+    ...COLORES_ESTADO[normalizado] || {},
+  };
+}
