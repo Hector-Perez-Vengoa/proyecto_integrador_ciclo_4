@@ -325,6 +325,36 @@ class UserViewSet(viewsets.ModelViewSet):
         
         serializer.save()
     
+    def destroy(self, request, *args, **kwargs):
+        """
+        Personalizar la eliminación de usuarios para devolver una respuesta JSON consistente
+        """
+        instance = self.get_object()
+        
+        # Solo admins pueden eliminar usuarios
+        if not request.user.is_staff:
+            raise PermissionDenied("No tienes permisos para eliminar usuarios")
+        
+        # No permitir eliminar superusuarios
+        if instance.is_superuser:
+            return Response({
+                'error': 'No se puede eliminar un superusuario'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # No permitir que los usuarios se eliminen a sí mismos
+        if instance == request.user:
+            return Response({
+                'error': 'No puedes eliminarte a ti mismo'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Realizar la eliminación
+        instance.delete()
+        
+        return Response({
+            'success': True,
+            'message': f'Usuario {instance.username} eliminado exitosamente'
+        }, status=status.HTTP_200_OK)
+    
     def get_serializer_class(self):
         """
         Usar diferente serializer para creación
