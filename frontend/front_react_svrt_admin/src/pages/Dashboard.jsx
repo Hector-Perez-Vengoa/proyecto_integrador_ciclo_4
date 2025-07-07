@@ -89,8 +89,15 @@ const Dashboard = () => {
       const reservasActivas = reservas.filter(r => r.estado === 'reservado' || r.estado === 'activa').length;
       const aulasDisponibles = aulasVirtuales.filter(a => a.estado === 'disponible').length;
       
+      // Filtrar profesores excluyendo al admin (is_superuser = true o rol admin)
+      const profesoresNoAdmin = profesores.filter(p => 
+        !p.is_superuser && 
+        p.rol !== 'admin' && 
+        p.username !== 'admin'
+      );
+      
       setStats(prevStats => [
-        { ...prevStats[0], value: profesores.length },
+        { ...prevStats[0], value: profesoresNoAdmin.length },
         { ...prevStats[1], value: reservasActivas },
         { ...prevStats[2], value: aulasDisponibles },
       ]);
@@ -119,7 +126,17 @@ const Dashboard = () => {
             {/* Tarjetas de estadísticas */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
               {stats.map((stat, idx) => (
-                <DashboardCard key={stat.title} {...stat} />
+                <div key={stat.title} onClick={() => {
+                  // Mapear índices de tarjetas a índices de menú del sidebar
+                  const menuMap = {
+                    0: 1, // Profesores -> índice 1 en sidebar
+                    1: 3, // Reservas Activas -> índice 3 en sidebar
+                    2: 2  // Aulas Disponibles -> índice 2 en sidebar
+                  };
+                  setActiveMenu(menuMap[idx]);
+                }} className="cursor-pointer">
+                  <DashboardCard {...stat} />
+                </div>
               ))}
             </div>
 
