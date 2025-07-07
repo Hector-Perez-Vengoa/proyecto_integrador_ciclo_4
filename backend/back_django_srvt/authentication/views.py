@@ -299,9 +299,16 @@ class UserViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """
-        Filtrar usuarios y aplicar filtros de consulta
+        Filtrar usuarios y aplicar filtros de consulta con prefetch para mejorar rendimiento
         """
-        queryset = User.objects.select_related('usuario_custom')
+        queryset = User.objects.select_related(
+            'usuario_custom',
+            'perfil',
+            'perfil__departamento'
+        ).prefetch_related(
+            'perfil__carreras',
+            'perfil__cursos'
+        )
         
         # Para pruebas, mostrar todos los usuarios
         # En producción, los usuarios normales solo ven su propio usuario, los admins ven todos

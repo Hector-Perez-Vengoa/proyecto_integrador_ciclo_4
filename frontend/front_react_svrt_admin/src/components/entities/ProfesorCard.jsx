@@ -11,24 +11,44 @@ const ProfesorCard = ({
   const [showDetails, setShowDetails] = useState(false);
 
   const getDepartamentoNombre = (departamentoId) => {
+    // Verificar si departamentoId es válido
+    if (!departamentoId) return 'Sin departamento';
+    
+    // Si departamentos no está disponible o está vacío
+    if (!departamentos || departamentos.length === 0) return 'Cargando departamento...';
+    
     const dept = departamentos.find(d => d.id === departamentoId);
-    return dept ? dept.nombre : 'Sin departamento';
+    return dept ? dept.nombre : `Departamento ID: ${departamentoId}`;
   };
 
   const getCarrerasNombres = (carrerasIds) => {
+    // Verificar si hay carreras asignadas
     if (!carrerasIds || carrerasIds.length === 0) return 'Sin carreras asignadas';
-    return carrerasIds.map(id => {
+    
+    // Si carreras no está disponible o está vacío
+    if (!carreras || carreras.length === 0) return 'Cargando carreras...';
+    
+    const nombreCarreras = carrerasIds.map(id => {
       const carrera = carreras.find(c => c.id === id);
-      return carrera ? carrera.nombre : 'Carrera no encontrada';
-    }).join(', ');
+      return carrera ? carrera.nombre : `Carrera ID: ${id}`;
+    });
+    
+    return nombreCarreras.join(', ');
   };
 
   const getCursosNombres = (cursosIds) => {
+    // Verificar si hay cursos asignados
     if (!cursosIds || cursosIds.length === 0) return 'Sin cursos asignados';
-    return cursosIds.map(id => {
+    
+    // Si cursos no está disponible o está vacío
+    if (!cursos || cursos.length === 0) return 'Cargando cursos...';
+    
+    const nombreCursos = cursosIds.map(id => {
       const curso = cursos.find(c => c.id === id);
-      return curso ? curso.nombre : 'Curso no encontrado';
-    }).join(', ');
+      return curso ? curso.nombre : `Curso ID: ${id}`;
+    });
+    
+    return nombreCursos.join(', ');
   };
 
   const getInitials = (nombres, apellidos) => {

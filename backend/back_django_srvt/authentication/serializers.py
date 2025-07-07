@@ -72,38 +72,69 @@ class UserSerializer(serializers.ModelSerializer):
     
     def get_perfil(self, obj):
         """Obtiene información del perfil si existe"""
-        # Por ahora retornamos None ya que simplificamos a solo usar auth_user
-        return None
+        try:
+            perfil = obj.perfil
+            if perfil:
+                return {
+                    'id': perfil.id,
+                    'telefono': perfil.telefono,
+                    'biografia': perfil.biografia,
+                    'departamento': perfil.departamento.id if perfil.departamento else None,
+                    'carreras': [c.id for c in perfil.carreras.all()],
+                    'cursos': [c.id for c in perfil.cursos.all()]
+                }
+            return None
+        except AttributeError:
+            return None
     
     def get_departamento(self, obj):
         """Obtiene el ID del departamento del perfil"""
-        # Por ahora retornamos None ya que simplificamos a solo usar auth_user
-        return None
+        try:
+            perfil = obj.perfil
+            return perfil.departamento.id if perfil and perfil.departamento else None
+        except AttributeError:
+            return None
     
     def get_departamento_nombre(self, obj):
         """Obtiene el nombre del departamento del perfil"""
-        # Por ahora retornamos None ya que simplificamos a solo usar auth_user
-        return None
+        try:
+            perfil = obj.perfil
+            return perfil.departamento.nombre if perfil and perfil.departamento else None
+        except AttributeError:
+            return None
     
     def get_carreras(self, obj):
         """Obtiene los IDs de las carreras del perfil"""
-        # Por ahora retornamos lista vacía ya que simplificamos a solo usar auth_user
-        return []
+        try:
+            perfil = obj.perfil
+            return [carrera.id for carrera in perfil.carreras.all()] if perfil else []
+        except AttributeError:
+            return []
     
     def get_carreras_nombres(self, obj):
         """Obtiene los nombres de las carreras del perfil"""
-        # Por ahora retornamos lista vacía ya que simplificamos a solo usar auth_user
-        return []
+        try:
+            perfil = obj.perfil
+            return [carrera.nombre for carrera in perfil.carreras.all()] if perfil else []
+        except AttributeError:
+            return []
     
     def get_cursos(self, obj):
         """Obtiene los IDs de los cursos del perfil"""
-        # Por ahora retornamos lista vacía ya que simplificamos a solo usar auth_user
+        try:
+            perfil = obj.perfil
+            return [curso.id for curso in perfil.cursos.all()] if perfil else []
+        except AttributeError:
+            return []
         return []
     
     def get_cursos_nombres(self, obj):
         """Obtiene los nombres de los cursos del perfil"""
-        # Por ahora retornamos lista vacía ya que simplificamos a solo usar auth_user
-        return []
+        try:
+            perfil = obj.perfil
+            return [curso.nombre for curso in perfil.cursos.all()] if perfil else []
+        except AttributeError:
+            return []
 
 class DepartamentoSerializer(serializers.ModelSerializer):
     """

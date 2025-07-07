@@ -27,9 +27,11 @@ class AulaVirtualComponenteSerializer(serializers.ModelSerializer):
     """
     Serializer para el modelo AulaVirtualComponente
     """
+    aula_virtual_codigo = serializers.CharField(source=AULA_VIRTUAL_CODIGO_SOURCE, read_only=True)
+    
     class Meta:
         model = AulaVirtualComponente
-        fields = ['id', 'nombre', 'descripcion']
+        fields = ['id', 'aula_virtual', 'aula_virtual_codigo', 'nombre', 'descripcion']
         read_only_fields = ['id']
 
 class AulaVirtualSerializer(serializers.ModelSerializer):
@@ -68,8 +70,8 @@ class ReservaSerializer(serializers.ModelSerializer):
     user_email = serializers.CharField(source=USER_EMAIL_SOURCE, read_only=True)
     aula_virtual_codigo = serializers.CharField(source=AULA_VIRTUAL_CODIGO_SOURCE, read_only=True)
     curso_nombre = serializers.CharField(source=CURSO_NOMBRE_SOURCE, read_only=True)
-    duracion_horas = serializers.ReadOnlyField()
-    puede_cancelar = serializers.ReadOnlyField()
+    duracion_horas = serializers.SerializerMethodField()
+    puede_cancelar = serializers.SerializerMethodField()
     
     class Meta:
         model = Reserva
@@ -87,6 +89,14 @@ class ReservaSerializer(serializers.ModelSerializer):
     def get_user_nombre(self, obj):
         """Devuelve el nombre completo del usuario"""
         return f"{obj.user.first_name} {obj.user.last_name}".strip() or obj.user.username
+    
+    def get_duracion_horas(self, obj):
+        """Devuelve la duración de la reserva en horas"""
+        return obj.duracion_horas
+    
+    def get_puede_cancelar(self, obj):
+        """Verifica si la reserva puede ser cancelada"""
+        return obj.puede_cancelar()
 
 class BloqueHorarioSerializer(serializers.ModelSerializer):
     """
@@ -163,9 +173,9 @@ class ReglamentoSerializer(serializers.ModelSerializer):
     """
     Serializer para el modelo Reglamento
     """
-    esta_activo = serializers.ReadOnlyField()
-    tamano_legible = serializers.ReadOnlyField()
-    nombre_archivo = serializers.ReadOnlyField()
+    esta_activo = serializers.SerializerMethodField()
+    tamano_legible = serializers.SerializerMethodField()
+    nombre_archivo = serializers.SerializerMethodField()
     
     class Meta:
         model = Reglamento
@@ -178,9 +188,20 @@ class ReglamentoSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             'id', 'contador_visualizaciones', 'contador_descargas',
-            'fecha_creacion', 'fecha_modificacion', 'esta_activo',
-            'tamano_legible', 'nombre_archivo'
+            'fecha_creacion', 'fecha_modificacion'
         ]
+    
+    def get_esta_activo(self, obj):
+        """Verifica si el reglamento está activo"""
+        return obj.esta_activo
+    
+    def get_tamano_legible(self, obj):
+        """Convierte el tamaño del archivo a formato legible"""
+        return obj.tamano_legible
+    
+    def get_nombre_archivo(self, obj):
+        """Extrae el nombre del archivo de la ruta"""
+        return obj.nombre_archivo
 
 # Serializers simplificados para listados
 class AulaVirtualListSerializer(serializers.ModelSerializer):
@@ -214,3 +235,130 @@ class ReservaListSerializer(serializers.ModelSerializer):
     
     def get_user_nombre(self, obj):
         return f"{obj.user.first_name} {obj.user.last_name}".strip() or obj.user.username
+
+# Serializers adicionales para operaciones específicas
+class ReservaCancelacionSerializer(serializers.Serializer):
+    """
+    Serializer para cancelar reservas
+    """
+    motivo_cancelacion = serializers.CharField(max_length=500, required=True)
+    observaciones_cancelacion = serializers.CharField(max_length=1000, required=False, allow_blank=True)
+    
+    def validate_motivo_cancelacion(self, value):
+        if len(value.strip()) < 10:
+            raise serializers.ValidationError("El motivo de cancelación debe tener al menos 10 caracteres.")
+        return value.strip()
+
+class NotificacionDetailSerializer(serializers.ModelSerializer):
+    """
+    Serializer detallado para notificaciones con información completa de la reserva
+    """
+    user_nombre = serializers.SerializerMethodField()
+    reserva_detalle = serializers.SerializerMethodField()
+    tiempo_transcurrido = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Notificacion
+        fields = [
+            'id', 'user', 'user_nombre', 'tipo', 'titulo', 'mensaje',
+            'reserva', 'reserva_detalle', 'leida', 'fecha_creacion', 
+            'fecha_lectura', 'tiempo_transcurrido'
+        ]
+        read_only_fields = ['id', 'fecha_creacion', 'fecha_lectura']
+    
+    def get_user_nombre(self, obj):
+        """Devuelve el nombre completo del usuario"""
+        return f"{obj.user.first_name} {obj.user.last_name}".strip() or obj.user.username
+    
+    def get_reserva_detalle(self, obj):
+        """Devuelve información detallada de la reserva asociada"""
+        if obj.reserva:
+            return {
+                'id': obj.reserva.id,
+                'aula_codigo': obj.reserva.aula_virtual.codigo,
+                'curso_nombre': obj.reserva.curso.nombre,
+                'fecha': obj.reserva.fecha_reserva,
+                'hora_inicio': obj.reserva.hora_inicio,
+                'hora_fin': obj.reserva.hora_fin,
+                'estado': obj.reserva.estado,
+                'motivo': obj.reserva.motivo
+            }
+        return None
+    
+    def get_tiempo_transcurrido(self, obj):
+        """Calcula el tiempo transcurrido desde la creación"""
+        from django.utils import timezone
+        from datetime import timedelta
+        
+        ahora = timezone.now()
+        diferencia = ahora - obj.fecha_creacion
+        
+        if diferencia < timedelta(minutes=1):
+            return "Hace menos de un minuto"
+        elif diferencia < timedelta(hours=1):
+            minutos = int(diferencia.total_seconds() / 60)
+            return f"Hace {minutos} minuto{'s' if minutos != 1 else ''}"
+        elif diferencia < timedelta(days=1):
+            horas = int(diferencia.total_seconds() / 3600)
+            return f"Hace {horas} hora{'s' if horas != 1 else ''}"
+        else:
+            dias = diferencia.days
+            return f"Hace {dias} día{'s' if dias != 1 else ''}"
+
+class AulaVirtualDisponibilidadSerializer(serializers.ModelSerializer):
+    """
+    Serializer para verificar disponibilidad de aulas virtuales
+    """
+    reservas_activas = serializers.SerializerMethodField()
+    bloques_no_disponibles = serializers.SerializerMethodField()
+    total_reservas_mes = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = AulaVirtual
+        fields = [
+            'id', 'codigo', 'estado', 'descripcion', 
+            'reservas_activas', 'bloques_no_disponibles', 'total_reservas_mes'
+        ]
+    
+    def get_reservas_activas(self, obj):
+        """Devuelve las reservas activas del día actual"""
+        from django.utils import timezone
+        hoy = timezone.now().date()
+        reservas = obj.reservas.filter(
+            fecha_reserva=hoy,
+            estado__in=['confirmada', 'en_uso']
+        ).order_by('hora_inicio')
+        
+        return [{
+            'id': r.id,
+            'hora_inicio': r.hora_inicio,
+            'hora_fin': r.hora_fin,
+            'usuario': f"{r.user.first_name} {r.user.last_name}".strip() or r.user.username,
+            'curso': r.curso.nombre,
+            'estado': r.estado
+        } for r in reservas]
+    
+    def get_bloques_no_disponibles(self, obj):
+        """Devuelve los bloques horarios no disponibles"""
+        from django.utils import timezone
+        hoy = timezone.now().date()
+        bloques = obj.bloques_horarios.filter(
+            fecha=hoy,
+            tipo__in=['bloqueado', 'mantenimiento']
+        ).order_by('hora_inicio')
+        
+        return [{
+            'hora_inicio': b.hora_inicio,
+            'hora_fin': b.hora_fin,
+            'tipo': b.tipo,
+            'motivo': b.motivo
+        } for b in bloques]
+    
+    def get_total_reservas_mes(self, obj):
+        """Devuelve el total de reservas del mes actual"""
+        from django.utils import timezone
+        ahora = timezone.now()
+        return obj.reservas.filter(
+            fecha_reserva__year=ahora.year,
+            fecha_reserva__month=ahora.month
+        ).count()
