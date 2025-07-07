@@ -36,19 +36,12 @@ export const validateProfileData = (data) => {
     errors.email = 'El email es requerido';
   }
   
-  if (!data.telefono || data.telefono.trim() === '') {
-    errors.telefono = 'El teléfono es requerido';
-  } else if (!/^\+?[\d\s\-\(\)]+$/.test(data.telefono)) {
-    errors.telefono = 'Formato de teléfono inválido';
-  }
-  
   if (!data.fechaNacimiento || data.fechaNacimiento.trim() === '') {
     errors.fechaNacimiento = 'La fecha de nacimiento es requerida';
   }
   
-  if (!data.biografia || data.biografia.trim() === '') {
-    errors.biografia = 'La biografía es requerida';
-  }
+  // Biografía opcional - no es requerida
+  // El teléfono fue eliminado - no es requerido
   
   // Validaciones opcionales para URLs
   if (data.sitioWeb && data.sitioWeb.trim() !== '') {

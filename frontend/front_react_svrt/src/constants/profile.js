@@ -42,7 +42,7 @@ export const PROFILE_SECTIONS = {
         type: 'textarea',
         placeholder: 'Cuéntanos sobre tu experiencia profesional y académica...',
         icon: 'FileText',
-        required: true,
+        required: false,
         rows: 4
       }
     ]
