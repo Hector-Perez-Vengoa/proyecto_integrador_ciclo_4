@@ -6,7 +6,6 @@ import java.util.List;
 public class ActualizarPerfilRequest {
     private String firstName;
     private String lastName;
-    private String telefono;
     private String biografia;
     private LocalDate fechaNacimiento;
     private Long departamentoId;
@@ -31,14 +30,6 @@ public class ActualizarPerfilRequest {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
     }
 
     public String getBiografia() {
@@ -84,7 +75,6 @@ public class ActualizarPerfilRequest {
         return "ActualizarPerfilRequest{" +
                 "firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
-                ", telefono='" + telefono + '\'' +
                 ", biografia='" + biografia + '\'' +
                 ", fechaNacimiento=" + fechaNacimiento +
                 ", departamentoId=" + departamentoId +

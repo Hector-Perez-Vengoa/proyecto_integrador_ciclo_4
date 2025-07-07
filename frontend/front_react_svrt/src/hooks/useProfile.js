@@ -28,7 +28,6 @@ export const useProfile = () => {
         firstName: profileData.firstName || '',
         lastName: profileData.lastName || '',
         email: profileData.email || '', // No editable, pero necesario para validación
-        telefono: profileData.telefono || '',
         biografia: profileData.biografia || '',
         fechaNacimiento: profileData.fechaNacimiento || '',
         // Campos académicos

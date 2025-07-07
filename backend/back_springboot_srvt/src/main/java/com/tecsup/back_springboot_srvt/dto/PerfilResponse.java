@@ -8,7 +8,6 @@ public class PerfilResponse {
     
     private Long id;
     private String biografia;
-    private String telefono;
     private LocalDate fechaNacimiento;
     private String imagenPerfil;
     private LocalDateTime fechaActualizacion;
@@ -47,14 +46,6 @@ public class PerfilResponse {
 
     public void setBiografia(String biografia) {
         this.biografia = biografia;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
     }
 
     public LocalDate getFechaNacimiento() {
