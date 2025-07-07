@@ -70,9 +70,9 @@ const ProfesorCard = ({
           {profesor.nombres} {profesor.apellidos}
         </h3>
         
-        {/* Código del profesor */}
+        {/* Correo del profesor */}
         <p className="text-sm text-gray-600 mb-2">
-          Código: {profesor.codigo}
+          Correo: {profesor.correo}
         </p>
 
         {/* Botón para ver más detalles */}
