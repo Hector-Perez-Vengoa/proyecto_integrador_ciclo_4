@@ -24,10 +24,23 @@ const apiRequest = async (endpoint, options = {}) => {
     ...options,
   };
 
+  // Log para debugging
+  console.log('API Request:', { url, method: config.method || 'GET', headers: config.headers, body: config.body });
+
   try {
     const response = await fetch(url, config);
     
     if (!response.ok) {
+      // Capturar el contenido del error para debugging
+      let errorDetails = `HTTP error! status: ${response.status}`;
+      try {
+        const errorText = await response.text();
+        console.error('Error response body:', errorText);
+        errorDetails += ` - ${errorText}`;
+      } catch (textError) {
+        console.error('Could not read error response:', textError);
+      }
+      
       // Si es 401 o 403, podría ser que la sesión expiró
       if (response.status === 401 || response.status === 403) {
         // Limpiar datos de autenticación
@@ -36,7 +49,7 @@ const apiRequest = async (endpoint, options = {}) => {
         // Recargar la página para que vuelva al login
         window.location.reload();
       }
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(errorDetails);
     }
     
     // Si la respuesta está vacía (como en DELETE exitoso), devolver objeto vacío
@@ -136,6 +149,22 @@ export const cursoService = {
     body: JSON.stringify(data),
   }),
   delete: (id) => apiRequest(`/cursos/${id}/`, {
+    method: 'DELETE',
+  }),
+};
+
+export const perfilService = {
+  getAll: () => apiRequest('/perfiles/'),
+  getById: (id) => apiRequest(`/perfiles/${id}/`),
+  create: (data) => apiRequest('/perfiles/', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+  update: (id, data) => apiRequest(`/perfiles/${id}/`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  }),
+  delete: (id) => apiRequest(`/perfiles/${id}/`, {
     method: 'DELETE',
   }),
 };

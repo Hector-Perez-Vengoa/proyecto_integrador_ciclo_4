@@ -36,10 +36,10 @@ class UserSerializer(serializers.ModelSerializer):
     """
     full_name = serializers.SerializerMethodField()
     nombre_completo = serializers.SerializerMethodField()  # Alias para compatibilidad
-    nombres = serializers.CharField(source='first_name')  # Mapeo para compatibilidad
-    apellidos = serializers.CharField(source='last_name')  # Mapeo para compatibilidad
-    correo = serializers.EmailField(source='email')  # Mapeo para compatibilidad
-    codigo = serializers.CharField(source='username')  # Mapeo para compatibilidad
+    nombres = serializers.CharField(source='first_name', read_only=True)  # Mapeo para compatibilidad
+    apellidos = serializers.CharField(source='last_name', read_only=True)  # Mapeo para compatibilidad
+    correo = serializers.EmailField(source='email', read_only=True)  # Mapeo para compatibilidad
+    codigo = serializers.CharField(source='username', read_only=True)  # Mapeo para compatibilidad
     super_user = serializers.BooleanField(source='is_superuser', read_only=True)  # Para filtro frontend
     usuario_custom = UsuarioCustomSerializer(read_only=True)
     perfil = serializers.SerializerMethodField()  # Información del perfil si existe
@@ -60,7 +60,12 @@ class UserSerializer(serializers.ModelSerializer):
             'departamento', 'departamento_nombre', 'carreras', 'carreras_nombres',
             'cursos', 'cursos_nombres'
         ]
-        read_only_fields = ['id', 'username', 'date_joined', 'last_login']
+        read_only_fields = [
+            'id', 'username', 'date_joined', 'last_login', 
+            'full_name', 'nombre_completo', 'usuario_custom', 'perfil',
+            'departamento', 'departamento_nombre', 'carreras', 'carreras_nombres', 
+            'cursos', 'cursos_nombres'
+        ]
     
     def get_full_name(self, obj):
         """Devuelve el nombre completo del usuario"""
@@ -173,8 +178,8 @@ class PerfilSerializer(serializers.ModelSerializer):
     """
     username = serializers.CharField(source='user.username', read_only=True)
     email = serializers.EmailField(source='user.email', read_only=True)
-    first_name = serializers.CharField(source='user.first_name')
-    last_name = serializers.CharField(source='user.last_name')
+    first_name = serializers.CharField(source='user.first_name', read_only=True)
+    last_name = serializers.CharField(source='user.last_name', read_only=True)
     nombre_completo = serializers.ReadOnlyField()
     departamento_nombre = serializers.CharField(source='departamento.nombre', read_only=True)
     carreras_nombres = serializers.SerializerMethodField()
@@ -191,7 +196,11 @@ class PerfilSerializer(serializers.ModelSerializer):
             'cursos', 'cursos_nombres', 'nombre_completo', 'fecha_actualizacion',
             'is_active', 'perfil_completo'
         ]
-        read_only_fields = ['id', 'username', 'email', 'fecha_actualizacion']
+        read_only_fields = [
+            'id', 'username', 'email', 'first_name', 'last_name', 
+            'fecha_actualizacion', 'nombre_completo', 'departamento_nombre',
+            'carreras_nombres', 'cursos_nombres', 'is_active', 'perfil_completo'
+        ]
     
     def get_carreras_nombres(self, obj):
         """Devuelve los nombres de las carreras asociadas"""

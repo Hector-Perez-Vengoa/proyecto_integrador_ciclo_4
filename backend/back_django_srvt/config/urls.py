@@ -3,7 +3,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
-from authentication.views import UserViewSet, DepartamentoViewSet, CarreraViewSet, CursoViewSet
+from authentication.views import UserViewSet, DepartamentoViewSet, CarreraViewSet, CursoViewSet, PerfilViewSet
 
 from .views import api_root
 
@@ -13,6 +13,7 @@ compatibility_router.register(r'usuarios', UserViewSet, basename='usuarios-root'
 compatibility_router.register(r'departamentos', DepartamentoViewSet, basename='departamentos-root')
 compatibility_router.register(r'carreras', CarreraViewSet, basename='carreras-root')
 compatibility_router.register(r'cursos', CursoViewSet, basename='cursos-root')
+compatibility_router.register(r'perfiles', PerfilViewSet, basename='perfiles-root')  # Agregar perfiles
 
 urlpatterns = [
     # Raíz que muestra todas las APIs disponibles

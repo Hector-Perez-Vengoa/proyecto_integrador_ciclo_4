@@ -19,6 +19,6 @@ urlpatterns = [
     path('check/', views.check_auth, name='auth_check'),
     path('csrf/', views.csrf_token_view, name='csrf_token'),
     
-    # URLs de la API REST
-    path('api/', include(router.urls)),
+    # URLs de la API REST - incluir router directamente
+    path('', include(router.urls)),
 ]
