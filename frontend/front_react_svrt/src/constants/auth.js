@@ -1,6 +1,6 @@
 // src/constants/auth.js
 export const AUTH_CONFIG = {
-  BACKEND_URL: 'http://127.0.0.1:8080/api',
+  BACKEND_URL: 'http://18.224.7.201:8080/api', // URL del backend en AWS
   TECSUP_DOMAIN: '@tecsup.edu.pe',
   TOKEN_KEY: 'authToken',
   USER_KEY: 'user',

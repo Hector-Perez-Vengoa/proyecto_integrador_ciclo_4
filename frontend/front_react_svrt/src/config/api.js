@@ -5,7 +5,7 @@
  */
 
 // URL base del backend Spring Boot (para usuarios)
-export const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+export const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://18.224.7.201:8080';
 
 // URL del backend Django (para administración) 
 export const DJANGO_BASE_URL = import.meta.env.VITE_DJANGO_API_BASE_URL || 'http://localhost:8000';

@@ -21,7 +21,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/reglamentos")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173", "http://ec2-18-224-7-201.us-east-2.compute.amazonaws.com", "http://18.224.7.201"})
 public class ReglamentoController {
 
     @Autowired

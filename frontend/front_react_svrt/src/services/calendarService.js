@@ -1,5 +1,4 @@
 // src/services/calendarService.js
-import { BASE_URL } from '../config/api';
 import { validarFechaReserva } from '../utils/dateUtils';
 import { AUTH_CONFIG } from '../constants/auth';
 import { storage } from '../utils/authUtils';
@@ -11,7 +10,7 @@ import { perfilService } from './api/perfilService';
  */
 class CalendarService {
   constructor() {
-    this.baseURL = BASE_URL;
+    this.baseURL = AUTH_CONFIG.BACKEND_URL;
   }  /**
    * Obtiene el token de autorización desde localStorage
    */
