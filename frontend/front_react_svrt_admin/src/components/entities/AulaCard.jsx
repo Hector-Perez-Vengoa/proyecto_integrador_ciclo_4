@@ -20,14 +20,8 @@ const AulaCard = ({
         return 'bg-green-500';
       case 'reservada':
         return 'bg-yellow-500';
-      case 'en_uso':
-        return 'bg-blue-500';
       case 'en_mantenimiento':
         return 'bg-orange-500';
-      case 'inactiva':
-        return 'bg-gray-500';
-      case 'bloqueada':
-        return 'bg-red-500';
       default:
         return 'bg-gray-500';
     }
@@ -39,14 +33,8 @@ const AulaCard = ({
         return 'bg-green-100 text-green-800';
       case 'reservada':
         return 'bg-yellow-100 text-yellow-800';
-      case 'en_uso':
-        return 'bg-blue-100 text-blue-800';
       case 'en_mantenimiento':
         return 'bg-orange-100 text-orange-800';
-      case 'inactiva':
-        return 'bg-gray-100 text-gray-800';
-      case 'bloqueada':
-        return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }

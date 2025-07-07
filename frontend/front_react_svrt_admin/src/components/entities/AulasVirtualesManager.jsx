@@ -22,10 +22,7 @@ const AulasVirtualesManager = () => {
   const estadoOptions = [
     { value: 'disponible', label: 'Disponible' },
     { value: 'reservada', label: 'Reservada' },
-    { value: 'en_uso', label: 'En Uso' },
-    { value: 'en_mantenimiento', label: 'En Mantenimiento' },
-    { value: 'inactiva', label: 'Inactiva' },
-    { value: 'bloqueada', label: 'Bloqueada' }
+    { value: 'en_mantenimiento', label: 'En Mantenimiento' }
   ];
 
   // Estados para filtros de búsqueda
