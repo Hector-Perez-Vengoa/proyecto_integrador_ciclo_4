@@ -114,8 +114,8 @@ class Perfil(models.Model):
     biografia = models.TextField(max_length=500, blank=True, null=True)
     fecha_nacimiento = models.DateField(blank=True, null=True)
     departamento = models.ForeignKey(Departamento, on_delete=models.SET_NULL, null=True, blank=True)
-    carreras = models.ManyToManyField(Carrera, blank=True, related_name='perfiles')
-    cursos = models.ManyToManyField(Curso, blank=True, related_name='perfiles')
+    carreras = models.ManyToManyField(Carrera, blank=True, related_name='perfiles', db_table='perfil_carreras')
+    cursos = models.ManyToManyField(Curso, blank=True, related_name='perfiles', db_table='perfil_cursos')
     fecha_actualizacion = models.DateTimeField(auto_now=True)
     
     def __str__(self):
