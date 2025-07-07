@@ -28,6 +28,17 @@ const ReservasManager = () => {
     estado: 'pendiente'
   });
 
+  // Estados para filtros y búsqueda
+  const [filters, setFilters] = useState({
+    busqueda: '',
+    usuario: '',
+    estado: '',
+    curso: '',
+    fechaDesde: '',
+    fechaHasta: ''
+  });
+  const [showFilters, setShowFilters] = useState(false);
+
   const handleAdd = () => {
     setEditingReserva(null);
     setFormData({
@@ -90,94 +101,68 @@ const ReservasManager = () => {
     }));
   };
 
-  // Función de debug para probar la autenticación y actualización
-  const debugUpdateCall = async (reserva) => {
-    console.log('=== 🔍 DEBUG: Probando actualización con autenticación ===');
-    console.log('📋 Datos originales de la reserva:', reserva);
-    
-    try {
-      const { login } = await import('../../services/api');
-      
-      console.log('🔐 Solicitando credenciales...');
-      
-      // Solicitar credenciales al usuario
-      const username = prompt('Usuario administrador:', 'admin');
-      const password = prompt('Contraseña:', 'admin');
-      
-      if (!username || !password) {
-        alert('❌ Login cancelado');
-        return;
-      }
-      
-      console.log('🔄 Intentando hacer login...');
-      const loginResult = await login(username, password);
-      console.log('✅ Login exitoso! Resultado:', loginResult);
-      
-      // Preparar datos para la actualización
-      const testData = {
-        user: parseInt(reserva.user) || 2,
-        aula_virtual: parseInt(reserva.aula_virtual) || 1,
-        curso: parseInt(reserva.curso) || 1,
-        hora_inicio: reserva.hora_inicio,
-        hora_fin: reserva.hora_fin,
-        fecha_reserva: reserva.fecha_reserva,
-        motivo: reserva.motivo || 'Test desde debug',
-        estado: reserva.estado || 'pendiente'
-      };
-      
-      console.log('📝 Datos a enviar:', testData);
-      console.log('📝 Estado original:', reserva.estado);
-      console.log('📝 Estado en datos:', testData.estado);
-      
-      // Hacer la petición PUT
-      const csrfToken = localStorage.getItem('admin_csrf_token');
-      console.log('🎫 CSRF Token:', csrfToken ? 'Presente' : 'Faltante');
-      
-      const response = await fetch(`http://localhost:8000/api/reservas/${reserva.id}/`, {
-        method: 'PUT',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': csrfToken || '',
-        },
-        body: JSON.stringify(testData)
-      });
-      
-      console.log('📡 Response status:', response.status);
-      console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
-      
-      if (response.ok) {
-        const responseText = await response.text();
-        try {
-          const responseJson = JSON.parse(responseText);
-          console.log('🎉 SUCCESS - Respuesta del servidor:', responseJson);
-          console.log('🎉 Estado actualizado:', responseJson.estado);
-          console.log('🎉 Fecha de creación:', responseJson.fecha_creacion);
-          alert(`🎉 ¡Actualización exitosa!\n\nEstado: ${responseJson.estado}\nFecha creación: ${responseJson.fecha_creacion || 'No disponible'}`);
-        } catch (e) {
-          console.log('🎉 SUCCESS (no JSON)');
-          alert('🎉 ¡Actualización exitosa!');
-        }
-        
-        // Recargar para ver los cambios
-        setTimeout(() => window.location.reload(), 1000);
-      } else {
-        const errorText = await response.text();
-        try {
-          const errorJson = JSON.parse(errorText);
-          console.error('❌ ERROR - Respuesta del servidor:', errorJson);
-          alert(`❌ Error ${response.status}:\n${JSON.stringify(errorJson, null, 2)}`);
-        } catch (e) {
-          console.error('❌ ERROR - Texto de error:', errorText);
-          alert(`❌ Error ${response.status}:\n${errorText}`);
-        }
-      }
-      
-    } catch (error) {
-      console.error('💥 Error en debug:', error);
-      alert(`💥 Error: ${error.message}\n\nRevisa la consola para más detalles.`);
-    }
+  // Función para manejar cambios en los filtros
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
+
+  // Función para limpiar todos los filtros
+  const clearFilters = () => {
+    setFilters({
+      busqueda: '',
+      usuario: '',
+      estado: '',
+      curso: '',
+      fechaDesde: '',
+      fechaHasta: ''
+    });
+  };
+
+  // Función para filtrar las reservas
+  const filteredReservas = reservas.filter((reserva) => {
+    // Filtro por búsqueda (nombre usuario, motivo, aula)
+    if (filters.busqueda) {
+      const searchTerm = filters.busqueda.toLowerCase();
+      const matchesSearch = 
+        (reserva.user_nombre && reserva.user_nombre.toLowerCase().includes(searchTerm)) ||
+        (reserva.motivo && reserva.motivo.toLowerCase().includes(searchTerm)) ||
+        (reserva.aula_virtual_codigo && reserva.aula_virtual_codigo.toLowerCase().includes(searchTerm)) ||
+        (reserva.curso_nombre && reserva.curso_nombre.toLowerCase().includes(searchTerm));
+      
+      if (!matchesSearch) return false;
+    }
+
+    // Filtro por usuario
+    if (filters.usuario && reserva.user !== parseInt(filters.usuario)) {
+      return false;
+    }
+
+    // Filtro por estado
+    if (filters.estado && reserva.estado !== filters.estado) {
+      return false;
+    }
+
+    // Filtro por curso
+    if (filters.curso && reserva.curso !== parseInt(filters.curso)) {
+      return false;
+    }
+
+    // Filtro por fecha desde
+    if (filters.fechaDesde && new Date(reserva.fecha_reserva) < new Date(filters.fechaDesde)) {
+      return false;
+    }
+
+    // Filtro por fecha hasta
+    if (filters.fechaHasta && new Date(reserva.fecha_reserva) > new Date(filters.fechaHasta)) {
+      return false;
+    }
+
+    return true;
+  });
 
   if (loading) {
     return (
@@ -200,34 +185,164 @@ const ReservasManager = () => {
     <div className="p-6">
       {/* Header */}
       <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold text-gray-800">Gestión de Reservas</h2>
-          <button
-            onClick={handleAdd}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            Nueva Reserva
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.707A1 1 0 013 7V4z"></path>
+              </svg>
+              Filtros
+            </button>
+            <button
+              onClick={handleAdd}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+              Nueva Reserva
+            </button>
+          </div>
         </div>
+
+        {/* Filtros */}
+        {showFilters && (
+          <div className="border-t pt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+              {/* Búsqueda general */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Búsqueda</label>
+                <input
+                  type="text"
+                  name="busqueda"
+                  value={filters.busqueda}
+                  onChange={handleFilterChange}
+                  placeholder="Buscar por usuario, motivo, aula..."
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                />
+              </div>
+
+              {/* Filtro por usuario */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
+                <select
+                  name="usuario"
+                  value={filters.usuario}
+                  onChange={handleFilterChange}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                >
+                  <option value="">Todos los usuarios</option>
+                  {profesores.map(profesor => (
+                    <option key={profesor.id} value={profesor.id}>
+                      {profesor.nombres} {profesor.apellidos}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Filtro por estado */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                <select
+                  name="estado"
+                  value={filters.estado}
+                  onChange={handleFilterChange}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                >
+                  <option value="">Todos los estados</option>
+                  <option value="pendiente">Pendiente</option>
+                  <option value="confirmada">Confirmada</option>
+                  <option value="en_uso">En Uso</option>
+                  <option value="completada">Completada</option>
+                  <option value="cancelada">Cancelada</option>
+                  <option value="no_presentado">No Presentado</option>
+                </select>
+              </div>
+
+              {/* Filtro por curso */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Curso</label>
+                <select
+                  name="curso"
+                  value={filters.curso}
+                  onChange={handleFilterChange}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                >
+                  <option value="">Todos los cursos</option>
+                  {cursos.map(curso => (
+                    <option key={curso.id} value={curso.id}>
+                      {curso.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Filtro por fecha desde */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Fecha desde</label>
+                <input
+                  type="date"
+                  name="fechaDesde"
+                  value={filters.fechaDesde}
+                  onChange={handleFilterChange}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                />
+              </div>
+
+              {/* Filtro por fecha hasta */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Fecha hasta</label>
+                <input
+                  type="date"
+                  name="fechaHasta"
+                  value={filters.fechaHasta}
+                  onChange={handleFilterChange}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                />
+              </div>
+            </div>
+
+            {/* Botones de acción para filtros */}
+            <div className="flex justify-between items-center">
+              <div className="text-sm text-gray-600">
+                Mostrando {filteredReservas.length} de {reservas.length} reservas
+              </div>
+              <button
+                onClick={clearFilters}
+                className="text-sm text-blue-600 hover:text-blue-800 underline"
+              >
+                Limpiar filtros
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Cards Grid */}
-      {reservas.length === 0 ? (
+      {filteredReservas.length === 0 ? (
         <div className="bg-white shadow-md rounded-lg p-12 text-center">
           <div className="text-gray-400 mb-4">
             <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-gray-600 mb-2">No hay reservas disponibles</h3>
-          <p className="text-gray-500">Haz clic en "Nueva Reserva" para crear la primera reserva.</p>
+          <h3 className="text-lg font-medium text-gray-600 mb-2">
+            {reservas.length === 0 ? 'No hay reservas disponibles' : 'No se encontraron reservas con los filtros aplicados'}
+          </h3>
+          <p className="text-gray-500">
+            {reservas.length === 0 
+              ? 'Haz clic en "Nueva Reserva" para crear la primera reserva.' 
+              : 'Intenta ajustar los filtros o limpiarlos para ver más resultados.'
+            }
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4">
-          {reservas.map((reserva) => {
+          {filteredReservas.map((reserva) => {
             const profesor = profesores.find(p => p.id === reserva.user);
             const aula = aulasVirtuales.find(a => a.id === reserva.aula_virtual);
             const curso = cursos.find(c => c.id === reserva.curso);
@@ -365,16 +480,6 @@ const ReservasManager = () => {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                         </svg>
                         Editar
-                      </button>
-                      <button
-                        onClick={() => debugUpdateCall(reserva)}
-                        className="bg-purple-500 hover:bg-purple-600 text-white text-xs font-medium py-2 px-3 rounded transition-colors duration-200 flex items-center gap-1"
-                        title="Probar actualización con autenticación"
-                      >
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-                        </svg>
-                        Debug
                       </button>
                       <button
                         onClick={() => handleDelete(reserva.id)}
