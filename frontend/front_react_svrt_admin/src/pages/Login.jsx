@@ -30,11 +30,27 @@ const Login = () => {
       if (result.success) {
         navigate('/dashboard')
       } else {
-        setError(result.error || 'Error de autenticación')
+        // Mensajes de error más específicos
+        let errorMessage = result.error || 'Error de autenticación'
+        
+        // Verificar tipos específicos de error
+        if (errorMessage.toLowerCase().includes('invalid') || 
+            errorMessage.toLowerCase().includes('incorrect') ||
+            errorMessage.toLowerCase().includes('wrong')) {
+          errorMessage = 'Usuario o contraseña incorrectos. Por favor, verifica tus credenciales.'
+        } else if (errorMessage.toLowerCase().includes('user') && errorMessage.toLowerCase().includes('not found')) {
+          errorMessage = 'El usuario ingresado no existe en el sistema.'
+        } else if (errorMessage.toLowerCase().includes('password')) {
+          errorMessage = 'La contraseña ingresada es incorrecta.'
+        } else if (errorMessage.toLowerCase().includes('unauthorized')) {
+          errorMessage = 'No tienes permisos para acceder al sistema.'
+        }
+        
+        setError(errorMessage)
       }
     } catch (error) {
       console.error('Error en login:', error)
-      setError('Error de conexión con el servidor')
+      setError('Error de conexión con el servidor. Por favor, verifica tu conexión a internet e intenta nuevamente.')
     } finally {
       setLoading(false)
     }
@@ -58,8 +74,14 @@ const Login = () => {
         <div className="bg-white rounded-2xl shadow-custom-lg p-8 animate-slideIn">
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                {error}
+              <div className="bg-red-50 border-l-4 border-red-400 text-red-700 px-4 py-3 rounded-lg text-sm animate-shake">
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                  <span className="font-medium">Error de autenticación:</span>
+                </div>
+                <p className="mt-1">{error}</p>
               </div>
             )}
             
